@@ -1,27 +1,43 @@
-# MiProyecto
+# Sistema-de-Biblioteca-y-Cultura-Municipal
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+Este proyecto fue generado con Angular CLI versión 17.3.17.
 
-## Development server
+## Servidor de desarrollo
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Ejecuta:
 
-## Code scaffolding
+`ng serve`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Luego abre:
 
-## Build
+`http://localhost:4200/`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+La aplicación se actualizará automáticamente cuando modifiques los archivos.
 
-## Running unit tests
+## Generar componentes
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Para crear un componente:
 
-## Running end-to-end tests
+`ng generate component nombre-componente`
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+También puedes generar servicios, directivas, pipes y otros elementos de Angular.
 
-## Further help
+## Compilar el proyecto
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Ejecuta:
+
+`ng build`
+
+Los archivos compilados se guardarán en la carpeta `dist/`.
+
+## Pruebas
+
+Para ejecutar las pruebas unitarias:
+
+`ng test`
+
+## Ayuda
+
+Puedes obtener ayuda de Angular CLI con:
+
+`ng help`
