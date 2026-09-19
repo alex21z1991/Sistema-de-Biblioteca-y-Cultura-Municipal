@@ -10,25 +10,41 @@ import { IUserFormLogin } from '../../interfaces/iuserformlogin';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
 
-  loginData: IUserFormLogin{
+  loginData: IUserFormLogin = {
     username: '',
-    password: '',
+    password: ''
   }
 
   errorMessage: string = '';
 
   constructor(
     private loginService: LoginService,
-    private router: Router,
+    private router: Router
   ){}
 
   onSubmit(): void {
-    const exito = this.loginService.login(
-      this.loginData
-    );
+    this.loginService.login(this.loginData).subscribe({
+      next: (isValid: boolean) => {
+        if (isValid){
+          this.errorMessage = '';
+          
+          if (this.loginService.isAdmin()){
+            this.router.navigate(['/admin-panel']);
+          } else {
+            this.router.navigate(['/home']);
+          }
+        } else {
+          this.errorMessage = 'Credenciales incorrectas o usuario no encontrado';
+        }  
+      },
+      error: (err) => {
+        console.error('Error en el proceso:', err);
+        this.errorMessage = 'Ocurrio un error inesperado.';
+      }
+    });
   }
 }
