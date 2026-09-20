@@ -24,10 +24,21 @@ export class LoginService {
             username: 'usuario',
             password: 'usuario',
             role: 'usuario',
-            librosPedidos: [],
-            salasPedidas: [],
-            actividadesAgendadas: [],
-            multas: []
+            librosPedidos: [3232,444,445],
+            salasPedidas: [1],
+            actividadesAgendadas: [43],
+            multas: ["demora entrega"]
+        },
+        {
+            id:3,
+            username:"alex",
+            password:"alex",
+            role:"usuario",
+            librosPedidos:[1,2,4],
+            salasPedidas:[2],
+            actividadesAgendadas:[],
+            multas:[]
+            
         }
     ];
     
@@ -76,4 +87,7 @@ export class LoginService {
     public isUser(): boolean {
         return this.getRole() === 'user';
     }
+    public getUsers(): IUser[] {
+    return this.validUsers;
+}
 }

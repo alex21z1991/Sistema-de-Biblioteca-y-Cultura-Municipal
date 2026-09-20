@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
@@ -6,23 +7,44 @@ import { AdminPanelComponent } from './components/admin-panel/admin-panel.compon
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
+import { LayoutComponent } from './components/layout/layout.component';
+
 
 export const routes: Routes = [
-    {path: 'login', component: LoginComponent },
 
-    //Ruta de home, cambiar datos de component y imports si es necesario
+    { 
+        path: 'login', 
+        component: LoginComponent 
+    },
+
+    // Layout principal del sistema
     {
-        path: 'home',
-        component: HomeComponent,
+        path: '',
+        component: LayoutComponent,
         canActivate: [AuthGuard],
+
+        children: [
+
+            // Ruta de home
+            {
+                path: 'home',
+                component: HomeComponent
+            },
+
+            // Ruta de página Admin
+            {
+                path: 'admin-panel',
+                component: AdminPanelComponent,
+                canActivate: [AdminGuard]
+            }
+
+        ]
     },
 
-    //Ruta de pagina Admin, cambiar datos de component y imports si es necesario
     {
-        path: 'admin-panel',
-        component: AdminPanelComponent,
-        canActivate: [AuthGuard, AdminGuard],
-    },
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full'
+    }
 
-    {path: '', redirectTo: 'login', pathMatch: 'full'}
 ];
