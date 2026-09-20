@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IUserFormLogin } from '../interfaces/iuserformlogin';
+import { IUser } from '../interfaces/iuser';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -7,10 +8,28 @@ import { Location } from '@angular/common';
 @Injectable({ providedIn: 'root'})
 
 export class LoginService {
-    private validUsers: IUserFormLogin[] = [
-        {username: 'admin', password: 'admin', role: 'admin'},
-        {username: 'usuario', password: 'usuario', role: 'usuario'}
-        ,];
+    private validUsers: IUser[] = [
+        {
+            id: 1,
+            username: 'admin',
+            password: 'admin',
+            role: 'admin',
+            librosPedidos: [],
+            salasPedidas: [],
+            actividadesAgendadas: [],
+            multas: []
+        },
+        {
+            id: 2,
+            username: 'usuario',
+            password: 'usuario',
+            role: 'usuario',
+            librosPedidos: [],
+            salasPedidas: [],
+            actividadesAgendadas: [],
+            multas: []
+        }
+    ];
     
     constructor(private router: Router, private location: Location) {}
 
@@ -22,9 +41,10 @@ export class LoginService {
         );
 
         if(foundUser){
-            const token = btoa(foundUser.username + foundUser.password);
+            const token = btoa(foundUser.username + foundUser.password || '');
             sessionStorage.setItem('token', token);
             sessionStorage.setItem('role', foundUser.role || 'user');
+            sessionStorage.setItem('userId', foundUser.id.toString());
             return of(true);
         }
 
