@@ -1,1 +1,321 @@
-<p>admin-panel works!</p>
+<div class="admin-container">
+
+    <!-- Encabezado -->
+    <div class="welcome">
+
+        <h1>Cartelera de actividades</h1>
+
+        <p>
+            Crea y edita los talleres y eventos que verán los ciudadanos.
+        </p>
+
+    </div>
+
+
+    <!-- Sin sesión administrativa -->
+    <div *ngIf="!esAdmin" class="empty-state">
+
+        <h3>Necesitas una sesión administrativa</h3>
+
+        <p>
+            Inicia sesión con una cuenta de administrador para gestionar la cartelera.
+        </p>
+
+    </div>
+
+
+    <!-- Panel de gestión -->
+    <div *ngIf="esAdmin">
+
+        <!-- ================= FORMULARIO ================= -->
+        <div class="section">
+
+            <div class="section-header">
+
+                <h2>
+                    {{ idEnEdicion === null ? 'Nueva actividad' : 'Editando actividad' }}
+                </h2>
+
+                <p *ngIf="idEnEdicion !== null" class="edit-note">
+                    Estás modificando una actividad ya publicada.
+                </p>
+
+            </div>
+
+
+            <!-- Errores de validación -->
+            <div *ngIf="errores.length > 0" class="alert alert-error">
+
+                <strong>Revisa estos puntos antes de guardar:</strong>
+
+                <ul>
+                    <li *ngFor="let error of errores">
+                        {{ error }}
+                    </li>
+                </ul>
+
+            </div>
+
+
+            <!-- Confirmación -->
+            <div *ngIf="mensajeExito" class="alert alert-ok">
+                {{ mensajeExito }}
+            </div>
+
+
+            <form (ngSubmit)="guardar()" #formActividad="ngForm">
+
+                <div class="form-grid">
+
+                    <!-- Título -->
+                    <div class="form-group">
+
+                        <label for="titulo">Título</label>
+
+                        <input
+                            type="text"
+                            id="titulo"
+                            name="titulo"
+                            [(ngModel)]="formulario.titulo"
+                            placeholder="Taller de encuadernación artesanal"
+                            required
+                            minlength="5"
+                        />
+
+                    </div>
+
+
+                    <!-- Tipo -->
+                    <div class="form-group">
+
+                        <label for="tipo">Tipo</label>
+
+                        <select
+                            id="tipo"
+                            name="tipo"
+                            [(ngModel)]="formulario.tipo"
+                            required
+                        >
+                            <option value="Taller">Taller</option>
+                            <option value="Evento">Evento</option>
+                        </select>
+
+                    </div>
+
+
+                    <!-- Fecha -->
+                    <div class="form-group">
+
+                        <label for="fecha">Fecha y hora</label>
+
+                        <input
+                            type="datetime-local"
+                            id="fecha"
+                            name="fecha"
+                            [(ngModel)]="formulario.fecha"
+                            [min]="fechaMinima"
+                            required
+                        />
+
+                        <small>
+                            Solo se aceptan fechas futuras.
+                        </small>
+
+                    </div>
+
+
+                    <!-- Capacidad -->
+                    <div class="form-group">
+
+                        <label for="capacidad">Capacidad</label>
+
+                        <input
+                            type="number"
+                            id="capacidad"
+                            name="capacidad"
+                            [(ngModel)]="formulario.capacidad"
+                            [min]="capacidadMinima"
+                            step="1"
+                            required
+                        />
+
+                        <small *ngIf="idEnEdicion !== null && capacidadMinima > 1">
+                            Mínimo {{ capacidadMinima }}: son las inscripciones ya registradas.
+                        </small>
+
+                    </div>
+
+
+                    <!-- Lugar -->
+                    <div class="form-group form-group-wide">
+
+                        <label for="lugar">Lugar</label>
+
+                        <input
+                            type="text"
+                            id="lugar"
+                            name="lugar"
+                            [(ngModel)]="formulario.lugar"
+                            placeholder="Sala de talleres, piso 2"
+                            required
+                        />
+
+                    </div>
+
+
+                    <!-- Descripción -->
+                    <div class="form-group form-group-wide">
+
+                        <label for="descripcion">Descripción</label>
+
+                        <textarea
+                            id="descripcion"
+                            name="descripcion"
+                            rows="3"
+                            [(ngModel)]="formulario.descripcion"
+                            placeholder="Cuenta de qué se trata y a quién está dirigida."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        [disabled]="!formActividad.form.valid"
+                    >
+                        {{ idEnEdicion === null ? 'Publicar actividad' : 'Guardar cambios' }}
+                    </button>
+
+                    <button
+                        *ngIf="idEnEdicion !== null"
+                        type="button"
+                        class="btn btn-ghost"
+                        (click)="cancelarEdicion()"
+                    >
+                        Cancelar edición
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <!-- ================= CARTELERA ================= -->
+        <div class="section">
+
+            <div class="section-header">
+                <h2>Actividades publicadas</h2>
+            </div>
+
+
+            <!-- Cartelera vacía -->
+            <div *ngIf="actividades.length === 0" class="empty-state">
+
+                <h3>Todavía no hay actividades</h3>
+
+                <p>
+                    Publica la primera actividad con el formulario de arriba.
+                </p>
+
+            </div>
+
+
+            <!-- Listado -->
+            <div *ngIf="actividades.length > 0" class="table-wrapper">
+
+                <table class="tabla-actividades">
+
+                    <thead>
+                        <tr>
+                            <th>Actividad</th>
+                            <th>Fecha</th>
+                            <th>Lugar</th>
+                            <th>Inscritos</th>
+                            <th>Cupos</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr
+                            *ngFor="let actividad of actividades"
+                            [class.fila-editando]="actividad.id === idEnEdicion"
+                        >
+
+                            <td>
+
+                                <strong>{{ actividad.titulo }}</strong>
+
+                                <span class="etiqueta">{{ actividad.tipo }}</span>
+
+                                <p class="descripcion">{{ actividad.descripcion }}</p>
+
+                            </td>
+
+                            <td>
+
+                                {{ actividad.fecha | date: 'dd/MM/yyyy HH:mm' }}
+
+                                <span *ngIf="yaPaso(actividad)" class="etiqueta etiqueta-pasada">
+                                    Finalizada
+                                </span>
+
+                            </td>
+
+                            <td>{{ actividad.lugar }}</td>
+
+                            <td>{{ actividad.inscritos }} / {{ actividad.capacidad }}</td>
+
+                            <td>
+
+                                <span *ngIf="cuposDisponibles(actividad) > 0">
+                                    {{ cuposDisponibles(actividad) }} disponibles
+                                </span>
+
+                                <span *ngIf="cuposDisponibles(actividad) === 0" class="sin-cupos">
+                                    Sin cupos
+                                </span>
+
+                            </td>
+
+                            <td class="acciones">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-small"
+                                    (click)="editar(actividad)"
+                                >
+                                    Editar
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-small btn-ghost"
+                                    (click)="inscribir(actividad)"
+                                >
+                                    +1 inscripción
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

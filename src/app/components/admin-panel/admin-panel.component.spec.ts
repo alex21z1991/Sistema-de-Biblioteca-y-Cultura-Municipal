@@ -11,7 +11,7 @@ describe('AdminPanelComponent', () => {
       imports: [AdminPanelComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(AdminPanelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
