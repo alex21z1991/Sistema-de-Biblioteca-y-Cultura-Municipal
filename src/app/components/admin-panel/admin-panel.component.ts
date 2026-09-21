@@ -189,6 +189,30 @@ export class AdminPanelComponent implements OnInit {
 
 
   // ------------------------------------------------------------------
+  // HU-A09: Controlar inscripciones
+  // Quitar una inscripción y liberar el cupo
+  // ------------------------------------------------------------------
+
+  quitarInscripcion(actividad: IActividad): void {
+
+    this.errores = [];
+    this.mensajeExito = '';
+
+    this.actividadService.quitarInscripcion(actividad.id).subscribe({
+      next: (resultado) => {
+
+        if (resultado.ok) {
+          this.mensajeExito = 'Se quitó una inscripción de "' + actividad.titulo + '" y se liberó el cupo.';
+          this.cargarActividades();
+        } else {
+          this.errores = resultado.errores;
+        }
+      }
+    });
+  }
+
+
+  // ------------------------------------------------------------------
   // Utilidades
   // ------------------------------------------------------------------
 
