@@ -249,4 +249,36 @@ export class ActividadService {
 
         return of({ ok: true, errores: [], actividad: actividad });
     }
+
+
+    // ------------------------------------------------------------------
+    // HU-A09: Controlar inscripciones (admin)
+    // Quitar una inscripción y liberar el cupo
+    // ------------------------------------------------------------------
+    public quitarInscripcion(id: number): Observable<IResultadoActividad> {
+
+        // Precondición: sesión administrativa
+        if (!this.loginService.isAdmin()) {
+            return of({
+                ok: false,
+                errores: ['Inicia sesión como administrador para controlar inscripciones.']
+            });
+        }
+
+        // Precondición: actividad existente
+        const actividad = this.getActividad(id);
+
+        if (!actividad) {
+            return of({ ok: false, errores: ['La actividad ya no existe.'] });
+        }
+
+        if (actividad.inscritos <= 0) {
+            return of({ ok: false, errores: ['La actividad no tiene inscripciones que quitar.'] });
+        }
+
+        // Quitar la inscripción y liberar el cupo
+        actividad.inscritos--;
+
+        return of({ ok: true, errores: [], actividad: actividad });
+    }
 }
