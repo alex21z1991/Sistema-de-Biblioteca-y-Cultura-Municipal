@@ -26,7 +26,7 @@ export class LoginService {
             role: 'usuario',
             librosPedidos: [3232,444,445],
             salasPedidas: [1],
-            actividadesAgendadas: [43],
+            actividadesAgendadas: [1,2],
             multas: ["demora entrega"]
         },
         {

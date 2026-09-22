@@ -8,8 +8,8 @@
             Inicio
         </a>
 
-        <a routerLink="/movimientos">
-            Movimientos
+        <a *ngIf="!esAdmin" routerLink="/explorar">
+            Explorar
         </a>
 
         <a routerLink="/reservas">
