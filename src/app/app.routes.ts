@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { AdminCatalogoComponent } from './components/admin-catalogo/admin-catalogo.component';
 
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
@@ -43,6 +44,14 @@ export const routes: Routes = [
             {
                 path: 'explorar',
                 component: ExploreComponent,
+            
+            },
+            
+            // HU-A02: gestión del catálogo
+            {
+                path: 'admin-catalogo',
+                component: AdminCatalogoComponent,
+                canActivate: [AdminGuard]
             }
 
         ]

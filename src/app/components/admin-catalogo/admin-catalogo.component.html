@@ -1,0 +1,70 @@
+<div class="catalogo-container">
+  <div class="welcome">
+    <h1>
+      Gestión de catálogo
+    </h1>
+    <p>
+      Administra los libros y recursos de la biblioteca municipal.
+    </p>
+  </div>
+
+  <section class="section">
+    <h2>
+      {{ idEnEdicion === null ? 'Nuevo recurso' : 'Editar recurso' }}
+    </h2>
+    <div *ngIf="errores.length" class="alert error">
+    <ul>
+      <li *ngFor="let error of errores">{{ error }}
+      </li>
+    </ul>
+  </div>
+    <div *ngIf="mensaje" class="alert ok">{{ mensaje }}</div>
+
+    <form (ngSubmit)="guardar()" #formRecurso="ngForm" class="form-grid">
+      <label>
+        Título
+        <input name="titulo" [(ngModel)]="formulario.titulo" required minlength="2">
+      </label>
+      <label>
+        Autor
+        <input name="autor" [(ngModel)]="formulario.autor" required minlength="2">
+      </label>
+      <label>
+        Categoría
+        <input name="categoria" [(ngModel)]="formulario.categoria" required minlength="2">
+      </label>
+      <label>
+        Tipo
+        <select name="tipo" [(ngModel)]="formulario.tipo" required>
+          <option>Libro</option>
+          <option>Revista</option>
+          <option>Otro</option>
+        </select>
+      </label>
+      <label>
+        Ejemplares
+        <input type="number" name="ejemplares" [(ngModel)]="formulario.ejemplares" min="1" step="1" required>
+      </label>
+      <div class="actions">
+        <button class="primary" type="submit" [disabled]="!formRecurso.form.valid">{{ idEnEdicion === null ? 'Crear recurso' : 'Guardar cambios' }}</button>
+        <button *ngIf="idEnEdicion !== null" type="button" (click)="cancelarEdicion()">Cancelar</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="list-header"><h2>Recursos</h2><input [(ngModel)]="busqueda" placeholder="Buscar por título, autor, categoría o tipo"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Título</th><th>Autor</th><th>Categoría</th><th>Tipo</th><th>Disponibles</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let recurso of recursosFiltrados">
+            <td>{{ recurso.titulo }}</td><td>{{ recurso.autor }}</td><td>{{ recurso.categoria }}</td><td>{{ recurso.tipo }}</td>
+            <td>{{ disponibles(recurso) }} / {{ recurso.ejemplares }}</td><td>{{ recurso.activo ? 'Activo' : 'Baja' }}</td>
+            <td class="row-actions"><button (click)="editar(recurso)">Editar</button><button *ngIf="recurso.activo" (click)="darDeBaja(recurso)">Dar de baja</button><button *ngIf="!recurso.activo" (click)="reactivar(recurso)">Reactivar</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

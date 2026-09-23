@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { Router } from '@angular/router';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 
 @Component({
@@ -10,19 +10,24 @@ import { LoginService } from '../../services/login.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
+  esAdmin: boolean = false;
 
   constructor(
     private loginService: LoginService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  cerrarSesion(): void {
+  ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.esAdmin = this.loginService.isAdmin();
+    }
+  }
 
+  cerrarSesion(): void {
     this.loginService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      }
+      next: () => this.router.navigate(['/login'])
     });
   }
 }
