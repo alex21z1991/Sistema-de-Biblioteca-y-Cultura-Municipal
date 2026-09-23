@@ -8,7 +8,7 @@
             Inicio
         </a>
 
-        @if (esAdmin) {
+        @if (!esAdmin) {
             <a routerLink="/explorar">
                 Explorar
             </a>
