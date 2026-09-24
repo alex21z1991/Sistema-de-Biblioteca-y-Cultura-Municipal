@@ -302,6 +302,42 @@ export class ActividadService {
 
 
     // ------------------------------------------------------------------
+    // HU-C10: Cancelar la inscripción del ciudadano
+    // ------------------------------------------------------------------
+    public cancelarInscripcion(id: number): Observable<IResultadoActividad> {
+
+        const ciudadano = this.loginService.getUsuarioActual();
+
+        if (!ciudadano || ciudadano.role !== 'usuario') {
+            return of({ ok: false, errores: ['Inicia sesión como ciudadano para cancelar tu inscripción.'] });
+        }
+
+        const actividad = this.getActividad(id);
+
+        if (!actividad) {
+            return of({ ok: false, errores: ['La actividad ya no existe.'] });
+        }
+
+        // Comprobar que la inscripción pertenece al ciudadano
+        const posicion = ciudadano.actividadesAgendadas.indexOf(id);
+
+        if (posicion === -1) {
+            return of({ ok: false, errores: ['No tienes una inscripción en esta actividad.'] });
+        }
+
+        if (actividad.inscritos <= 0) {
+            return of({ ok: false, errores: ['No se pudo cancelar: revisa la ocupación con el administrador.'] });
+        }
+
+        // Quitar la inscripción y liberar un solo cupo
+        ciudadano.actividadesAgendadas.splice(posicion, 1);
+        actividad.inscritos--;
+
+        return of({ ok: true, errores: [], actividad: actividad });
+    }
+
+
+    // ------------------------------------------------------------------
     // HU-A09: Controlar inscripciones (admin)
     // Quitar una inscripción y liberar el cupo
     // ------------------------------------------------------------------

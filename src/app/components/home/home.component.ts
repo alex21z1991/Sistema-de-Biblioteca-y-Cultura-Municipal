@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LoginService } from '../../services/login.service';
@@ -27,6 +27,16 @@ export class HomeComponent implements OnInit {
   multas: number = 0;
 
   actividades: IActividad[] = [];
+  actividadPorCancelar: IActividad | null = null;
+  errores: string[] = [];
+  mensajeExito: string = '';
+  cancelando: boolean = false;
+
+  // Llevar el foco a la confirmación cuando aparece
+  @ViewChild('confirmacion')
+  set confirmacion(elemento: ElementRef<HTMLDivElement> | undefined) {
+    elemento?.nativeElement.focus();
+  }
 
 
   constructor(
@@ -36,35 +46,35 @@ export class HomeComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.cargarResumen();
+  }
 
-    // Obtener el ID del ciudadano que inició sesión
-    const userId = sessionStorage.getItem('userId');
+  cargarResumen(): void {
+    const ciudadano = this.loginService.getUsuarioActual();
 
-    // Verificar que exista una sesión
-    if (userId) {
-
-      // Obtener los usuarios desde el LoginService
-      const usuarios = this.loginService.getUsers();
-
-      // Buscar solamente al ciudadano que inició sesión
-      const ciudadano = usuarios.find(
-        usuario => usuario.id === Number(userId)
-      );
-
-      // Si encontramos al ciudadano
-      if (ciudadano) {
-
-        this.usuario = ciudadano.username;
-
-        this.librosPedidos = ciudadano.librosPedidos.length;
-        this.salasPedidas = ciudadano.salasPedidas.length;
-        this.actividadesAgendadas =ciudadano.actividadesAgendadas.length;
-        this.multas = ciudadano.multas.length;
-
-        this.actividadService.getActividades().subscribe({ next: (lista: IActividad[]) => this.actividades = lista});
-        this.actividades = this.actividades.filter(actividad => ciudadano.actividadesAgendadas.includes(actividad.id))
-      }
+    if (!ciudadano) {
+      this.usuario = '';
+      this.librosPedidos = 0;
+      this.salasPedidas = 0;
+      this.actividadesAgendadas = 0;
+      this.multas = 0;
+      this.actividades = [];
+      return;
     }
+
+    this.usuario = ciudadano.username;
+    this.librosPedidos = ciudadano.librosPedidos.length;
+    this.salasPedidas = ciudadano.salasPedidas.length;
+    this.actividadesAgendadas = ciudadano.actividadesAgendadas.length;
+    this.multas = ciudadano.multas.length;
+
+    // Mostrar solamente las actividades del ciudadano
+    this.actividadService.getActividades().subscribe({
+      next: (lista: IActividad[]) => {
+        this.actividades = lista.filter(actividad => ciudadano.actividadesAgendadas.includes(actividad.id));
+      },
+      error: () => this.errores = ['No se pudieron cargar tus actividades.']
+    });
   }
 
   // ¿La actividad ya pasó?
@@ -76,6 +86,44 @@ export class HomeComponent implements OnInit {
     return actividad.capacidad - actividad.inscritos;
   }
 
-  cancelarPlaceholder(actividad: IActividad): void {}
+  solicitarCancelacion(actividad: IActividad): void {
+    this.actividadPorCancelar = actividad;
+    this.errores = [];
+    this.mensajeExito = '';
+  }
+
+  mantenerInscripcion(): void {
+    this.actividadPorCancelar = null;
+  }
+
+  confirmarCancelacion(): void {
+    if (!this.actividadPorCancelar || this.cancelando) {
+      return;
+    }
+
+    const actividad = this.actividadPorCancelar;
+    this.cancelando = true;
+    this.errores = [];
+
+    this.actividadService.cancelarInscripcion(actividad.id).subscribe({
+      next: (resultado) => {
+        this.cancelando = false;
+        this.actividadPorCancelar = null;
+
+        if (resultado.ok) {
+          this.mensajeExito = 'Cancelaste tu inscripción en "' + actividad.titulo + '". Se liberó un cupo.';
+        } else {
+          this.errores = resultado.errores;
+        }
+
+        // Actualizar el listado y los contadores del inicio
+        this.cargarResumen();
+      },
+      error: () => {
+        this.cancelando = false;
+        this.errores = ['No se pudo cancelar la inscripción. Inténtalo nuevamente.'];
+      }
+    });
+  }
 
 }
