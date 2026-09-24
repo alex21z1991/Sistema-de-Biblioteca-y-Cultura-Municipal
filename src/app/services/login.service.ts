@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { IUserFormLogin } from '../interfaces/iuserformlogin';
 import { IUser } from '../interfaces/iuser';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { isPlatformBrowser, Location } from '@angular/common';
 
 @Injectable({ providedIn: 'root'})
 
@@ -42,7 +42,11 @@ export class LoginService {
         }
     ];
     
-    constructor(private router: Router, private location: Location) {}
+    constructor(
+        private router: Router,
+        private location: Location,
+        @Inject(PLATFORM_ID) private platformId: Object
+    ) {}
 
     //Inicio de sesion
     public login(userLogin: IUserFormLogin): Observable<boolean>{
@@ -87,6 +91,21 @@ export class LoginService {
     public isUser(): boolean {
         return this.getRole() === 'user';
     }
+
+    // Obtener al usuario de la sesión actual
+    public getUsuarioActual(): IUser | undefined {
+        if (!isPlatformBrowser(this.platformId)) {
+            return undefined;
+        }
+
+        if (!sessionStorage.getItem('token')) {
+            return undefined;
+        }
+
+        const userId = Number(sessionStorage.getItem('userId'));
+        return this.validUsers.find(usuario => usuario.id === userId);
+    }
+
     public getUsers(): IUser[] {
     return this.validUsers;
 }

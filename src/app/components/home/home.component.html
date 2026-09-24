@@ -12,6 +12,30 @@
     </div>
 
 
+    <!-- Mensajes de cancelación -->
+    <div *ngIf="mensajeExito" class="alert alert-success" role="status">
+        {{ mensajeExito }}
+    </div>
+
+    <div *ngIf="errores.length > 0" class="alert alert-danger" role="alert">
+        <ul class="mb-0">
+            <li *ngFor="let error of errores">{{ error }}</li>
+        </ul>
+    </div>
+
+    <!-- Confirmar antes de quitar la inscripción -->
+    <div *ngIf="actividadPorCancelar" #confirmacion tabindex="-1" class="alert alert-warning" role="alert">
+        <p>¿Quieres cancelar tu inscripción en "{{ actividadPorCancelar.titulo }}"?</p>
+        <div class="acciones">
+            <button type="button" class="btn btn-primary" [disabled]="cancelando" (click)="confirmarCancelacion()">
+                {{ cancelando ? 'Cancelando...' : 'Confirmar cancelación' }}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" [disabled]="cancelando" (click)="mantenerInscripcion()">
+                Mantener inscripción
+            </button>
+        </div>
+    </div>
+
     <!-- Indicadores -->
     <div class="summary-grid">
 
@@ -207,7 +231,8 @@
                                         <button
                                             type="button"
                                             class="btn btn-small"
-                                            (click)="cancelarPlaceholder(actividad)"
+                                            [disabled]="cancelando"
+                                            (click)="solicitarCancelacion(actividad)"
                                         >
                                             Cancelar Inscripción
                                         </button>
