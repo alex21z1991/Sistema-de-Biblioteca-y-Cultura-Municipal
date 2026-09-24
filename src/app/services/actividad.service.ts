@@ -43,10 +43,60 @@ export class ActividadService {
             fecha: '2026-12-05T19:00',
             capacidad: 30,
             inscritos: 30
+        },
+        {
+            id: 4,
+            titulo: 'Taller de programación en Python',
+            tipo: 'Taller',
+            lugar: 'Laboratorio de computación',
+            descripcion: 'Introducción básica a algoritmos y lógica de programación para principiantes.',
+            fecha: '2026-10-20T17:00',
+            capacidad: 15,
+            inscritos: 15
+        },
+        {
+            id: 5,
+            titulo: 'Concierto de la Orquesta Juvenil',
+            tipo: 'Evento',
+            lugar: 'Teatro Municipal',
+            descripcion: 'Presentación musical cultural',
+            fecha: '2026-11-12T19:30',
+            capacidad: 100,
+            inscritos: 45
+        },
+        {
+            id: 6,
+            titulo: 'Taller de fotografía urbana',
+            tipo: 'Taller',
+            lugar: 'Patio central de la biblioteca',
+            descripcion: 'Aprende encuadre, manejo de luz e historia visual utilizando tu teléfono o cámara.',
+            fecha: '2026-11-18T16:00',
+            capacidad: 12,
+            inscritos: 2
+        },
+        {
+            id: 7,
+            titulo: 'Feria del libro usado y trueque',
+            tipo: 'Evento',
+            lugar: 'Plaza de las Artes',
+            descripcion: 'Espacio comunitario para intercambiar libros, revistas y cómics en buen estado.',
+            fecha: '2026-12-01T10:00',
+            capacidad: 50,
+            inscritos: 18
+        },
+        {
+            id: 8,
+            titulo: 'Taller de huerto urbano y compostaje',
+            tipo: 'Taller',
+            lugar: 'Jardín botánico municipal',
+            descripcion: 'Aprende a cultivar tus propias hortalizas y reutilizar residuos orgánicos en casa.',
+            fecha: '2026-12-10T09:30',
+            capacidad: 25,
+            inscritos: 24
         }
     ];
 
-    private ultimoId: number = 3;
+    private ultimoId: number = 8;
 
     constructor(private loginService: LoginService) {}
 

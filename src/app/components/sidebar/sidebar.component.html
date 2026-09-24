@@ -8,15 +8,17 @@
             Inicio
         </a>
 
+        @if (!esAdmin) {
+            <a routerLink="/explorar">
+                Explorar
+            </a>
+        }
+        
         @if (esAdmin) {
             <a routerLink="/admin-catalogo">
                 Catálogo
             </a>
         }
-
-        <a routerLink="/movimientos">
-            Movimientos
-        </a>
 
         <a routerLink="/reservas">
             Reservas

@@ -9,6 +9,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
 import { LayoutComponent } from './components/layout/layout.component';
+import { ExploreComponent } from './components/explore/explore.component';
 
 
 export const routes: Routes = [
@@ -39,6 +40,13 @@ export const routes: Routes = [
                 canActivate: [AdminGuard]
             },
 
+            // Ruta de explorar movimientos (usuario)
+            {
+                path: 'explorar',
+                component: ExploreComponent,
+            
+            },
+            
             // HU-A02: gestión del catálogo
             {
                 path: 'admin-catalogo',
