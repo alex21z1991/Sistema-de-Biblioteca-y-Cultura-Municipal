@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LoginService } from '../../services/login.service';
+import { IActividad } from '../../interfaces/iactividad';
+import { ActividadService } from '../../services/actividad.service';
 
 @Component({
   selector: 'app-home',
@@ -24,9 +26,12 @@ export class HomeComponent implements OnInit {
   actividadesAgendadas: number = 0;
   multas: number = 0;
 
+  actividades: IActividad[] = [];
+
 
   constructor(
-    private loginService: LoginService
+    private loginService: LoginService,
+    private actividadService: ActividadService
   ) {}
 
 
@@ -55,7 +60,22 @@ export class HomeComponent implements OnInit {
         this.salasPedidas = ciudadano.salasPedidas.length;
         this.actividadesAgendadas =ciudadano.actividadesAgendadas.length;
         this.multas = ciudadano.multas.length;
+
+        this.actividadService.getActividades().subscribe({ next: (lista: IActividad[]) => this.actividades = lista});
+        this.actividades = this.actividades.filter(actividad => ciudadano.actividadesAgendadas.includes(actividad.id))
       }
     }
   }
+
+  // ¿La actividad ya pasó?
+  yaPaso(actividad: IActividad): boolean {
+    return new Date(actividad.fecha).getTime() <= new Date().getTime();
+  }
+
+  cuposDisponibles(actividad: IActividad): number {
+    return actividad.capacidad - actividad.inscritos;
+  }
+
+  cancelarPlaceholder(actividad: IActividad): void {}
+
 }

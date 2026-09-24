@@ -129,6 +129,101 @@
                     {{ actividadesAgendadas }} actividad(es)
                 </span>
 
+                <!-- ================= ACTIVIDADES ================= -->
+                <div class="section">
+
+                    <!-- Ninguna inscripción -->
+                    <div *ngIf="actividades.length === 0" class="empty-state">
+
+                        <h3>No te has inscrito a ninguna actividad</h3>
+
+                        <p>
+                            Inscribete a una en la sección de actividades.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Listado -->
+                    <div *ngIf="actividades.length > 0" class="table-wrapper">
+
+                        <table class="tabla-actividades">
+
+                            <thead>
+                                <tr>
+                                    <th>Actividad</th>
+                                    <th>Fecha</th>
+                                    <th>Lugar</th>
+                                    <th>Inscritos</th>
+                                    <th>Cupos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    *ngFor="let actividad of actividades"
+                                >
+
+                                    <td>
+
+                                        <strong>{{ actividad.titulo }}</strong>
+
+                                        <span class="etiqueta">{{ actividad.tipo }}</span>
+
+                                        <p class="descripcion">{{ actividad.descripcion }}</p>
+
+                                    </td>
+
+                                    <td>
+
+                                        {{ actividad.fecha | date: 'dd/MM/yyyy HH:mm' }}
+
+                                        <span *ngIf="yaPaso(actividad)" class="etiqueta etiqueta-pasada">
+                                            Finalizada
+                                        </span>
+
+                                    </td>
+
+                                    <td>{{ actividad.lugar }}</td>
+
+                                    <td>{{ actividad.inscritos }} / {{ actividad.capacidad }}</td>
+
+                                    <td>
+
+                                        <span *ngIf="cuposDisponibles(actividad) > 0">
+                                            {{ cuposDisponibles(actividad) }} disponibles
+                                        </span>
+
+                                        <span *ngIf="cuposDisponibles(actividad) === 0" class="sin-cupos">
+                                            Sin cupos
+                                        </span>
+
+                                    </td>
+
+                                    <td class="acciones">
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-small"
+                                            (click)="cancelarPlaceholder(actividad)"
+                                        >
+                                            Cancelar Inscripción
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
             </div>
 
         </div>
