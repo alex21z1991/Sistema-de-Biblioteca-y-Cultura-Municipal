@@ -4,9 +4,15 @@
 
     <nav>
 
-        <a routerLink="/home">
+        <a routerLink="/admin-panel">
             Inicio
         </a>
+
+        @if (esAdmin) {
+            <a routerLink="/admin-catalogo">
+                Catálogo
+            </a>
+        }
 
         <a routerLink="/movimientos">
             Movimientos
