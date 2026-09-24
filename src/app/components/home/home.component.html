@@ -1,1 +1,158 @@
-<p>home works!</p>
+<div class="home-container">
+
+    <!-- Bienvenida -->
+    <div class="welcome">
+
+        <h1>Bienvenido, {{ usuario }}</h1>
+
+        <p>
+            Consulta el resumen de tu información municipal.
+        </p>
+
+    </div>
+
+
+    <!-- Indicadores -->
+    <div class="summary-grid">
+
+        <!-- Movimientos -->
+        <div class="summary-card">
+
+            <div class="card-content">
+
+                <h3>Movimientos</h3>
+
+                <span class="number">
+                    {{ librosPedidos + salasPedidas + actividadesAgendadas }}
+                </span>
+
+                <p>
+                    Movimientos registrados
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Disponibilidad -->
+        <div class="summary-card">
+
+            <div class="card-content">
+
+                <h3>Disponibilidad</h3>
+
+                <span class="number">
+                    {{ salasPedidas }}
+                </span>
+
+                <p>
+                    Salas solicitadas
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Multas -->
+        <div class="summary-card">
+
+            <div class="card-content">
+
+                <h3>Multas pendientes</h3>
+
+                <span class="number">
+                    {{ multas }}
+                </span>
+
+                <p>
+                    Multas pendientes
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Mis movimientos -->
+    <div class="section">
+
+        <div class="section-header">
+
+            <h2>Mis movimientos</h2>
+
+        </div>
+
+
+        <!-- Si existen movimientos -->
+        <div
+            *ngIf="librosPedidos + salasPedidas + actividadesAgendadas > 0"
+            class="movement-list"
+        >
+
+            <div class="movement">
+
+                <strong>
+                    Mis libros pedidos
+                </strong>
+
+                <span>
+                    {{ librosPedidos }} libro(s)
+                </span>
+
+            </div>
+
+
+            <div class="movement">
+
+                <strong>
+                    Mis salas solicitadas
+                </strong>
+
+                <span>
+                    {{ salasPedidas }} sala(s)
+                </span>
+
+            </div>
+
+
+            <div class="movement">
+
+                <strong>
+                    Mis actividades
+                </strong>
+
+                <span>
+                    {{ actividadesAgendadas }} actividad(es)
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Si no existen movimientos -->
+        <div
+            *ngIf="librosPedidos + salasPedidas + actividadesAgendadas === 0"
+            class="empty-state"
+        >
+
+            <h3>
+                No tienes movimientos registrados
+            </h3>
+
+            <p>
+                Cuando realices un movimiento,
+                aparecerá información en esta sección.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+</div>

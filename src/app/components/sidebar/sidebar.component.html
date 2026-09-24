@@ -1,0 +1,39 @@
+<aside class="sidebar">
+
+    <h3>Menú</h3>
+
+    <nav>
+
+        <a routerLink="/admin-panel">
+            Inicio
+        </a>
+
+        @if (esAdmin) {
+            <a routerLink="/admin-catalogo">
+                Catálogo
+            </a>
+        }
+
+        <a routerLink="/movimientos">
+            Movimientos
+        </a>
+
+        <a routerLink="/reservas">
+            Reservas
+        </a>
+
+        <a routerLink="/multas">
+            Multas
+        </a>
+
+        <a routerLink="/perfil">
+            Perfil
+        </a>
+
+    </nav>
+
+    <button type="button" (click)="cerrarSesion()">
+        Cerrar sesión
+    </button>
+
+</aside>
