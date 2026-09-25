@@ -20,6 +20,7 @@ export class LoginComponent {
   }
 
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private loginService: LoginService,
@@ -27,11 +28,12 @@ export class LoginComponent {
   ){}
 
   onSubmit(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
     this.loginService.login(this.loginData).subscribe({
       next: (isValid: boolean) => {
+        this.isLoading = false;
         if (isValid){
-          this.errorMessage = '';
-          
           if (this.loginService.isAdmin()){
             this.router.navigate(['/admin-panel']);
           } else {
@@ -42,6 +44,7 @@ export class LoginComponent {
         }  
       },
       error: (err) => {
+        this.isLoading = false;
         console.error('Error en el proceso:', err);
         this.errorMessage = 'Ocurrio un error inesperado.';
       }
