@@ -8,6 +8,7 @@ export interface IActividad {
     fecha: string;      // formato 'YYYY-MM-DDTHH:mm' (input datetime-local)
     capacidad: number;
     inscritos: number;  // inscripciones ya registradas
+    estado: 'Activa' | 'Cancelada';
 }
 
 // Datos que viajan desde el formulario (todavía sin validar)
