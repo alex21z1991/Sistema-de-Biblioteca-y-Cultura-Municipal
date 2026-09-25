@@ -85,7 +85,7 @@ El sistema utiliza un sistema de diseño estructurado para garantizar consistenc
     * **Azul Marino:** Utilizado en las barras de navegación y como resaltado en elementos visuales.
     * **Blanco:** Utilizado en los elementos de la interfaz, como botones, tarjetas de información o campos de texto.
   * **Colores Semánticos (Estado):**
-    * 🟢 **Éxito:** Préstamo devuelto, reserva confirmada, cupo disponible.
-    * 🟡 **Advertencia:** Reserva pendiente, fecha límite próxima de devolución.
-    * 🔴 **Error:** Multa activa, sanción, sin disponibilidad/cupos.
-    * 🔵 **Información:** Estado del usuario, avisos de eventos o salas.
+    * **Éxito:** Préstamo devuelto, reserva confirmada, cupo disponible.
+    * **Advertencia:** Reserva pendiente, fecha límite próxima de devolución.
+    * **Error:** Multa activa, sanción, sin disponibilidad/cupos.
+    * **Información:** Estado del usuario, avisos de eventos o salas.
