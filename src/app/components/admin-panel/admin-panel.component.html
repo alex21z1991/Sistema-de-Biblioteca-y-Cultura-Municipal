@@ -239,6 +239,7 @@
                             <th>Lugar</th>
                             <th>Inscritos</th>
                             <th>Cupos</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -286,7 +287,20 @@
 
                             </td>
 
+                            <td>
+                                <span [class.sin-cupos]="actividad.estado === 'Cancelada'">
+                                    {{ actividad.estado }}
+                                </span>
+                            </td>
+
                             <td class="acciones">
+                                <button
+                                    type="button"
+                                    class="btn btn-small"
+                                    (click)="alternarEstado(actividad)"
+                                >
+                                    {{ actividad.estado === 'Activa' ? 'Cancelar actividad' : 'Reactivar actividad' }}
+                                </button>
 
                                 <button
                                     type="button"
@@ -300,6 +314,7 @@
                                     type="button"
                                     class="btn btn-small btn-ghost"
                                     (click)="inscribir(actividad)"
+                                    [disabled]="actividad.estado === 'Cancelada'"
                                 >
                                     +1 inscripción
                                 </button>

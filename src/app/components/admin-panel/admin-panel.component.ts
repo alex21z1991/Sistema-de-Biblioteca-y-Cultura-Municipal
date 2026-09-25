@@ -166,9 +166,30 @@ export class AdminPanelComponent implements OnInit {
 
 
   // ------------------------------------------------------------------
-  // Demo: sumar una inscripción para probar la regla de capacidad
+  // HU-A08: cancelar y reactivar actividades
   // ------------------------------------------------------------------
 
+  alternarEstado(actividad: IActividad): void {
+    this.errores = [];
+    this.mensajeExito = '';
+
+    this.actividadService.alternarEstado(actividad.id).subscribe({
+      next: (resultado) => {
+        if (resultado.ok) {
+          this.mensajeExito =
+            `Actividad "${actividad.titulo}" ${resultado.actividad?.estado === 'Cancelada'
+              ? 'cancelada'
+              : 'reactivada'}.`;
+          this.cargarActividades();
+        } else {
+          this.errores = resultado.errores;
+        }
+      }
+    });
+  }
+
+
+  // Demo: sumar una inscripción para probar la regla de capacidad
   inscribir(actividad: IActividad): void {
 
     this.errores = [];

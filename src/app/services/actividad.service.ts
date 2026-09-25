@@ -22,7 +22,8 @@ export class ActividadService {
             descripcion: 'Cuatro sesiones para aprender costura copta y tapa dura.',
             fecha: '2026-10-15T18:30',
             capacidad: 20,
-            inscritos: 12
+            inscritos: 12,
+            estado: 'Activa'
         },
         {
             id: 2,
@@ -32,7 +33,8 @@ export class ActividadService {
             descripcion: 'Lectura en voz alta para niños de 4 a 8 años.',
             fecha: '2026-11-03T11:00',
             capacidad: 40,
-            inscritos: 8
+            inscritos: 8,
+            estado: 'Activa'
         },
         {
             id: 3,
@@ -42,7 +44,8 @@ export class ActividadService {
             descripcion: 'Conversación mensual sobre autores de la región.',
             fecha: '2026-12-05T19:00',
             capacidad: 30,
-            inscritos: 30
+            inscritos: 30,
+            estado: 'Activa'
         },
         {
             id: 4,
@@ -52,7 +55,8 @@ export class ActividadService {
             descripcion: 'Introducción básica a algoritmos y lógica de programación para principiantes.',
             fecha: '2026-10-20T17:00',
             capacidad: 15,
-            inscritos: 15
+            inscritos: 15,
+            estado: 'Activa'
         },
         {
             id: 5,
@@ -62,7 +66,8 @@ export class ActividadService {
             descripcion: 'Presentación musical cultural',
             fecha: '2026-11-12T19:30',
             capacidad: 100,
-            inscritos: 45
+            inscritos: 45,
+            estado: 'Activa'
         },
         {
             id: 6,
@@ -72,7 +77,8 @@ export class ActividadService {
             descripcion: 'Aprende encuadre, manejo de luz e historia visual utilizando tu teléfono o cámara.',
             fecha: '2026-11-18T16:00',
             capacidad: 12,
-            inscritos: 2
+            inscritos: 2,
+            estado: 'Activa'
         },
         {
             id: 7,
@@ -82,7 +88,8 @@ export class ActividadService {
             descripcion: 'Espacio comunitario para intercambiar libros, revistas y cómics en buen estado.',
             fecha: '2026-12-01T10:00',
             capacidad: 50,
-            inscritos: 18
+            inscritos: 18,
+            estado: 'Activa'
         },
         {
             id: 8,
@@ -92,7 +99,8 @@ export class ActividadService {
             descripcion: 'Aprende a cultivar tus propias hortalizas y reutilizar residuos orgánicos en casa.',
             fecha: '2026-12-10T09:30',
             capacidad: 25,
-            inscritos: 24
+            inscritos: 24,
+            estado: 'Activa'
         }
     ];
 
@@ -148,7 +156,8 @@ export class ActividadService {
             descripcion: datos.descripcion.trim(),
             fecha: datos.fecha,
             capacidad: Number(datos.capacidad),
-            inscritos: 0
+            inscritos: 0,
+            estado: 'Activa'
         };
 
         this.actividades.push(nueva);
@@ -197,6 +206,29 @@ export class ActividadService {
         actual.capacidad = Number(datos.capacidad);
 
         return of({ ok: true, errores: [], actividad: actual });
+    }
+
+
+    // ------------------------------------------------------------------
+    // HU-A08: cancelar o reactivar sin alterar las inscripciones
+    // ------------------------------------------------------------------
+    public alternarEstado(id: number): Observable<IResultadoActividad> {
+        if (!this.loginService.isAdmin()) {
+            return of({
+                ok: false,
+                errores: ['Inicia sesión como administrador para cambiar el estado.']
+            });
+        }
+
+        const actividad = this.getActividad(id);
+
+        if (!actividad) {
+            return of({ ok: false, errores: ['La actividad no existe.'] });
+        }
+
+        actividad.estado = actividad.estado === 'Activa' ? 'Cancelada' : 'Activa';
+
+        return of({ ok: true, errores: [], actividad });
     }
 
 
@@ -289,6 +321,13 @@ export class ActividadService {
 
         if (!actividad) {
             return of({ ok: false, errores: ['La actividad no existe.'] });
+        }
+
+        if (actividad.estado === 'Cancelada') {
+            return of({
+                ok: false,
+                errores: ['No puedes inscribirte: la actividad fue cancelada.']
+            });
         }
 
         if (actividad.inscritos >= actividad.capacidad) {
