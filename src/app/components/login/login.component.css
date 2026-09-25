@@ -21,11 +21,8 @@
 }
 
 .logo-box {
-<<<<<<< HEAD
   background-color: #0d6efd;
-=======
   background-color: #11304f;
->>>>>>> origin/feature/admin-hu02-gestionar-catalogo
   color: white;
   font-size: 24px;
   font-weight: bold;
@@ -77,11 +74,8 @@ h2 {
 .btn-submit {
   width: 100%;
   padding: 12px;
-<<<<<<< HEAD
   background-color: #0d6efd;
-=======
   background-color: #11304f;
->>>>>>> origin/feature/admin-hu02-gestionar-catalogo
   color: white;
   border: none;
   border-radius: 5px;
@@ -91,11 +85,8 @@ h2 {
 }
 
 .btn-submit:disabled {
-<<<<<<< HEAD
   background-color: #a5c7fe;
-=======
   background-color: #1b3a5a;
->>>>>>> origin/feature/admin-hu02-gestionar-catalogo
   cursor: not-allowed;
 }
 
@@ -109,4 +100,26 @@ h2 {
 .footer-note {
   font-size: 0.8rem;
   color: #999;
+}
+
+.error-alert {
+  background-color: #f8d7da;
+  color: #842029;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid #f5c2c7;
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
+}
+
+.input-error {
+  border-color: #dc3545 !important;
 }
