@@ -3,11 +3,12 @@ import { IActividad } from '../../interfaces/iactividad';
 import { ActividadService } from '../../services/actividad.service';
 import { CommonModule } from '@angular/common';
 import { LoginService } from '../../services/login.service';
+import { ActivityCardComponent } from '../activity-card/activity-card.component';
 
 @Component({
   selector: 'app-explore',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ActivityCardComponent],
   templateUrl: './explore.component.html',
   styleUrl: './explore.component.css'
 })
