@@ -23,14 +23,14 @@
         </ul>
     </div>
 
-    <!-- Confirmar antes de quitar la inscripción -->
-    <div *ngIf="actividadPorCancelar" #confirmacion tabindex="-1" class="alert alert-warning" role="alert">
+    <!-- Confirmar cancelación -->
+    <div *ngIf="actividadPorCancelar" #confirmacion tabindex="-1" class="alert confirmacion" role="region" aria-label="Cancelar inscripción">
         <p>¿Quieres cancelar tu inscripción en "{{ actividadPorCancelar.titulo }}"?</p>
         <div class="acciones">
-            <button type="button" class="btn btn-primary" [disabled]="cancelando" (click)="confirmarCancelacion()">
+            <button type="button" class="btn btn-confirmar" [disabled]="cancelando" (click)="confirmarCancelacion()">
                 {{ cancelando ? 'Cancelando...' : 'Confirmar cancelación' }}
             </button>
-            <button type="button" class="btn btn-outline-secondary" [disabled]="cancelando" (click)="mantenerInscripcion()">
+            <button type="button" class="btn btn-mantener" [disabled]="cancelando" (click)="mantenerInscripcion()">
                 Mantener inscripción
             </button>
         </div>

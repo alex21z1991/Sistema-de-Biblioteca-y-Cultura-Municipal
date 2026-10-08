@@ -115,6 +115,34 @@
     color: #1f3f63;
 }
 
+/* Cancelación */
+.confirmacion {
+    background: white;
+    border-color: #b9c3cc;
+}
+
+.btn-confirmar {
+    background: #11304f;
+    color: white;
+}
+
+.btn-confirmar:hover {
+    background: #1b3a5a;
+}
+
+.btn-mantener {
+    border-color: #b9c3cc;
+    color: #11304f;
+}
+
+.btn-mantener:hover {
+    background: #eef2f7;
+}
+
+.btn:focus-visible {
+    outline: 2px solid #11304f;
+}
+
 .descripcion {
     margin: 6px 0 0;
     color: #777;
