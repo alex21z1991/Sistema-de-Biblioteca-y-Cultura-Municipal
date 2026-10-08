@@ -67,13 +67,33 @@ Para mantener la consistencia en el proyecto, el equipo adopta las siguientes co
 * **Variables, Funciones y Constantes:** camelCase (primeraLetraDeLaPrimeraPalabraMinusculaSiguientesPascalCase).
 
 ### 2. Git y Control de Versiones
-* **Commits Semánticos:**
-  * `feat:` para nuevas características o historias de usuario.
-  * `fix:` para corrección de errores o *bugs*.
-  * `docs:` para cambios en documentación o README.
-  * `style:` para formateo, CSS o ajuste de diseño.
-  * `refactor:` para mejoras de código que no cambian funcionalidad.
 
+Para asegurar un historial de proyecto limpio, legible y profesional, el equipo se adhiere a un flujo de trabajo estructurado basado en **Git Flow** y **Conventional Commits**.
+
+#### Estrategia de Ramas (Branching)
+Está estrictamente prohibido trabajar o hacer push directamente a las ramas de integración principal (`main` o `develop`). Toda modificación debe nacer en una rama de vida corta, con la siguiente nomenclatura:
+
+- **`main`**: Código en producción, estable y completamente funcional.
+- **`develop`**: Rama principal de desarrollo, donde se integra el trabajo diario.
+- **`feature/nombre-tarea`**: Para desarrollo de nuevas características o funcionalidades.
+- **`fix/nombre-arreglo`**: Para solucionar errores de lógica o *bugs* durante el desarrollo.
+- **`refactor/nombre-mejora`**: Para reestructurar código existente sin cambiar su comportamiento externo.
+- **`style/nombre-ajuste`**: Para cambios puramente estéticos o de interfaz.
+
+#### Commits Atómicos y Semánticos
+Cada commit debe representar una **única** unidad lógica de cambio (commit atómico) y no mezclar múltiples tareas. Se deben utilizar los siguientes prefijos estandarizados:
+
+* `feat:` Añade una nueva funcionalidad.
+* `fix:` Corrige un error.
+* `docs:` Cambios exclusivos en documentación o `README.md`.
+* `style:` Cambios de exclusivamente estilos, sin efectos en logica.
+* `refactor:` Mejoras de código (ej. cambiar *strings* por *enums*, extracción de componentes).
+
+#### Flujo de Integración y Pull Requests (PR)
+Para mantener la calidad del código, el equipo sigue reglas estrictas de revisión:
+1. **PR Obligatorios:** Todo código nuevo debe integrarse mediante un Pull Request hacia la rama `develop`.
+2. **Revisión de Pares (Code Review):** Ningún desarrollador está autorizado a aprobar o fusionar (*merge*) su propio código. 
+3. **Aprobación:** Todo PR requiere obligatoriamente la revisión y aprobación formal de al menos **uno o dos compañeros de equipo** antes de ser integrado al repositorio principal.
 ## Design System
 
 El sistema utiliza un sistema de diseño estructurado para garantizar consistencia visual a través de la aplicación.
