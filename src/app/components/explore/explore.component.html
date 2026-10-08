@@ -1,0 +1,64 @@
+<div class="explore-container">
+  <header class="page-header">
+    <h1>Explorar actividades y eventos</h1>
+    <p class="subtitle">Descubre e inscríbete en las próximas actividades municipales.</p>
+  </header>
+
+  <!-- Filtros -->
+  <div class="filter-bar">
+    <button 
+      [class.active]="filtroTipo === 'Todos'" 
+      (click)="filtroTipo = 'Todos'">
+      Todos
+    </button>
+    <button 
+      [class.active]="filtroTipo === 'Taller'" 
+      (click)="filtroTipo = 'Taller'">
+      Talleres
+    </button>
+    <button 
+      [class.active]="filtroTipo === 'Evento'" 
+      (click)="filtroTipo = 'Evento'">
+      Eventos
+    </button>
+  </div>
+
+  <!-- Actividades -->
+  <div class="cards-grid">
+    <div class="activity-card" *ngFor="let item of actividadesFiltradas">
+      <div class="card-header">
+        <span class="badge" [ngClass]="item.tipo.toLowerCase()">{{ item.tipo }}</span>
+        <span class="capacity-tag" [class.full]="item.inscritos >= item.capacidad">
+          {{ item.capacidad - item.inscritos }} cupos disponibles
+        </span>
+      </div>
+
+      <h3 class="card-title">{{ item.titulo }}</h3>
+      <p class="card-description">{{ item.descripcion }}</p>
+
+      <div class="card-details">
+        <div class="detail-item">
+          <span class="detail-label">Fecha y hora</span>
+          <span class="detail-value">{{ item.fecha | date:'dd/MM/yyyy - HH:mm' }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Lugar</span>
+          <span class="detail-value">{{ item.lugar }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Inscritos</span>
+          <span class="detail-value">{{ item.inscritos }} / {{ item.capacidad }}</span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button 
+          class="btn-primary" 
+          [disabled]="item.inscritos >= item.capacidad || estaInscrito(item)"
+          (click)="inscribir(item)">
+          {{ item.inscritos >= item.capacidad ? 'Agotado' : estaInscrito(item) ? 'Ya inscrito' : 'Inscribirme' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

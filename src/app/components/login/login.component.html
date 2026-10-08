@@ -1,0 +1,49 @@
+<div class="login-wrapper">
+    <div class="login-card">
+        <!--Icono y subtitulo-->
+        <div class="brand-header">
+            <div class="logo-box">B</div>
+            <span class="brand-title">BIBLIOCENTRO</span>
+        </div>
+
+        <!-- Titulo -->
+         <h2>Bienvenido de nuevo</h2>
+          
+         <p class="subtitle">
+            Usa usuario / usaurio para entrar como cliente. <br />
+            Usa admin / admin para entrar como administrador
+         </p>
+
+         <!-- Formulario -->
+          <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input 
+                    type="text"
+                    id="username"
+                    name="username"
+                    [(ngModel)]="loginData.username"
+                    placeholder="nombre de usuario" required
+                />
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input 
+                    type="password"
+                    id="password"
+                    name="password"
+                    [(ngModel)]="loginData.password" required
+                />
+            </div>
+
+            <button type="submit" class="btn-submit" [disabled]="!loginForm.form.valid">
+                Iniciar sesion
+            </button>
+          </form>
+
+          <!-- Footer de tarjeta -->
+           <div class="card-footer">
+            <p class="footer-note">Tus reservas y actividades se guardan en la biblioteca.</p>
+           </div>
+    </div>
+</div>
