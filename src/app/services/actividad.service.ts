@@ -4,7 +4,9 @@ import { Observable, of } from 'rxjs';
 import {
     IActividad,
     IActividadForm,
-    IResultadoActividad
+    IResultadoActividad,
+    TipoActividad, 
+    EstadoActividad,
 } from '../interfaces/iactividad';
 
 import { LoginService } from './login.service';
@@ -17,90 +19,90 @@ export class ActividadService {
         {
             id: 1,
             titulo: 'Taller de encuadernación artesanal',
-            tipo: 'Taller',
+            tipo: TipoActividad.Taller,
             lugar: 'Sala de talleres, piso 2',
             descripcion: 'Cuatro sesiones para aprender costura copta y tapa dura.',
             fecha: '2026-10-15T18:30',
             capacidad: 20,
             inscritos: 12,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa
         },
         {
             id: 2,
             titulo: 'Cuentacuentos infantil',
-            tipo: 'Evento',
+            tipo: TipoActividad.Evento,
             lugar: 'Sala infantil',
             descripcion: 'Lectura en voz alta para niños de 4 a 8 años.',
             fecha: '2026-11-03T11:00',
             capacidad: 40,
             inscritos: 8,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa,
         },
         {
             id: 3,
             titulo: 'Club de lectura: narrativa nortina',
-            tipo: 'Evento',
+            tipo: TipoActividad.Evento,
             lugar: 'Auditorio municipal',
             descripcion: 'Conversación mensual sobre autores de la región.',
             fecha: '2026-12-05T19:00',
             capacidad: 30,
             inscritos: 30,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa,
         },
         {
             id: 4,
             titulo: 'Taller de programación en Python',
-            tipo: 'Taller',
+            tipo: TipoActividad.Taller,
             lugar: 'Laboratorio de computación',
             descripcion: 'Introducción básica a algoritmos y lógica de programación para principiantes.',
             fecha: '2026-10-20T17:00',
             capacidad: 15,
             inscritos: 15,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa,
         },
         {
             id: 5,
             titulo: 'Concierto de la Orquesta Juvenil',
-            tipo: 'Evento',
+            tipo: TipoActividad.Evento,
             lugar: 'Teatro Municipal',
             descripcion: 'Presentación musical cultural',
             fecha: '2026-11-12T19:30',
             capacidad: 100,
             inscritos: 45,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa,
         },
         {
             id: 6,
             titulo: 'Taller de fotografía urbana',
-            tipo: 'Taller',
+            tipo: TipoActividad.Taller,
             lugar: 'Patio central de la biblioteca',
             descripcion: 'Aprende encuadre, manejo de luz e historia visual utilizando tu teléfono o cámara.',
             fecha: '2026-11-18T16:00',
             capacidad: 12,
             inscritos: 2,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa
         },
         {
             id: 7,
             titulo: 'Feria del libro usado y trueque',
-            tipo: 'Evento',
+            tipo: TipoActividad.Evento,
             lugar: 'Plaza de las Artes',
             descripcion: 'Espacio comunitario para intercambiar libros, revistas y cómics en buen estado.',
             fecha: '2026-12-01T10:00',
             capacidad: 50,
             inscritos: 18,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa
         },
         {
             id: 8,
             titulo: 'Taller de huerto urbano y compostaje',
-            tipo: 'Taller',
+            tipo: TipoActividad.Taller,
             lugar: 'Jardín botánico municipal',
             descripcion: 'Aprende a cultivar tus propias hortalizas y reutilizar residuos orgánicos en casa.',
             fecha: '2026-12-10T09:30',
             capacidad: 25,
             inscritos: 24,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa
         }
     ];
 
@@ -157,7 +159,7 @@ export class ActividadService {
             fecha: datos.fecha,
             capacidad: Number(datos.capacidad),
             inscritos: 0,
-            estado: 'Activa'
+            estado: EstadoActividad.Activa
         };
 
         this.actividades.push(nueva);
@@ -226,7 +228,7 @@ export class ActividadService {
             return of({ ok: false, errores: ['La actividad no existe.'] });
         }
 
-        actividad.estado = actividad.estado === 'Activa' ? 'Cancelada' : 'Activa';
+        actividad.estado = actividad.estado === EstadoActividad.Activa ? EstadoActividad.Cancelada : EstadoActividad.Activa;
 
         return of({ ok: true, errores: [], actividad });
     }

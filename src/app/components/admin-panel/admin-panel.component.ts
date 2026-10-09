@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { ActividadService } from '../../services/actividad.service';
 import { LoginService } from '../../services/login.service';
-import { IActividad, IActividadForm } from '../../interfaces/iactividad';
+import { IActividad, IActividadForm, TipoActividad } from '../../interfaces/iactividad';
 
 @Component({
   selector: 'app-admin-panel',
@@ -249,7 +249,7 @@ export class AdminPanelComponent implements OnInit {
   private formularioVacio(): IActividadForm {
     return {
       titulo: '',
-      tipo: 'Taller',
+      tipo: TipoActividad.Taller,
       lugar: '',
       descripcion: '',
       fecha: '',
