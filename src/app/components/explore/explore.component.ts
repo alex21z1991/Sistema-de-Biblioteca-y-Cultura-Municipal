@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IActividad } from '../../interfaces/iactividad';
+import { IActividad, FiltroActividad, TipoActividad } from '../../interfaces/iactividad';
 import { ActividadService } from '../../services/actividad.service';
 import { CommonModule } from '@angular/common';
 import { LoginService } from '../../services/login.service';
@@ -13,9 +13,12 @@ import { ActivityCardComponent } from '../activity-card/activity-card.component'
   styleUrl: './explore.component.css'
 })
 export class ExploreComponent {
+  filtroEnum = FiltroActividad;
+
   actividades: IActividad[] = [];
   actividadesAgendadas: number[] = [];
-  filtroTipo: 'Todos' | 'Taller' | 'Evento' = 'Todos';
+
+  filtroTipo: FiltroActividad = FiltroActividad.Todos;
 
   error: string = '';
   mensajeExito: string = '';
@@ -53,10 +56,10 @@ export class ExploreComponent {
   }
 
   get actividadesFiltradas(): IActividad[] {
-    if (this.filtroTipo === 'Todos') {
+    if (this.filtroTipo === FiltroActividad.Todos) {
       return this.actividades;
     }
-    return this.actividades.filter(a => a.tipo === this.filtroTipo);
+    return this.actividades.filter(a => (a.tipo as string) === (this.filtroTipo as string));
   }
 
   inscribir(actividad: IActividad): void {
