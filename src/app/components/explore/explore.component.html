@@ -8,17 +8,17 @@
   <div class="filter-bar">
     <button 
       [class.active]="filtroTipo === 'Todos'" 
-      (click)="filtroTipo = filtroEnum.Todos">
+      (click)="filtroTipo = FiltroEnum.Todos">
       Todos
     </button>
     <button 
       [class.active]="filtroTipo === 'Taller'" 
-      (click)="filtroTipo = filtroEnum.Taller">
+      (click)="filtroTipo = FiltroEnum.Taller">
       Talleres
     </button>
     <button 
       [class.active]="filtroTipo === 'Evento'" 
-      (click)="filtroTipo = filtroEnum.Evento">
+      (click)="filtroTipo = FiltroEnum.Evento">
       Eventos
     </button>
   </div>
