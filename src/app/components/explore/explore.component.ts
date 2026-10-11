@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IActividad, FiltroActividad, TipoActividad } from '../../interfaces/iactividad';
+import { FiltroActividad, IActividad } from '../../interfaces/iactividad';
 import { ActividadService } from '../../services/actividad.service';
 import { CommonModule } from '@angular/common';
 import { LoginService } from '../../services/login.service';
@@ -13,7 +13,7 @@ import { ActivityCardComponent } from '../activity-card/activity-card.component'
   styleUrl: './explore.component.css'
 })
 export class ExploreComponent {
-  filtroEnum = FiltroActividad;
+  FiltroEnum = FiltroActividad;
 
   actividades: IActividad[] = [];
   actividadesAgendadas: number[] = [];
@@ -56,7 +56,7 @@ export class ExploreComponent {
   }
 
   get actividadesFiltradas(): IActividad[] {
-    if (this.filtroTipo === FiltroActividad.Todos) {
+    if (this.filtroTipo === 'Todos') {
       return this.actividades;
     }
     return this.actividades.filter(a => (a.tipo as string) === (this.filtroTipo as string));
