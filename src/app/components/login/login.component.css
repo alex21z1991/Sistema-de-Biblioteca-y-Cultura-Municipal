@@ -3,123 +3,141 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f6f9;
+  background-color: var(--fondo-suave); /* Fondo gris suave oficial */
+  font-family: var(--fuente-texto);
 }
 
 .login-card {
-  background: white;
-  padding: 40px;
+  background: var(--blanco);
+  padding: 40px 36px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(17, 47, 78, 0.08); /* Sombra difuminada estilo portal */
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  box-sizing: border-box;
 }
 
+/* Cabecera y logo */
 .brand-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .logo-box {
-  background-color: #0d6efd;
-  background-color: #11304f;
-  color: white;
-  font-size: 24px;
+  background-color: var(--navy);
+  color: var(--blanco);
+  font-size: 18px;
   font-weight: bold;
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  border-radius: 50%;
-  margin: 0 auto 10px auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px; /* Cuadrado con bordes redondeados como en la foto */
+  margin: 0 auto 16px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.brand-title {
-  font-weight: bold;
-  color: #333;
-  letter-spacing: 1px;
-}
-
-h2 {
-  text-align: center;
-  font-size: 1.5rem;
-  margin-bottom: 5px;
+.brand-header h2 {
+  font-family: var(--fuente-titulo);
+  font-size: 26px;
+  color: var(--navy);
+  margin: 0 0 8px 0;
+  font-weight: 700;
 }
 
 .subtitle {
-  text-align: center;
-  font-size: 0.85rem;
-  color: #6c757d;
-  margin-bottom: 30px;
+  font-size: 14.5px;
+  color: var(--tx2);
+  margin: 0;
 }
 
-.form-group {
-  margin-bottom: 15px;
+/* Formularios según la guía oficial */
+.campo-grupo {
+  margin-bottom: 18px;
   display: flex;
   flex-direction: column;
 }
 
-.form-group label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 5px;
+.etiqueta {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 6px;
 }
 
-.form-group input {
-  padding: 10px;
-  border: 1px solid #ced4da;
-  border-radius: 5px;
-  font-size: 1rem;
+.campo {
+  padding: 10px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #1b1b1b;
+  transition: all 0.2s;
+}
+
+.campo:focus-visible {
+  outline: 4px solid var(--cian);
+  border-color: var(--navy);
+}
+
+.input-error {
+  border-color: var(--rojo-oscuro) !important;
+}
+
+.field-error {
+  color: var(--rojo-oscuro);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* Alerta oficial del manual */
+.alerta--error {
+  background-color: #fbe1e0;
+  color: var(--rojo-oscuro);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+  border: 1px solid #f0b6b3;
+  font-weight: 600;
+}
+
+/* Enlaces y Footer */
+.recuperar-link {
+  margin-bottom: 18px;
+}
+
+.recuperar-link a {
+  font-size: 13px;
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.recuperar-link a:hover {
+  text-decoration: underline;
 }
 
 .btn-submit {
   width: 100%;
   padding: 12px;
-  background-color: #0d6efd;
-  background-color: #11304f;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.btn-submit:disabled {
-  background-color: #a5c7fe;
-  background-color: #1b3a5a;
-  cursor: not-allowed;
 }
 
 .card-footer {
   text-align: center;
-  margin-top: 25px;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--tx2);
 }
 
-.footer-note {
-  font-size: 0.8rem;
-  color: #999;
+.card-footer a {
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
 }
 
-.error-alert {
-  background-color: #f8d7da;
-  color: #842029;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  font-size: 0.9rem;
-  text-align: center;
-  border: 1px solid #f5c2c7;
-}
-
-.field-error {
-  color: #dc3545;
-  font-size: 0.8rem;
-  margin-top: 5px;
-  display: block;
-}
-
-.input-error {
-  border-color: #dc3545 !important;
+.card-footer a:hover {
+  text-decoration: underline;
 }
