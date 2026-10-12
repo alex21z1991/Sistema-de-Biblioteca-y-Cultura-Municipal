@@ -1,24 +1,26 @@
 .explore-container {
-  padding: 32px;
-  background-color: #f8fafc;
+  padding: 32px 0; /* El padding lateral lo maneja la clase global .contenedor */
+  background-color: var(--fondo-suave);
   min-height: 100vh;
   box-sizing: border-box;
+  font-family: var(--fuente-texto);
 }
 
 .page-header h1 {
   margin: 0 0 6px 0;
-  font-size: 28px;
+  font-size: 30px; /* Tamaño exacto para H1 institucional */
   font-weight: 700;
-  color: #112943;
+  color: var(--navy);
+  font-family: var(--fuente-titulo); /* Merriweather */
 }
 
 .subtitle {
   margin: 0 0 24px 0;
-  color: #64748b;
-  font-size: 14px;
+  color: var(--tx2);
+  font-size: 15px;
 }
 
-/* Filtros */
+/* Filtros (Chips de cápsula según el manual) */
 .filter-bar {
   display: flex;
   gap: 8px;
@@ -26,22 +28,26 @@
 }
 
 .filter-bar button {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 8px 16px;
-  border-radius: 8px;
+  background: var(--blanco);
+  border: 1px solid var(--navy); /* Borde navy exigido por la guía */
+  padding: 6px 16px;
+  border-radius: 20px; /* Forma de cápsula */
   font-size: 14px;
-  font-weight: 500;
-  color: #475569;
+  font-weight: 600;
+  color: var(--navy);
   cursor: pointer;
   transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 .filter-bar button.active,
 .filter-bar button:hover {
-  background: #112943;
-  color: #ffffff;
-  border-color: #112943;
+  background: var(--navy);
+  color: var(--blanco);
+}
+
+.filter-bar button:focus-visible {
+  outline: 4px solid var(--cian); /* Anillo de foco obligatorio */
 }
 
 /* Grid */

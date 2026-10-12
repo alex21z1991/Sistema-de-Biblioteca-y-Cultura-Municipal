@@ -26,7 +26,7 @@
 
   <div class="card-footer">
     <button 
-      class="btn-primary" 
+      class="boton boton--primario btn-primary" 
       [disabled]="actividad.inscritos >= actividad.capacidad || yaInscrito"
       (click)="onInscribir()">
       {{ actividad.inscritos >= actividad.capacidad ? 'Agotado' : yaInscrito ? 'Ya inscrito' : 'Inscribirme' }}

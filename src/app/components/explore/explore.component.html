@@ -1,23 +1,24 @@
-<div class="explore-container">
+<!-- Se agrega la clase global 'contenedor' para el ancho máximo oficial -->
+<div class="explore-container contenedor">
   <header class="page-header">
     <h1>Explorar actividades y eventos</h1>
     <p class="subtitle">Descubre e inscríbete en las próximas actividades municipales.</p>
   </header>
 
-  <!-- Filtros -->
+  <!-- Filtros usando el puente FiltroEnum para evitar errores TypeScript -->
   <div class="filter-bar">
     <button 
-      [class.active]="filtroTipo === 'Todos'" 
+      [class.active]="filtroTipo === FiltroEnum.Todos" 
       (click)="filtroTipo = FiltroEnum.Todos">
       Todos
     </button>
     <button 
-      [class.active]="filtroTipo === 'Taller'" 
+      [class.active]="filtroTipo === FiltroEnum.Taller" 
       (click)="filtroTipo = FiltroEnum.Taller">
       Talleres
     </button>
     <button 
-      [class.active]="filtroTipo === 'Evento'" 
+      [class.active]="filtroTipo === FiltroEnum.Evento" 
       (click)="filtroTipo = FiltroEnum.Evento">
       Eventos
     </button>
