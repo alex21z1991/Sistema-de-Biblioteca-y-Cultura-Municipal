@@ -2,12 +2,11 @@
     <div class="login-card">
         <!-- Cabecera y Títulos -->
         <div class="brand-header">
-            <div class="logo-box">→]</div> <!-- Símbolo referencial similar a la captura -->
+            <div class="logo-box">→]</div> 
             <h2>Iniciar sesión</h2>
             <p class="subtitle">Accede con tu cuenta municipal</p>
         </div>
 
-        <!-- Alerta de error (Usando la clase oficial del manual) -->
         <div *ngIf="errorMessage" class="alerta--error">
             {{errorMessage}}
         </div>
@@ -15,7 +14,6 @@
         <!-- Formulario -->
         <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
 
-            <!-- Username (Correo electrónico según la captura) -->
             <div class="campo-grupo">
                 <label for="username" class="etiqueta">Correo electrónico</label>
                 <input 
@@ -53,20 +51,12 @@
                 </span>
             </div>
 
-            <!-- Enlace extra que aparece en la imagen -->
-            <div class="recuperar-link">
-                <a href="#">¿Olvidaste tu contraseña?</a>
-            </div>
+            
 
-            <!-- Botón (Usa las clases base que pusimos en styles.css) -->
             <button type="submit" class="boton boton--primario btn-submit" [disabled]="!loginForm.form.valid || isLoading">
                 {{ isLoading ? 'Iniciando...' : 'Ingresar' }}
             </button>
         </form>
 
-        <!-- Footer de tarjeta como en la captura -->
-        <div class="card-footer">
-            <p>¿No tienes cuenta? <a href="#">Crear una</a></p>
-        </div>
     </div>
 </div>
