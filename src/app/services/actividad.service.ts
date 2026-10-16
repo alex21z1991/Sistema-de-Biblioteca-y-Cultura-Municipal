@@ -10,6 +10,7 @@ import {
 } from '../interfaces/iactividad';
 
 import { LoginService } from './login.service';
+import { aforoDeLugar, DURACION_MINIMA, DURACION_MAXIMA, formatearDuracion, fechaFin, horaFin } from '../data/listas';
 
 @Injectable({ providedIn: 'root' })
 export class ActividadService {
@@ -23,6 +24,7 @@ export class ActividadService {
             lugar: 'Sala de talleres, piso 2',
             descripcion: 'Cuatro sesiones para aprender costura copta y tapa dura.',
             fecha: '2026-10-15T18:30',
+            duracion: 120,
             capacidad: 20,
             inscritos: 12,
             estado: EstadoActividad.Activa
@@ -34,6 +36,7 @@ export class ActividadService {
             lugar: 'Sala infantil',
             descripcion: 'Lectura en voz alta para niños de 4 a 8 años.',
             fecha: '2026-11-03T11:00',
+            duracion: 60,
             capacidad: 40,
             inscritos: 8,
             estado: EstadoActividad.Activa,
@@ -45,6 +48,7 @@ export class ActividadService {
             lugar: 'Auditorio municipal',
             descripcion: 'Conversación mensual sobre autores de la región.',
             fecha: '2026-12-05T19:00',
+            duracion: 90,
             capacidad: 30,
             inscritos: 30,
             estado: EstadoActividad.Activa,
@@ -56,6 +60,7 @@ export class ActividadService {
             lugar: 'Laboratorio de computación',
             descripcion: 'Introducción básica a algoritmos y lógica de programación para principiantes.',
             fecha: '2026-10-20T17:00',
+            duracion: 120,
             capacidad: 15,
             inscritos: 15,
             estado: EstadoActividad.Activa,
@@ -67,6 +72,7 @@ export class ActividadService {
             lugar: 'Teatro Municipal',
             descripcion: 'Presentación musical cultural',
             fecha: '2026-11-12T19:30',
+            duracion: 120,
             capacidad: 100,
             inscritos: 45,
             estado: EstadoActividad.Activa,
@@ -78,6 +84,7 @@ export class ActividadService {
             lugar: 'Patio central de la biblioteca',
             descripcion: 'Aprende encuadre, manejo de luz e historia visual utilizando tu teléfono o cámara.',
             fecha: '2026-11-18T16:00',
+            duracion: 120,
             capacidad: 12,
             inscritos: 2,
             estado: EstadoActividad.Activa
@@ -89,6 +96,7 @@ export class ActividadService {
             lugar: 'Plaza de las Artes',
             descripcion: 'Espacio comunitario para intercambiar libros, revistas y cómics en buen estado.',
             fecha: '2026-12-01T10:00',
+            duracion: 240,
             capacidad: 50,
             inscritos: 18,
             estado: EstadoActividad.Activa
@@ -100,6 +108,7 @@ export class ActividadService {
             lugar: 'Jardín botánico municipal',
             descripcion: 'Aprende a cultivar tus propias hortalizas y reutilizar residuos orgánicos en casa.',
             fecha: '2026-12-10T09:30',
+            duracion: 150,
             capacidad: 25,
             inscritos: 24,
             estado: EstadoActividad.Activa
@@ -157,6 +166,7 @@ export class ActividadService {
             lugar: datos.lugar.trim(),
             descripcion: datos.descripcion.trim(),
             fecha: datos.fecha,
+            duracion: Number(datos.duracion),
             capacidad: Number(datos.capacidad),
             inscritos: 0,
             estado: EstadoActividad.Activa
@@ -205,6 +215,7 @@ export class ActividadService {
         actual.lugar = datos.lugar.trim();
         actual.descripcion = datos.descripcion.trim();
         actual.fecha = datos.fecha;
+        actual.duracion = Number(datos.duracion);
         actual.capacidad = Number(datos.capacidad);
 
         return of({ ok: true, errores: [], actividad: actual });
@@ -277,6 +288,22 @@ export class ActividadService {
             }
         }
 
+        // ----- Duración -----
+        const duracion = Number(datos.duracion);
+
+        if (datos.duracion === null || datos.duracion === undefined || isNaN(duracion)) {
+            errores.push('Indica cuánto va a durar la actividad.');
+
+        } else if (!Number.isInteger(duracion)) {
+            errores.push('La duración debe ser un número entero de minutos.');
+
+        } else if (duracion < DURACION_MINIMA || duracion > DURACION_MAXIMA) {
+            errores.push(
+                'La duración debe estar entre ' + formatearDuracion(DURACION_MINIMA) +
+                ' y ' + formatearDuracion(DURACION_MAXIMA) + '.'
+            );
+        }
+
         // ----- Capacidad -----
         const capacidad = Number(datos.capacidad);
 
@@ -288,6 +315,13 @@ export class ActividadService {
 
         } else if (capacidad < 1) {
             errores.push('La capacidad debe ser de al menos 1 cupo.');
+
+        } else if (aforoDeLugar(datos.lugar) !== undefined && capacidad > aforoDeLugar(datos.lugar)!) {
+            // Excepción: no superar el cupo del lugar
+            errores.push(
+                'La capacidad no puede superar el cupo del lugar (' +
+                aforoDeLugar(datos.lugar) + ' personas en "' + datos.lugar + '").'
+            );
 
         } else if (actual && capacidad < actual.inscritos) {
             // Excepción: no reducir capacidad bajo las inscripciones existentes
@@ -308,6 +342,32 @@ export class ActividadService {
 
         if (titulo.length > 0 && duplicada) {
             errores.push('Ya existe una actividad con ese título en la misma fecha y hora.');
+        }
+
+        // ----- Choque de horario en el mismo lugar -----
+        const inicioNuevo = new Date(datos.fecha).getTime();
+        const finNuevo = fechaFin(datos.fecha, duracion)?.getTime();
+
+        if (datos.lugar && !isNaN(inicioNuevo) && finNuevo !== undefined && !isNaN(finNuevo)) {
+
+            const choque = this.actividades.find(a => {
+                if (actual && a.id === actual.id) return false;
+                if (a.estado !== EstadoActividad.Activa) return false;
+                if (a.lugar !== datos.lugar) return false;
+
+                const inicio = new Date(a.fecha).getTime();
+                const fin = fechaFin(a.fecha, a.duracion)?.getTime() ?? inicio;
+
+                return inicioNuevo < fin && finNuevo > inicio;
+            });
+
+            if (choque) {
+                errores.push(
+                    'El lugar "' + datos.lugar + '" ya está ocupado por "' + choque.titulo +
+                    '" de ' + choque.fecha.slice(11, 16) + ' a ' + horaFin(choque.fecha, choque.duracion) +
+                    ' ese día. Elige otro horario o lugar.'
+                );
+            }
         }
 
         return errores;

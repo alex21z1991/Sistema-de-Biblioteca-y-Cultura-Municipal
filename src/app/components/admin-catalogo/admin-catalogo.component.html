@@ -1,70 +1,183 @@
-<div class="catalogo-container">
-  <div class="welcome">
-    <h1>
-      Gestión de catálogo
-    </h1>
-    <p>
-      Administra los libros y recursos de la biblioteca municipal.
-    </p>
-  </div>
+<div class="catalogo-container contenedor">
 
+  <header class="welcome">
+    <h1>Gestión de catálogo</h1>
+    <p class="texto-suave">Administra los libros y recursos de la biblioteca municipal.</p>
+  </header>
+
+  <!-- ================= Formulario ================= -->
   <section class="section">
-    <h2>
+
+    <h2 class="titulo-seccion">
       {{ idEnEdicion === null ? 'Nuevo recurso' : 'Editar recurso' }}
     </h2>
-    <div *ngIf="errores.length" class="alert error">
-    <ul>
-      <li *ngFor="let error of errores">{{ error }}
-      </li>
-    </ul>
-  </div>
-    <div *ngIf="mensaje" class="alert ok">{{ mensaje }}</div>
+
+    <div *ngIf="errores.length" class="alerta alerta--error" role="alert">
+      <ul>
+        <li *ngFor="let error of errores">{{ error }}</li>
+      </ul>
+    </div>
+
+    <div *ngIf="mensaje" class="alerta alerta--ok" role="status">{{ mensaje }}</div>
 
     <form (ngSubmit)="guardar()" #formRecurso="ngForm" class="form-grid">
-      <label>
-        Título
-        <input name="titulo" [(ngModel)]="formulario.titulo" required minlength="2">
-      </label>
-      <label>
-        Autor
-        <input name="autor" [(ngModel)]="formulario.autor" required minlength="2">
-      </label>
-      <label>
-        Categoría
-        <input name="categoria" [(ngModel)]="formulario.categoria" required minlength="2">
-      </label>
-      <label>
-        Tipo
-        <select name="tipo" [(ngModel)]="formulario.tipo" required>
-          <option>Libro</option>
-          <option>Revista</option>
-          <option>Otro</option>
-        </select>
-      </label>
-      <label>
-        Ejemplares
-        <input type="number" name="ejemplares" [(ngModel)]="formulario.ejemplares" min="1" step="1" required>
-      </label>
-      <div class="actions">
-        <button class="primary" type="submit" [disabled]="!formRecurso.form.valid">{{ idEnEdicion === null ? 'Crear recurso' : 'Guardar cambios' }}</button>
-        <button *ngIf="idEnEdicion !== null" type="button" (click)="cancelarEdicion()">Cancelar</button>
+
+      <div class="campo-grupo">
+        <label class="etiqueta" for="titulo">Título</label>
+        <input class="campo" id="titulo" name="titulo" [(ngModel)]="formulario.titulo" required minlength="2">
       </div>
+
+      <div class="campo-grupo">
+        <label class="etiqueta" for="autor">Autor</label>
+        <input class="campo" id="autor" name="autor" [(ngModel)]="formulario.autor" required minlength="2">
+      </div>
+
+      <div class="campo-grupo">
+        <label class="etiqueta" for="categoria">Categoría</label>
+        <select class="campo" id="categoria" name="categoria" [(ngModel)]="formulario.categoria" required>
+          <option value="" disabled>Selecciona una categoría</option>
+          <optgroup *ngFor="let g of gruposCategorias" [label]="g.grupo">
+            <option *ngFor="let c of g.categorias" [value]="c">{{ c }}</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="campo-grupo">
+        <label class="etiqueta" for="tipo">Tipo</label>
+        <select class="campo" id="tipo" name="tipo" [(ngModel)]="formulario.tipo" required>
+          <option *ngFor="let t of tiposRecurso" [value]="t">{{ t }}</option>
+        </select>
+      </div>
+
+      <div class="campo-grupo">
+        <label class="etiqueta" for="ejemplares">Ejemplares</label>
+        <input class="campo" type="number" id="ejemplares" name="ejemplares" [(ngModel)]="formulario.ejemplares" min="1" step="1" required>
+      </div>
+
+      <div class="acciones">
+        <button class="boton" type="submit" [disabled]="!formRecurso.form.valid">
+          {{ idEnEdicion === null ? 'Crear recurso' : 'Guardar cambios' }}
+        </button>
+        <button *ngIf="idEnEdicion !== null" type="button" class="boton boton--contorno" (click)="cancelarEdicion()">
+          Cancelar
+        </button>
+      </div>
+
     </form>
   </section>
 
+  <!-- ================= Listado ================= -->
   <section class="section">
-    <div class="list-header"><h2>Recursos</h2><input [(ngModel)]="busqueda" placeholder="Buscar por título, autor, categoría o tipo"></div>
+
+    <div class="list-header">
+      <h2 class="titulo-seccion">Recursos</h2>
+      <p class="contador" aria-live="polite">
+        Mostrando <strong>{{ recursosFiltrados.length }}</strong> de {{ recursos.length }} recursos
+      </p>
+    </div>
+
+    <!-- Barra de búsqueda y filtros -->
+    <div class="barra-busqueda" role="search">
+
+      <div class="buscador-caja">
+        <svg class="buscador-icono" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input
+          class="campo buscador"
+          type="search"
+          name="busqueda"
+          [(ngModel)]="busqueda"
+          (keydown.escape)="busqueda = ''"
+          aria-label="Buscar recursos"
+          placeholder="Busca por título, autor, categoría o tipo…"
+          autocomplete="off">
+        <button *ngIf="busqueda" type="button" class="buscador-limpiar" aria-label="Borrar búsqueda" (click)="busqueda = ''">×</button>
+      </div>
+
+      <select class="campo filtro" name="filtroTipo" [(ngModel)]="filtroTipo" aria-label="Filtrar por tipo">
+        <option value="">Todos los tipos</option>
+        <option *ngFor="let t of tiposEnUso" [value]="t">{{ t }}</option>
+      </select>
+
+      <select class="campo filtro" name="filtroCategoria" [(ngModel)]="filtroCategoria" aria-label="Filtrar por categoría">
+        <option value="">Todas las categorías</option>
+        <option *ngFor="let c of categoriasEnUso" [value]="c">{{ c }}</option>
+      </select>
+
+    </div>
+
+    <!-- Chips de estado -->
+    <div class="chips-fila">
+      <div class="chips" role="group" aria-label="Filtrar por estado">
+        <button type="button" class="chip-filtro" [class.activo]="filtroEstado === 'todos'" [attr.aria-pressed]="filtroEstado === 'todos'" (click)="filtroEstado = 'todos'">
+          Todos ({{ recursos.length }})
+        </button>
+        <button type="button" class="chip-filtro" [class.activo]="filtroEstado === 'activos'" [attr.aria-pressed]="filtroEstado === 'activos'" (click)="filtroEstado = 'activos'">
+          Activos ({{ totalActivos }})
+        </button>
+        <button type="button" class="chip-filtro" [class.activo]="filtroEstado === 'baja'" [attr.aria-pressed]="filtroEstado === 'baja'" (click)="filtroEstado = 'baja'">
+          En baja ({{ totalBaja }})
+        </button>
+      </div>
+
+      <button *ngIf="hayFiltros" type="button" class="enlace-limpiar" (click)="limpiarFiltros()">
+        Limpiar filtros
+      </button>
+    </div>
+
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Título</th><th>Autor</th><th>Categoría</th><th>Tipo</th><th>Disponibles</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <thead>
+          <tr>
+            <th [attr.aria-sort]="ariaOrden('titulo')"><button type="button" class="th-orden" (click)="ordenarPor('titulo')">Título <span class="flecha">{{ orden.campo === 'titulo' ? (orden.asc ? '▲' : '▼') : '↕' }}</span></button></th>
+            <th [attr.aria-sort]="ariaOrden('autor')"><button type="button" class="th-orden" (click)="ordenarPor('autor')">Autor <span class="flecha">{{ orden.campo === 'autor' ? (orden.asc ? '▲' : '▼') : '↕' }}</span></button></th>
+            <th [attr.aria-sort]="ariaOrden('categoria')"><button type="button" class="th-orden" (click)="ordenarPor('categoria')">Categoría <span class="flecha">{{ orden.campo === 'categoria' ? (orden.asc ? '▲' : '▼') : '↕' }}</span></button></th>
+            <th>Tipo</th>
+            <th [attr.aria-sort]="ariaOrden('disponibles')"><button type="button" class="th-orden" (click)="ordenarPor('disponibles')">Disponibles <span class="flecha">{{ orden.campo === 'disponibles' ? (orden.asc ? '▲' : '▼') : '↕' }}</span></button></th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
         <tbody>
           <tr *ngFor="let recurso of recursosFiltrados">
-            <td>{{ recurso.titulo }}</td><td>{{ recurso.autor }}</td><td>{{ recurso.categoria }}</td><td>{{ recurso.tipo }}</td>
-            <td>{{ disponibles(recurso) }} / {{ recurso.ejemplares }}</td><td>{{ recurso.activo ? 'Activo' : 'Baja' }}</td>
-            <td class="row-actions"><button (click)="editar(recurso)">Editar</button><button *ngIf="recurso.activo" (click)="darDeBaja(recurso)">Dar de baja</button><button *ngIf="!recurso.activo" (click)="reactivar(recurso)">Reactivar</button></td>
+            <td class="titulo-recurso">{{ recurso.titulo }}</td>
+            <td>{{ recurso.autor }}</td>
+            <td>{{ recurso.categoria }}</td>
+            <td><span class="chip">{{ recurso.tipo }}</span></td>
+            <td>{{ disponibles(recurso) }} / {{ recurso.ejemplares }}</td>
+            <td>
+              <span class="pill" [class.pill--activo]="recurso.activo" [class.pill--baja]="!recurso.activo">
+                {{ recurso.activo ? 'Activo' : 'Baja' }}
+              </span>
+            </td>
+            <td>
+
+              <!-- Confirmación en línea para dar de baja -->
+              <div *ngIf="idPorDarDeBaja === recurso.id" class="confirmar-baja" role="alert">
+                <span>¿Dar de baja?</span>
+                <button type="button" class="boton boton--peligro boton--chico" (click)="confirmarBaja(recurso)">Confirmar</button>
+                <button type="button" class="boton boton--contorno boton--chico" (click)="cancelarBaja()">No</button>
+              </div>
+
+              <div *ngIf="idPorDarDeBaja !== recurso.id" class="row-actions">
+                <button type="button" class="boton boton--contorno boton--chico" (click)="editar(recurso)">Editar</button>
+                <button type="button" class="boton boton--peligro boton--chico" *ngIf="recurso.activo" (click)="solicitarBaja(recurso)">Dar de baja</button>
+                <button type="button" class="boton boton--exito boton--chico" *ngIf="!recurso.activo" (click)="reactivar(recurso)">Reactivar</button>
+              </div>
+
+            </td>
           </tr>
         </tbody>
       </table>
+
+      <div *ngIf="recursosFiltrados.length === 0" class="empty-state">
+        <h3>No se encontraron recursos</h3>
+        <p>Prueba con otras palabras o quita algún filtro.</p>
+        <button *ngIf="hayFiltros" type="button" class="boton boton--contorno boton--chico" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
     </div>
+
   </section>
 </div>

@@ -22,7 +22,8 @@ export interface IActividad {
     tipo: TipoActividad; //Cambio a enum
     lugar: string;
     descripcion: string;
-    fecha: string;      // formato 'YYYY-MM-DDTHH:mm' (input datetime-local)
+    fecha: string;      // inicio, formato 'YYYY-MM-DDTHH:mm'
+    duracion: number;   // minutos
     capacidad: number;
     inscritos: number;  // inscripciones ya registradas
     estado: EstadoActividad; //Cambio a enum
@@ -34,7 +35,8 @@ export interface IActividadForm {
     tipo: TipoActividad; //Cambio a enum
     lugar: string;
     descripcion: string;
-    fecha: string;
+    fecha: string;      // inicio, formato 'YYYY-MM-DDTHH:mm'
+    duracion: number;   // minutos
     capacidad: number;
 }
 

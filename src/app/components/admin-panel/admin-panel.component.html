@@ -1,67 +1,62 @@
 <div class="admin-container">
 
-    <!-- Encabezado -->
     <div class="welcome">
-
         <h1>Cartelera de actividades</h1>
-
-        <p>
-            Crea y edita los talleres y eventos que verán los ciudadanos.
+        <p class="texto-suave">
+            Crea, programa y gestiona los talleres y eventos culturales para los ciudadanos.
         </p>
-
     </div>
 
-
-    <!-- Sin sesión administrativa -->
     <div *ngIf="!esAdmin" class="empty-state">
-
         <h3>Necesitas una sesión administrativa</h3>
-
-        <p>
-            Inicia sesión con una cuenta de administrador para gestionar la cartelera.
-        </p>
-
+        <p>Inicia sesión con una cuenta de administrador para gestionar la cartelera.</p>
     </div>
 
-
-    <!-- Panel de gestión -->
     <div *ngIf="esAdmin">
 
+        <!-- Subnavegación de pestañas -->
+        <nav class="subnav-pestanas" aria-label="Secciones de administración de actividades">
+            <button
+                type="button"
+                class="pestana-nav"
+                [class.activa]="pestanaActiva === 'formulario'"
+                (click)="pestanaActiva = 'formulario'"
+            >
+                {{ idEnEdicion === null ? 'Nueva actividad' : 'Editando actividad' }}
+            </button>
+
+            <button
+                type="button"
+                class="pestana-nav"
+                [class.activa]="pestanaActiva === 'cartelera'"
+                (click)="pestanaActiva = 'cartelera'"
+            >
+                Actividades publicadas
+                <span class="insignia-contador">{{ actividades.length }}</span>
+            </button>
+        </nav>
+
+        <div *ngIf="errores.length > 0" class="alerta alerta--error contenedor-formulario" role="alert">
+            <strong>Revisa estos puntos antes de guardar:</strong>
+            <ul>
+                <li *ngFor="let error of errores">{{ error }}</li>
+            </ul>
+        </div>
+
+        <div *ngIf="mensajeExito" class="alerta alerta--ok contenedor-formulario" role="status">
+            {{ mensajeExito }}
+        </div>
+
         <!-- ================= FORMULARIO ================= -->
-        <div class="section">
+        <div *ngIf="pestanaActiva === 'formulario'" class="section contenedor-formulario">
 
             <div class="section-header">
+                <h2>{{ idEnEdicion === null ? 'Nueva actividad' : 'Editando actividad' }}</h2>
 
-                <h2>
-                    {{ idEnEdicion === null ? 'Nueva actividad' : 'Editando actividad' }}
-                </h2>
-
-                <p *ngIf="idEnEdicion !== null" class="edit-note">
-                    Estás modificando una actividad ya publicada.
+                <p *ngIf="idEnEdicion !== null" class="alerta alerta--aviso edit-note">
+                    Estás modificando una actividad ya publicada en el portal.
                 </p>
-
             </div>
-
-
-            <!-- Errores de validación -->
-            <div *ngIf="errores.length > 0" class="alert alert-error">
-
-                <strong>Revisa estos puntos antes de guardar:</strong>
-
-                <ul>
-                    <li *ngFor="let error of errores">
-                        {{ error }}
-                    </li>
-                </ul>
-
-            </div>
-
-
-            <!-- Confirmación -->
-            <div *ngIf="mensajeExito" class="alert alert-ok">
-                {{ mensajeExito }}
-            </div>
-
 
             <form (ngSubmit)="guardar()" #formActividad="ngForm">
 
@@ -69,27 +64,21 @@
 
                     <!-- Título -->
                     <div class="form-group">
-
-                        <label for="titulo">Título</label>
-
+                        <label for="titulo">Título de la actividad</label>
                         <input
                             type="text"
                             id="titulo"
                             name="titulo"
                             [(ngModel)]="formulario.titulo"
-                            placeholder="Taller de encuadernación artesanal"
+                            placeholder="Ej: Taller de encuadernación artesanal"
                             required
                             minlength="5"
                         />
-
                     </div>
 
-
-                    <!-- Tipo -->
+                    <!-- Categoría -->
                     <div class="form-group">
-
-                        <label for="tipo">Tipo</label>
-
+                        <label for="tipo">Categoría</label>
                         <select
                             id="tipo"
                             name="tipo"
@@ -99,94 +88,288 @@
                             <option value="Taller">Taller</option>
                             <option value="Evento">Evento</option>
                         </select>
-
                     </div>
 
+                    <!-- Lugar (Selector buscable con filtros de aforo) -->
+                    <div class="form-group selector-lugar-wrapper">
+                        <label for="btnLugar">Espacio o recinto</label>
 
-                    <!-- Fecha -->
-                    <div class="form-group">
+                        <button
+                            type="button"
+                            id="btnLugar"
+                            class="campo-lugar-boton"
+                            [class.abierto]="buscadorLugarAbierto"
+                            [class.vacio]="!formulario.lugar"
+                            (click)="abrirBuscadorLugar($event)"
+                            aria-haspopup="listbox"
+                            [attr.aria-expanded]="buscadorLugarAbierto"
+                        >
+                            <span class="lugar-boton-texto">
+                                {{ formulario.lugar ? formulario.lugar : 'Buscar o seleccionar un recinto...' }}
+                            </span>
 
-                        <label for="fecha">Fecha y hora</label>
+                            <span *ngIf="aforoLugar !== null" class="insignia-cupo">
+                                Cupo: {{ aforoLugar }}
+                            </span>
 
-                        <input
-                            type="datetime-local"
-                            id="fecha"
-                            name="fecha"
-                            [(ngModel)]="formulario.fecha"
-                            [min]="fechaMinima"
-                            required
-                        />
+                            <span class="flecha-desplegable" aria-hidden="true">▾</span>
+                        </button>
 
-                        <small>
-                            Solo se aceptan fechas futuras.
-                        </small>
+                        <!-- Panel desplegable con buscador y filtros -->
+                        <div *ngIf="buscadorLugarAbierto" class="lugar-dropdown" (click)="$event.stopPropagation()">
 
+                            <div class="lugar-buscador-caja">
+                                <input
+                                    type="text"
+                                    class="campo-buscador-lugar"
+                                    placeholder="Escribe para filtrar (ej: Sala, Teatro, Piso 2)..."
+                                    [(ngModel)]="filtroTextoLugar"
+                                    [ngModelOptions]="{standalone: true}"
+                                    autofocus
+                                />
+                            </div>
+
+                            <div class="lugar-filtros-aforo">
+                                <button
+                                    type="button"
+                                    class="chip-aforo"
+                                    [class.activo]="filtroAforoLugar === 'todos'"
+                                    (click)="cambiarFiltroAforo('todos', $event)"
+                                >Todos</button>
+                                <button
+                                    type="button"
+                                    class="chip-aforo"
+                                    [class.activo]="filtroAforoLugar === 'chico'"
+                                    (click)="cambiarFiltroAforo('chico', $event)"
+                                >1–30 cupos</button>
+                                <button
+                                    type="button"
+                                    class="chip-aforo"
+                                    [class.activo]="filtroAforoLugar === 'medio'"
+                                    (click)="cambiarFiltroAforo('medio', $event)"
+                                >31–80 cupos</button>
+                                <button
+                                    type="button"
+                                    class="chip-aforo"
+                                    [class.activo]="filtroAforoLugar === 'grande'"
+                                    (click)="cambiarFiltroAforo('grande', $event)"
+                                >+80 cupos</button>
+                            </div>
+
+                            <ul class="lugar-lista" role="listbox">
+                                <li
+                                    *ngFor="let l of lugaresFiltrados"
+                                    class="lugar-item"
+                                    [class.seleccionado]="formulario.lugar === l.nombre"
+                                    (click)="seleccionarLugar(l.nombre, $event)"
+                                    role="option"
+                                    [attr.aria-selected]="formulario.lugar === l.nombre"
+                                >
+                                    <span class="lugar-item-nombre">{{ l.nombre }}</span>
+                                    <span class="insignia-cupo">{{ l.aforo }} personas</span>
+                                </li>
+
+                                <li *ngIf="lugaresFiltrados.length === 0" class="lugar-sin-resultados">
+                                    No se encontraron recintos con ese criterio.
+                                </li>
+                            </ul>
+
+                        </div>
                     </div>
-
 
                     <!-- Capacidad -->
                     <div class="form-group">
-
-                        <label for="capacidad">Capacidad</label>
-
+                        <label for="capacidad">Capacidad (cupos)</label>
                         <input
                             type="number"
                             id="capacidad"
                             name="capacidad"
                             [(ngModel)]="formulario.capacidad"
                             [min]="capacidadMinima"
+                            [max]="aforoLugar ?? 100000"
+                            [readOnly]="idEnEdicion === null"
                             step="1"
                             required
                         />
 
-                        <small *ngIf="idEnEdicion !== null && capacidadMinima > 1">
-                            Mínimo {{ capacidadMinima }}: son las inscripciones ya registradas.
+                        <small *ngIf="idEnEdicion === null">
+                            {{ aforoLugar !== null
+                                ? 'Asignada automáticamente según el aforo del lugar (' + aforoLugar + ' personas).'
+                                : 'Elige un lugar: la capacidad se asigna según su cupo.' }}
                         </small>
 
+                        <small *ngIf="idEnEdicion !== null && aforoLugar !== null">
+                            Cupo máximo del recinto: {{ aforoLugar }} personas.
+                        </small>
+
+                        <small *ngIf="idEnEdicion !== null && capacidadMinima > 1">
+                            Mínimo {{ capacidadMinima }} (inscripciones actuales).
+                        </small>
                     </div>
 
-
-                    <!-- Lugar -->
+                    <!-- Horario -->
                     <div class="form-group form-group-wide">
 
-                        <label for="lugar">Lugar</label>
+                        <fieldset class="bloque-horario">
+                            <legend>Programación y horario</legend>
 
-                        <input
-                            type="text"
-                            id="lugar"
-                            name="lugar"
-                            [(ngModel)]="formulario.lugar"
-                            placeholder="Sala de talleres, piso 2"
-                            required
-                        />
+                            <div class="horario-grid">
+
+                                <!-- Fecha -->
+                                <div class="form-group selector-fecha-wrapper">
+                                    <label for="btnFecha">Fecha de realización</label>
+
+                                    <button
+                                        type="button"
+                                        id="btnFecha"
+                                        class="campo-fecha-boton"
+                                        [class.abierto]="calendarioAbierto"
+                                        (click)="alternarCalendario($event)"
+                                        aria-haspopup="dialog"
+                                        [attr.aria-expanded]="calendarioAbierto"
+                                    >
+                                        <span>{{ fechaFormateadaBoton }}</span>
+                                        <svg class="icono-calendario" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                                            <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                                        </svg>
+                                    </button>
+
+                                    <div *ngIf="calendarioAbierto" class="calendario-popup" role="dialog" aria-label="Selector de fecha">
+                                        <div class="calendario-cabecera">
+                                            <button type="button" class="cal-nav-btn" (click)="cambiarMes(-1, $event)" aria-label="Mes anterior">‹</button>
+                                            <strong class="cal-mes-titulo">{{ tituloMesVisible }}</strong>
+                                            <button type="button" class="cal-nav-btn" (click)="cambiarMes(1, $event)" aria-label="Mes siguiente">›</button>
+                                        </div>
+
+                                        <div class="calendario-semana">
+                                            <span *ngFor="let d of diasSemana">{{ d }}</span>
+                                        </div>
+
+                                        <div class="calendario-dias">
+                                            <button
+                                                *ngFor="let dia of diasDelCalendario"
+                                                type="button"
+                                                class="cal-dia"
+                                                [class.fuera-mes]="!dia.delMes"
+                                                [class.es-hoy]="dia.esHoy"
+                                                [class.seleccionado]="dia.iso === fechaDia"
+                                                [disabled]="dia.deshabilitado"
+                                                (click)="seleccionarDiaCalendario(dia, $event)"
+                                            >
+                                                {{ dia.numero }}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="pastillas pastillas--atajos">
+                                        <button
+                                            type="button"
+                                            class="pastilla pastilla--chica"
+                                            [class.activa]="esAtajoActivo(0)"
+                                            (click)="fijarDia(0)"
+                                        >Hoy</button>
+                                        <button
+                                            type="button"
+                                            class="pastilla pastilla--chica"
+                                            [class.activa]="esAtajoActivo(1)"
+                                            (click)="fijarDia(1)"
+                                        >Mañana</button>
+                                        <button
+                                            type="button"
+                                            class="pastilla pastilla--chica"
+                                            [class.activa]="esAtajoActivo(7)"
+                                            (click)="fijarDia(7)"
+                                        >+7 días</button>
+                                    </div>
+                                </div>
+
+                                <!-- Hora de inicio -->
+                                <div class="form-group">
+                                    <label for="horaInicio">Bloque de inicio</label>
+                                    <select
+                                        id="horaInicio"
+                                        name="horaInicio"
+                                        [(ngModel)]="horaInicio"
+                                        (ngModelChange)="actualizarFecha()"
+                                        required
+                                    >
+                                        <option value="" disabled>Selecciona una hora</option>
+                                        <option *ngFor="let h of horasOpciones" [value]="h">{{ h }} hrs</option>
+                                    </select>
+                                    <small>Bloques cada 30 min (08:00 a 22:00).</small>
+                                </div>
+
+                                <!-- Duración -->
+                                <div class="form-group">
+                                    <span class="etiqueta-grupo" id="etiqueta-duracion">Duración estimada</span>
+
+                                    <div class="pastillas" role="group" aria-labelledby="etiqueta-duracion">
+                                        <button
+                                            *ngFor="let d of duracionesRapidas"
+                                            type="button"
+                                            class="pastilla"
+                                            [class.activa]="!mostrarOtra && formulario.duracion === d"
+                                            [attr.aria-pressed]="!mostrarOtra && formulario.duracion === d"
+                                            (click)="elegirDuracion(d)"
+                                        >
+                                            {{ duracionTexto(d) }}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="pastilla"
+                                            [class.activa]="mostrarOtra"
+                                            [attr.aria-pressed]="mostrarOtra"
+                                            (click)="activarOtra()"
+                                        >
+                                            Otra
+                                        </button>
+                                    </div>
+
+                                    <div *ngIf="mostrarOtra" class="otra-duracion">
+                                        <input
+                                            type="number"
+                                            id="duracion"
+                                            name="duracion"
+                                            [(ngModel)]="formulario.duracion"
+                                            [min]="duracionMin"
+                                            [max]="duracionMax"
+                                            step="5"
+                                            aria-label="Duración en minutos"
+                                            required
+                                        />
+                                        <span>minutos</span>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <p *ngIf="resumenHorario" class="resumen-horario" aria-live="polite">
+                                <strong>Horario programado:</strong> {{ resumenHorario }}
+                            </p>
+                        </fieldset>
 
                     </div>
-
 
                     <!-- Descripción -->
                     <div class="form-group form-group-wide">
-
-                        <label for="descripcion">Descripción</label>
-
+                        <label for="descripcion">Descripción para el ciudadano</label>
                         <textarea
                             id="descripcion"
                             name="descripcion"
                             rows="3"
                             [(ngModel)]="formulario.descripcion"
-                            placeholder="Cuenta de qué se trata y a quién está dirigida."
+                            placeholder="Detalla los contenidos de la actividad, materiales incluidos y público objetivo."
                         ></textarea>
-
                     </div>
 
                 </div>
 
-
                 <div class="form-actions">
-
                     <button
                         type="submit"
-                        class="btn btn-primary"
-                        [disabled]="!formActividad.form.valid"
+                        class="boton"
+                        [disabled]="!formActividad.form.valid || !formulario.fecha || !formulario.lugar"
                     >
                         {{ idEnEdicion === null ? 'Publicar actividad' : 'Guardar cambios' }}
                     </button>
@@ -194,18 +377,16 @@
                     <button
                         *ngIf="idEnEdicion !== null"
                         type="button"
-                        class="btn btn-ghost"
+                        class="boton boton--contorno"
                         (click)="cancelarEdicion()"
                     >
                         Cancelar edición
                     </button>
-
                 </div>
 
             </form>
 
         </div>
-
 
         <!-- ================= CARTELERA ================= -->
         <div class="section">
@@ -214,28 +395,17 @@
                 <h2>Actividades publicadas</h2>
             </div>
 
-
-            <!-- Cartelera vacía -->
             <div *ngIf="actividades.length === 0" class="empty-state">
-
                 <h3>Todavía no hay actividades</h3>
-
-                <p>
-                    Publica la primera actividad con el formulario de arriba.
-                </p>
-
+                <p>Publica la primera actividad con el formulario superior.</p>
             </div>
 
-
-            <!-- Listado -->
             <div *ngIf="actividades.length > 0" class="table-wrapper">
-
                 <table class="tabla-actividades">
-
                     <thead>
                         <tr>
                             <th>Actividad</th>
-                            <th>Fecha</th>
+                            <th>Fecha y horario</th>
                             <th>Lugar</th>
                             <th>Inscritos</th>
                             <th>Cupos</th>
@@ -245,30 +415,24 @@
                     </thead>
 
                     <tbody>
-
                         <tr
                             *ngFor="let actividad of actividades"
                             [class.fila-editando]="actividad.id === idEnEdicion"
                         >
-
                             <td>
-
-                                <strong>{{ actividad.titulo }}</strong>
-
+                                <strong class="titulo-actividad">{{ actividad.titulo }}</strong>
                                 <span class="etiqueta">{{ actividad.tipo }}</span>
-
                                 <p class="descripcion">{{ actividad.descripcion }}</p>
-
                             </td>
 
                             <td>
-
-                                {{ actividad.fecha | date: 'dd/MM/yyyy HH:mm' }}
-
+                                <strong>{{ actividad.fecha | date: 'dd/MM/yyyy' }}</strong> · {{ actividad.fecha | date: 'HH:mm' }}
+                                <small class="duracion-linea">
+                                    hasta las {{ finDe(actividad) }} ({{ duracionTexto(actividad.duracion) }})
+                                </small>
                                 <span *ngIf="yaPaso(actividad)" class="etiqueta etiqueta-pasada">
                                     Finalizada
                                 </span>
-
                             </td>
 
                             <td>{{ actividad.lugar }}</td>
@@ -276,66 +440,80 @@
                             <td>{{ actividad.inscritos }} / {{ actividad.capacidad }}</td>
 
                             <td>
-
                                 <span *ngIf="cuposDisponibles(actividad) > 0">
                                     {{ cuposDisponibles(actividad) }} disponibles
                                 </span>
-
                                 <span *ngIf="cuposDisponibles(actividad) === 0" class="sin-cupos">
                                     Sin cupos
                                 </span>
-
                             </td>
 
                             <td>
-                                <span [class.sin-cupos]="actividad.estado === 'Cancelada'">
+                                <span
+                                    class="pill"
+                                    [class.pill--activa]="actividad.estado === 'Activa'"
+                                    [class.pill--cancelada]="actividad.estado === 'Cancelada'"
+                                >
                                     {{ actividad.estado }}
                                 </span>
                             </td>
 
-                            <td class="acciones">
-                                <button
-                                    type="button"
-                                    class="btn btn-small"
-                                    (click)="alternarEstado(actividad)"
-                                >
-                                    {{ actividad.estado === 'Activa' ? 'Cancelar actividad' : 'Reactivar actividad' }}
-                                </button>
+                            <td>
+                                <div *ngIf="idPorCancelar === actividad.id" class="confirmar-baja" role="alert">
+                                    <span>¿Cancelar actividad?</span>
+                                    <button type="button" class="boton boton--peligro boton--chico" (click)="confirmarCancelacion(actividad)">Confirmar</button>
+                                    <button type="button" class="boton boton--contorno boton--chico" (click)="descartarCancelacion()">No</button>
+                                </div>
 
-                                <button
-                                    type="button"
-                                    class="btn btn-small"
-                                    (click)="editar(actividad)"
-                                >
-                                    Editar
-                                </button>
+                                <div *ngIf="idPorCancelar !== actividad.id" class="acciones">
+                                    <button
+                                        type="button"
+                                        class="boton boton--contorno boton--chico"
+                                        (click)="editar(actividad)"
+                                    >
+                                        Editar
+                                    </button>
 
-                                <button
-                                    type="button"
-                                    class="btn btn-small btn-ghost"
-                                    (click)="inscribir(actividad)"
-                                    [disabled]="actividad.estado === 'Cancelada'"
-                                >
-                                    +1 inscripción
-                                </button>
+                                    <button
+                                        *ngIf="actividad.estado === 'Activa'"
+                                        type="button"
+                                        class="boton boton--peligro boton--chico"
+                                        (click)="solicitarCancelacion(actividad)"
+                                    >
+                                        Cancelar
+                                    </button>
 
-                                <button
-                                    type="button"
-                                    class="btn btn-small btn-ghost"
-                                    [disabled]="actividad.inscritos === 0"
-                                    (click)="quitarInscripcion(actividad)"
-                                >
-                                    Quitar inscripción
-                                </button>
+                                    <button
+                                        *ngIf="actividad.estado !== 'Activa'"
+                                        type="button"
+                                        class="boton boton--exito boton--chico"
+                                        (click)="alternarEstado(actividad)"
+                                    >
+                                        Reactivar
+                                    </button>
 
+                                    <button
+                                        type="button"
+                                        class="boton boton--contorno boton--chico"
+                                        (click)="inscribir(actividad)"
+                                        [disabled]="actividad.estado === 'Cancelada'"
+                                    >
+                                        +1 cupo
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="boton boton--contorno boton--chico"
+                                        [disabled]="actividad.inscritos === 0"
+                                        (click)="quitarInscripcion(actividad)"
+                                    >
+                                        -1 cupo
+                                    </button>
+                                </div>
                             </td>
-
                         </tr>
-
                     </tbody>
-
                 </table>
-
             </div>
 
         </div>

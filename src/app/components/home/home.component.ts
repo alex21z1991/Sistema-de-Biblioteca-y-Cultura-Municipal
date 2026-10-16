@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { IActividad } from '../../interfaces/iactividad';
 import { ActividadService } from '../../services/actividad.service';
+import { formatearDuracion, horaFin } from '../../data/listas';
 
 @Component({
   selector: 'app-home',
@@ -80,6 +81,12 @@ export class HomeComponent implements OnInit {
   // ¿La actividad ya pasó?
   yaPaso(actividad: IActividad): boolean {
     return new Date(actividad.fecha).getTime() <= new Date().getTime();
+  }
+
+  duracionTexto = formatearDuracion;
+
+  finDe(actividad: IActividad): string {
+    return horaFin(actividad.fecha, actividad.duracion);
   }
 
   cuposDisponibles(actividad: IActividad): number {
