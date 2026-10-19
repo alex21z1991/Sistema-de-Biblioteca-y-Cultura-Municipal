@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ActividadService } from '../../services/actividad.service';
 import { LoginService } from '../../services/login.service';
 import { IActividad, IActividadForm, TipoActividad } from '../../interfaces/iactividad';
+import { IUser } from '../../interfaces/iuser';
 
 @Component({
   selector: 'app-admin-panel',
@@ -38,6 +39,11 @@ export class AdminPanelComponent implements OnInit {
   // Precondición: sesión administrativa
   esAdmin: boolean = false;
 
+  // Ventana de inscripciones
+  windowOpen: boolean = false;
+  windowMode: 'agregar' | 'quitar' = 'agregar';
+  selectedActivity: IActividad | null = null;
+  usersWindow: IUser[] = [];
 
   constructor(
     private actividadService: ActividadService,
@@ -70,6 +76,67 @@ export class AdminPanelComponent implements OnInit {
       error: (err) => {
         console.error('Error al cargar la cartelera:', err);
         this.errores = ['No se pudo cargar la cartelera.'];
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Ventana de inscripciones
+  // ------------------------------------------------------------------
+
+  cargarUsuarios(mode: 'agregar' | 'quitar'): void {
+    this.usersWindow = [];
+    if (mode === 'agregar') {
+      this.loginService.getUsers().forEach(user => {
+        if (user.role === 'usuario' && !this.selectedActivity?.inscritos.includes(user.id)) {
+          this.usersWindow.push(user);
+        }
+      })
+    } else if (mode === 'quitar') {
+      for (const userId of this.selectedActivity?.inscritos || []) {
+        const user = this.loginService.getUsers().find(u => u.id === userId);
+        if (user) {
+          this.usersWindow.push(user);
+        }
+      }
+    }
+  }
+
+  openWindow(actividad: IActividad, mode: 'agregar' | 'quitar'): void {
+    this.selectedActivity = actividad;
+    this.windowMode = mode;
+    this.cargarUsuarios(mode);
+    this.windowOpen = true;
+  }
+
+  closeWindow(): void {
+    this.windowOpen = false;
+    this.selectedActivity = null;
+    this.usersWindow = [];
+  }
+
+  addUser(actividad: IActividad, usuario: IUser): void {
+    this.actividadService.inscribirUsuario(actividad.id, usuario.id).subscribe({
+      next: (resultado) => {
+        if (resultado.ok) {
+          this.closeWindow();
+          this.cargarActividades();
+        } else {
+          this.errores = resultado.errores;
+        }
+      }
+    });
+  }
+
+  removeUser(actividad: IActividad, usuario: IUser): void {
+    this.actividadService.quitarInscripcion(actividad.id, usuario.id).subscribe({
+      next: (resultado) => {
+        if (resultado.ok) {
+          this.closeWindow();
+          this.cargarActividades();
+        } else {
+          this.errores = resultado.errores;
+        }
       }
     });
   }
@@ -153,7 +220,7 @@ export class AdminPanelComponent implements OnInit {
     };
 
     // La capacidad no puede bajar de las inscripciones existentes
-    this.capacidadMinima = actividad.inscritos > 0 ? actividad.inscritos : 1;
+    this.capacidadMinima = actividad.inscritos.length > 0 ? actividad.inscritos.length : 1;
   }
 
 
@@ -219,7 +286,7 @@ export class AdminPanelComponent implements OnInit {
     this.errores = [];
     this.mensajeExito = '';
 
-    this.actividadService.quitarInscripcion(actividad.id).subscribe({
+    this.actividadService.quitarInscripcion(actividad.id, 1).subscribe({
       next: (resultado) => {
 
         if (resultado.ok) {
@@ -243,7 +310,7 @@ export class AdminPanelComponent implements OnInit {
   }
 
   cuposDisponibles(actividad: IActividad): number {
-    return actividad.capacidad - actividad.inscritos;
+    return actividad.capacidad - actividad.inscritos.length;
   }
 
   private formularioVacio(): IActividadForm {

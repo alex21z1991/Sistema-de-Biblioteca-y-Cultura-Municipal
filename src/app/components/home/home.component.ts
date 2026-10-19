@@ -83,7 +83,7 @@ export class HomeComponent implements OnInit {
   }
 
   cuposDisponibles(actividad: IActividad): number {
-    return actividad.capacidad - actividad.inscritos;
+    return actividad.capacidad - actividad.inscritos.length;
   }
 
   solicitarCancelacion(actividad: IActividad): void {

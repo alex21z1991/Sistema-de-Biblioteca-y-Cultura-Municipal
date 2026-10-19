@@ -19,12 +19,12 @@ export enum FiltroActividad {
 export interface IActividad {
     id: number;
     titulo: string;
-    tipo: TipoActividad; //Cambio a enum
+    tipo: TipoActividad; // Cambio a enum
     lugar: string;
     descripcion: string;
     fecha: string;      // formato 'YYYY-MM-DDTHH:mm' (input datetime-local)
     capacidad: number;
-    inscritos: number;  // inscripciones ya registradas
+    inscritos: number[];  // inscripciones ya registradas
     estado: EstadoActividad; //Cambio a enum
 }
 

@@ -1,8 +1,8 @@
 <div class="activity-card">
   <div class="card-header">
     <span class="badge" [ngClass]="actividad.tipo.toLowerCase()">{{ actividad.tipo }}</span>
-    <span class="capacity-tag" [class.full]="actividad.inscritos >= actividad.capacidad">
-      {{ actividad.capacidad - actividad.inscritos }} cupos disponibles
+    <span class="capacity-tag" [class.full]="actividad.inscritos.length >= actividad.capacidad">
+      {{ actividad.capacidad - actividad.inscritos.length }} cupos disponibles
     </span>
   </div>
 
@@ -20,16 +20,16 @@
     </div>
     <div class="detail-item">
       <span class="detail-label">Inscritos</span>
-      <span class="detail-value">{{ actividad.inscritos }} / {{ actividad.capacidad }}</span>
+      <span class="detail-value">{{ actividad.inscritos.length }} / {{ actividad.capacidad }}</span>
     </div>
   </div>
 
   <div class="card-footer">
     <button 
       class="boton boton--primario btn-primary" 
-      [disabled]="actividad.inscritos >= actividad.capacidad || yaInscrito"
+      [disabled]="actividad.inscritos.length >= actividad.capacidad || yaInscrito"
       (click)="onInscribir()">
-      {{ actividad.inscritos >= actividad.capacidad ? 'Agotado' : yaInscrito ? 'Ya inscrito' : 'Inscribirme' }}
+      {{ actividad.inscritos.length >= actividad.capacidad ? 'Agotado' : yaInscrito ? 'Ya inscrito' : 'Inscribirme' }}
     </button>
   </div>
 </div>

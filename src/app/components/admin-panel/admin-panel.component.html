@@ -273,7 +273,7 @@
 
                             <td>{{ actividad.lugar }}</td>
 
-                            <td>{{ actividad.inscritos }} / {{ actividad.capacidad }}</td>
+                            <td>{{ actividad.inscritos.length }} / {{ actividad.capacidad }}</td>
 
                             <td>
 
@@ -310,20 +310,22 @@
                                     Editar
                                 </button>
 
+                                <!-- Updated Button: Opens modal to ADD users -->
                                 <button
                                     type="button"
                                     class="btn btn-small btn-ghost"
-                                    (click)="inscribir(actividad)"
+                                    (click)="openWindow(actividad, 'agregar')"
                                     [disabled]="actividad.estado === 'Cancelada'"
                                 >
                                     +1 inscripción
                                 </button>
 
+                                <!-- Updated Button: Opens modal to DELETE users -->
                                 <button
                                     type="button"
                                     class="btn btn-small btn-ghost"
-                                    [disabled]="actividad.inscritos === 0"
-                                    (click)="quitarInscripcion(actividad)"
+                                    [disabled]="actividad.inscritos.length === 0"
+                                    (click)="openWindow(actividad, 'quitar')"
                                 >
                                     Quitar inscripción
                                 </button>
@@ -340,6 +342,57 @@
 
         </div>
 
+    </div>
+
+    <!-- ================= GESTIÓN DE INSCRIPCIONES ================= -->
+    <div class="modal-overlay" *ngIf="windowOpen">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h3>
+                    {{ windowMode === 'agregar' ? 'Añadir usuario a:' : 'Quitar usuario de:' }} 
+                    <span>{{ selectedActivity?.titulo }}</span>
+                </h3>
+            </div>
+
+            <!-- Lista de usuarios (Filtrada según el modo: usuarios disponibles o usuarios ya inscritos) -->
+            <div class="modal-body">
+                <ul class="user-list">
+                    <li *ngFor="let usuario of usersWindow" class="user-item">
+                        <span>{{usuario.id}} - {{ usuario.username }}</span>
+                        
+                        <!-- Si estamos en modo agregar, muestra el botón para sumar -->
+                        <button 
+                            *ngIf="windowMode === 'agregar' && selectedActivity" 
+                            type="button" 
+                            class="btn btn-small btn-primary"
+                            (click)="addUser(selectedActivity, usuario)">
+                            Añadir inscripción
+                        </button>
+
+                        <!-- Si estamos en modo quitar, muestra el botón para eliminar -->
+                        <button 
+                            *ngIf="windowMode === 'quitar' && selectedActivity" 
+                            type="button" 
+                            class="btn btn-small btn-danger"
+                            (click)="removeUser(selectedActivity, usuario)">
+                            Quitar inscripción
+                        </button>
+                    </li>
+                </ul>
+
+                <p *ngIf="usersWindow.length === 0" class="empty-message">
+                    {{ windowMode === 'agregar' ? 'No hay usuarios disponibles para añadir.' : 'No hay usuarios inscritos.' }}
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" (click)="closeWindow()">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
     </div>
 
 </div>
