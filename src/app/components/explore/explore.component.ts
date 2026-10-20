@@ -73,7 +73,6 @@ export class ExploreComponent {
 
         if (resultado.ok) {
           this.mensajeExito = 'Te has registrado en "' + actividad.titulo + '".';
-          this.actividadesAgendadas.push(actividad.id);
           this.cargarActividades();
         } else {
           this.error = resultado.errores[0];

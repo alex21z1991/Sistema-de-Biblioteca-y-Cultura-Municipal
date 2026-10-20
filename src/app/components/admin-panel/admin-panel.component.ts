@@ -16,6 +16,7 @@ import {
   formatearDuracion,
   horaFin
 } from '../../data/listas';
+import { IUser } from '../../interfaces/iuser';
 
 interface DiaCalendario {
   numero: number;
@@ -75,6 +76,12 @@ export class AdminPanelComponent implements OnInit {
 
   esAdmin: boolean = false;
 
+  // Ventana de inscripciones
+  windowOpen: boolean = false;
+  windowMode: 'agregar' | 'quitar' = 'agregar';
+  selectedActivity: IActividad | null = null;
+  usersWindow: IUser[] = [];
+
   constructor(
     private actividadService: ActividadService,
     private loginService: LoginService,
@@ -114,6 +121,72 @@ export class AdminPanelComponent implements OnInit {
       }
     });
   }
+
+  // ------------------------------------------------------------------
+  // Ventana de inscripciones
+  // ------------------------------------------------------------------
+
+  cargarUsuarios(mode: 'agregar' | 'quitar'): void {
+    this.usersWindow = [];
+    if (mode === 'agregar') {
+      this.loginService.getUsers().forEach(user => {
+        if (user.role === 'usuario' && !this.selectedActivity?.inscritos.includes(user.id)) {
+          this.usersWindow.push(user);
+        }
+      })
+    } else if (mode === 'quitar') {
+      for (const userId of this.selectedActivity?.inscritos || []) {
+        const user = this.loginService.getUsers().find(u => u.id === userId);
+        if (user) {
+          this.usersWindow.push(user);
+        }
+      }
+    }
+  }
+
+  openWindow(actividad: IActividad, mode: 'agregar' | 'quitar'): void {
+    this.selectedActivity = actividad;
+    this.windowMode = mode;
+    this.cargarUsuarios(mode);
+    this.windowOpen = true;
+  }
+
+  closeWindow(): void {
+    this.windowOpen = false;
+    this.selectedActivity = null;
+    this.usersWindow = [];
+  }
+
+  addUser(actividad: IActividad, usuario: IUser): void {
+    this.actividadService.inscribirUsuario(actividad.id, usuario.id).subscribe({
+      next: (resultado) => {
+        if (resultado.ok) {
+          this.closeWindow();
+          this.cargarActividades();
+        } else {
+          this.errores = resultado.errores;
+        }
+      }
+    });
+  }
+
+  removeUser(actividad: IActividad, usuario: IUser): void {
+    this.actividadService.quitarInscripcion(actividad.id, usuario.id).subscribe({
+      next: (resultado) => {
+        if (resultado.ok) {
+          this.closeWindow();
+          this.cargarActividades();
+        } else {
+          this.errores = resultado.errores;
+        }
+      }
+    });
+  }
+
+
+  // ------------------------------------------------------------------
+  // Guardar (crea o edita según el modo)
+  // ------------------------------------------------------------------
 
   guardar(): void {
     this.errores = [];
@@ -186,7 +259,7 @@ export class AdminPanelComponent implements OnInit {
       this.mesVisible = new Date(this.fechaDia + 'T12:00:00');
     }
 
-    this.capacidadMinima = actividad.inscritos > 0 ? actividad.inscritos : 1;
+    this.capacidadMinima = actividad.inscritos.length > 0 ? actividad.inscritos.length : 1;
   }
 
   cancelarEdicion(): void {
@@ -251,7 +324,7 @@ export class AdminPanelComponent implements OnInit {
     this.errores = [];
     this.mensajeExito = '';
 
-    this.actividadService.quitarInscripcion(actividad.id).subscribe({
+    this.actividadService.quitarInscripcion(actividad.id, 1).subscribe({
       next: (resultado) => {
         if (resultado.ok) {
           this.mensajeExito = 'Se quitó una inscripción de "' + actividad.titulo + '" y se liberó el cupo.';
@@ -498,7 +571,7 @@ export class AdminPanelComponent implements OnInit {
   }
 
   cuposDisponibles(actividad: IActividad): number {
-    return actividad.capacidad - actividad.inscritos;
+    return actividad.capacidad - actividad.inscritos.length;
   }
 
   private formularioVacio(): IActividadForm {

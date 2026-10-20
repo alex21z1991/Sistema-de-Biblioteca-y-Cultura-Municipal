@@ -437,7 +437,7 @@
 
                             <td>{{ actividad.lugar }}</td>
 
-                            <td>{{ actividad.inscritos }} / {{ actividad.capacidad }}</td>
+                            <td>{{ actividad.inscritos.length }} / {{ actividad.capacidad }}</td>
 
                             <td>
                                 <span *ngIf="cuposDisponibles(actividad) > 0">
@@ -491,23 +491,23 @@
                                     >
                                         Reactivar
                                     </button>
-
+                                
                                     <button
                                         type="button"
-                                        class="boton boton--contorno boton--chico"
-                                        (click)="inscribir(actividad)"
+                                        class="boton boton--chico"
+                                        (click)="openWindow(actividad, 'agregar')"
                                         [disabled]="actividad.estado === 'Cancelada'"
                                     >
-                                        +1 cupo
+                                        Añadir inscripción
                                     </button>
 
                                     <button
                                         type="button"
-                                        class="boton boton--contorno boton--chico"
-                                        [disabled]="actividad.inscritos === 0"
-                                        (click)="quitarInscripcion(actividad)"
+                                        class="boton boton--peligro boton--chico"
+                                        [disabled]="actividad.inscritos.length === 0"
+                                        (click)="openWindow(actividad, 'quitar')"
                                     >
-                                        -1 cupo
+                                        Quitar inscripción
                                     </button>
                                 </div>
                             </td>
@@ -518,6 +518,57 @@
 
         </div>
 
+    </div>
+
+    <!-- ================= GESTIÓN DE INSCRIPCIONES ================= -->
+    <div class="modal-overlay" *ngIf="windowOpen">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h3>
+                    {{ windowMode === 'agregar' ? 'Añadir usuario a:' : 'Quitar usuario de:' }} 
+                    <span>{{ selectedActivity?.titulo }}</span>
+                </h3>
+            </div>
+
+            <!-- Lista de usuarios -->
+            <div class="modal-body">
+                <ul class="user-list">
+                    <li *ngFor="let usuario of usersWindow" class="user-item">
+                        <span>{{usuario.id}} - {{ usuario.username }}</span>
+                        
+                        <!-- Si estamos en modo agregar, muestra el botón para sumar -->
+                        <button 
+                            *ngIf="windowMode === 'agregar' && selectedActivity" 
+                            type="button" 
+                            class="boton boton--chico"
+                            (click)="addUser(selectedActivity, usuario)">
+                            Añadir inscripción
+                        </button>
+
+                        <!-- Si estamos en modo quitar, muestra el botón para eliminar -->
+                        <button 
+                            *ngIf="windowMode === 'quitar' && selectedActivity" 
+                            type="button" 
+                            class="boton boton--chico boton--peligro"
+                            (click)="removeUser(selectedActivity, usuario)">
+                            Quitar inscripción
+                        </button>
+                    </li>
+                </ul>
+
+                <p *ngIf="usersWindow.length === 0" class="empty-message">
+                    {{ windowMode === 'agregar' ? 'No hay usuarios disponibles para añadir.' : 'No hay usuarios inscritos.' }}
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="boton" (click)="closeWindow()">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
     </div>
 
 </div>

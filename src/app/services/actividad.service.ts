@@ -26,8 +26,9 @@ export class ActividadService {
             fecha: '2026-10-15T18:30',
             duracion: 120,
             capacidad: 20,
-            inscritos: 12,
-            estado: EstadoActividad.Activa
+            inscritos: [2],
+            estado: EstadoActividad.Activa,
+
         },
         {
             id: 2,
@@ -38,7 +39,7 @@ export class ActividadService {
             fecha: '2026-11-03T11:00',
             duracion: 60,
             capacidad: 40,
-            inscritos: 8,
+            inscritos: [2],
             estado: EstadoActividad.Activa,
         },
         {
@@ -50,7 +51,7 @@ export class ActividadService {
             fecha: '2026-12-05T19:00',
             duracion: 90,
             capacidad: 30,
-            inscritos: 30,
+            inscritos: [],
             estado: EstadoActividad.Activa,
         },
         {
@@ -62,7 +63,7 @@ export class ActividadService {
             fecha: '2026-10-20T17:00',
             duracion: 120,
             capacidad: 15,
-            inscritos: 15,
+            inscritos: [],
             estado: EstadoActividad.Activa,
         },
         {
@@ -74,7 +75,7 @@ export class ActividadService {
             fecha: '2026-11-12T19:30',
             duracion: 120,
             capacidad: 100,
-            inscritos: 45,
+            inscritos: [],
             estado: EstadoActividad.Activa,
         },
         {
@@ -86,7 +87,7 @@ export class ActividadService {
             fecha: '2026-11-18T16:00',
             duracion: 120,
             capacidad: 12,
-            inscritos: 2,
+            inscritos: [],
             estado: EstadoActividad.Activa
         },
         {
@@ -98,19 +99,19 @@ export class ActividadService {
             fecha: '2026-12-01T10:00',
             duracion: 240,
             capacidad: 50,
-            inscritos: 18,
+            inscritos: [],
             estado: EstadoActividad.Activa
         },
         {
             id: 8,
-            titulo: 'Taller de huerto urbano y compostaje',
+            titulo: 'Taller de aprendizaje de matemática 1 a 1',
             tipo: TipoActividad.Taller,
-            lugar: 'Jardín botánico municipal',
-            descripcion: 'Aprende a cultivar tus propias hortalizas y reutilizar residuos orgánicos en casa.',
+            lugar: 'Sala de talleres, piso 2',
+            descripcion: 'Aprende matemática básica con un tutor en sesiones individuales de 1 hora.',
             fecha: '2026-12-10T09:30',
             duracion: 150,
-            capacidad: 25,
-            inscritos: 24,
+            capacidad: 1,
+            inscritos: [],
             estado: EstadoActividad.Activa
         }
     ];
@@ -168,7 +169,7 @@ export class ActividadService {
             fecha: datos.fecha,
             duracion: Number(datos.duracion),
             capacidad: Number(datos.capacidad),
-            inscritos: 0,
+            inscritos: [],
             estado: EstadoActividad.Activa
         };
 
@@ -316,6 +317,7 @@ export class ActividadService {
         } else if (capacidad < 1) {
             errores.push('La capacidad debe ser de al menos 1 cupo.');
 
+
         } else if (aforoDeLugar(datos.lugar) !== undefined && capacidad > aforoDeLugar(datos.lugar)!) {
             // Excepción: no superar el cupo del lugar
             errores.push(
@@ -323,12 +325,12 @@ export class ActividadService {
                 aforoDeLugar(datos.lugar) + ' personas en "' + datos.lugar + '").'
             );
 
-        } else if (actual && capacidad < actual.inscritos) {
+        } else if (actual && capacidad < actual.inscritos.length) {
             // Excepción: no reducir capacidad bajo las inscripciones existentes
             errores.push(
                 'No puedes dejar la capacidad en ' + capacidad +
-                ': la actividad ya tiene ' + actual.inscritos + ' inscripción(es) registrada(s). ' +
-                'El mínimo permitido es ' + actual.inscritos + '.'
+                ': la actividad ya tiene ' + actual.inscritos.length + ' inscripción(es) registrada(s). ' +
+                'El mínimo permitido es ' + actual.inscritos.length + '.'
             );
         }
 
@@ -379,6 +381,14 @@ export class ActividadService {
     // ------------------------------------------------------------------
     public inscribir(id: number): Observable<IResultadoActividad> {
 
+        const ciudadano = this.loginService.getUsuarioActual();
+
+        if (!ciudadano || ciudadano.role !== 'usuario') {
+            return of({ ok: false, errores: ['Inicia sesión como ciudadano para inscribirte.'] });
+        }
+
+        const ciudadano_id = ciudadano.id;
+
         const actividad = this.getActividad(id);
 
         if (!actividad) {
@@ -392,11 +402,18 @@ export class ActividadService {
             });
         }
 
-        if (actividad.inscritos >= actividad.capacidad) {
+        if (actividad.inscritos.length >= actividad.capacidad) {
             return of({ ok: false, errores: ['La actividad no tiene cupos disponibles.'] });
         }
 
-        actividad.inscritos++;
+        // Comprobar que el ciudadano no esté ya inscrito
+        if (actividad.inscritos.includes(ciudadano_id)) {
+            return of({ ok: false, errores: ['Ya estás inscrito en esta actividad.'] });
+        }
+
+        // Registrar la inscripción
+        actividad.inscritos.push(ciudadano_id);
+        ciudadano.actividadesAgendadas.push(actividad.id);
 
         return of({ ok: true, errores: [], actividad: actividad });
     }
@@ -413,6 +430,8 @@ export class ActividadService {
             return of({ ok: false, errores: ['Inicia sesión como ciudadano para cancelar tu inscripción.'] });
         }
 
+        const ciudadano_id = ciudadano.id;
+
         const actividad = this.getActividad(id);
 
         if (!actividad) {
@@ -420,19 +439,13 @@ export class ActividadService {
         }
 
         // Comprobar que la inscripción pertenece al ciudadano
-        const posicion = ciudadano.actividadesAgendadas.indexOf(id);
-
-        if (posicion === -1) {
+        if (!actividad.inscritos.includes(ciudadano_id)) {
             return of({ ok: false, errores: ['No tienes una inscripción en esta actividad.'] });
         }
 
-        if (actividad.inscritos <= 0) {
-            return of({ ok: false, errores: ['No se pudo cancelar: revisa la ocupación con el administrador.'] });
-        }
-
         // Quitar la inscripción y liberar un solo cupo
-        ciudadano.actividadesAgendadas.splice(posicion, 1);
-        actividad.inscritos--;
+        actividad.inscritos = actividad.inscritos.filter(id => id !== ciudadano_id);
+        ciudadano.actividadesAgendadas = ciudadano.actividadesAgendadas.filter(id => id !== actividad.id);
 
         return of({ ok: true, errores: [], actividad: actividad });
     }
@@ -442,7 +455,13 @@ export class ActividadService {
     // HU-A09: Controlar inscripciones (admin)
     // Quitar una inscripción y liberar el cupo
     // ------------------------------------------------------------------
-    public quitarInscripcion(id: number): Observable<IResultadoActividad> {
+    public quitarInscripcion(id: number, ciudadano_id: number): Observable<IResultadoActividad> {
+
+        const ciudadano = this.loginService.getUsers().find(u => u.id === ciudadano_id);
+
+        if (!ciudadano || ciudadano.role !== 'usuario') {
+            return of({ ok: false, errores: ['El ciudadano no existe o no es un usuario válido.'] });
+        }
 
         // Precondición: sesión administrativa
         if (!this.loginService.isAdmin()) {
@@ -459,12 +478,53 @@ export class ActividadService {
             return of({ ok: false, errores: ['La actividad ya no existe.'] });
         }
 
-        if (actividad.inscritos <= 0) {
-            return of({ ok: false, errores: ['La actividad no tiene inscripciones que quitar.'] });
+        // Precondición: ciudadano inscrito en la actividad
+
+        if (!actividad.inscritos.includes(ciudadano_id)) {
+            return of({ ok: false, errores: ['El ciudadano no está inscrito en esta actividad.'] });
         }
 
         // Quitar la inscripción y liberar el cupo
-        actividad.inscritos--;
+        actividad.inscritos = actividad.inscritos.filter(id => id !== ciudadano_id);
+        ciudadano.actividadesAgendadas = ciudadano.actividadesAgendadas.filter(id => id !== actividad.id);
+
+
+        return of({ ok: true, errores: [], actividad: actividad });
+    }
+
+    public inscribirUsuario(id: number, ciudadano_id: number): Observable<IResultadoActividad> {
+
+        const ciudadano = this.loginService.getUsers().find(u => u.id === ciudadano_id);
+
+        if (!ciudadano || ciudadano.role !== 'usuario') {
+            return of({ ok: false, errores: ['Inicia sesión como ciudadano para inscribirte.'] });
+        }
+
+        const actividad = this.getActividad(id);
+
+        if (!actividad) {
+            return of({ ok: false, errores: ['La actividad no existe.'] });
+        }
+
+        if (actividad.estado === 'Cancelada') {
+            return of({
+                ok: false,
+                errores: ['No puedes inscribirte: la actividad fue cancelada.']
+            });
+        }
+
+        if (actividad.inscritos.length >= actividad.capacidad) {
+            return of({ ok: false, errores: ['La actividad no tiene cupos disponibles.'] });
+        }
+
+        // Comprobar que el ciudadano no esté ya inscrito
+        if (actividad.inscritos.includes(ciudadano_id)) {
+            return of({ ok: false, errores: ['Ya estás inscrito en esta actividad.'] });
+        }
+
+        // Registrar la inscripción
+        actividad.inscritos.push(ciudadano_id);
+        ciudadano.actividadesAgendadas.push(actividad.id);
 
         return of({ ok: true, errores: [], actividad: actividad });
     }
