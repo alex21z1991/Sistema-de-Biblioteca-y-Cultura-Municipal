@@ -1,39 +1,153 @@
+
 <div class="activity-card">
-  <div class="card-header">
-    <span class="badge" [ngClass]="actividad.tipo.toLowerCase()">{{ actividad.tipo }}</span>
-    <span class="capacity-tag" [class.full]="actividad.inscritos.length >= actividad.capacidad">
-      {{ actividad.capacidad - actividad.inscritos.length }} cupos disponibles
-    </span>
-  </div>
 
-  <h3 class="card-title">{{ actividad.titulo }}</h3>
-  <p class="card-description">{{ actividad.descripcion }}</p>
+  <!-- ========================= -->
+  <!-- TARJETA DE ACTIVIDAD -->
+  <!-- ========================= -->
+  <ng-container *ngIf="modo === 'actividad' && actividad">
 
-  <div class="card-details">
-    <div class="detail-item">
-      <span class="detail-label">Fecha y hora</span>
-      <span class="detail-value">{{ actividad.fecha | date:'dd/MM/yyyy - HH:mm' }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Duración</span>
-      <span class="detail-value">{{ duracionTexto }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Lugar</span>
-      <span class="detail-value">{{ actividad.lugar }}</span>
-    </div>
-    <div class="detail-item">
-      <span class="detail-label">Inscritos</span>
-      <span class="detail-value">{{ actividad.inscritos.length }} / {{ actividad.capacidad }}</span>
-    </div>
-  </div>
+    <div class="card-header">
+      <span
+        class="badge"
+        [ngClass]="actividad.tipo.toLowerCase()">
+        {{ actividad.tipo }}
+      </span>
 
-  <div class="card-footer">
-    <button 
-      class="boton boton--primario btn-primary" 
-      [disabled]="actividad.inscritos.length >= actividad.capacidad || yaInscrito"
-      (click)="onInscribir()">
-      {{ actividad.inscritos.length >= actividad.capacidad ? 'Agotado' : yaInscrito ? 'Ya inscrito' : 'Inscribirme' }}
-    </button>
-  </div>
+      <span
+        class="capacity-tag"
+        [class.full]="cuposDisponibles === 0">
+        {{ cuposDisponibles }} cupos disponibles
+      </span>
+    </div>
+
+    <h3 class="card-title">{{ actividad.titulo }}</h3>
+
+    <p class="card-description">
+      {{ actividad.descripcion }}
+    </p>
+
+    <div class="card-details">
+
+      <div class="detail-item">
+        <span class="detail-label">Fecha y hora</span>
+        <span class="detail-value">
+          {{ actividad.fecha | date:'dd/MM/yyyy - HH:mm' }}
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Duración</span>
+        <span class="detail-value">{{ duracionTexto }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Lugar</span>
+        <span class="detail-value">{{ actividad.lugar }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Inscritos</span>
+        <span class="detail-value">
+          {{ actividad.inscritos.length }} / {{ actividad.capacidad }}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="card-footer">
+      <button
+        type="button"
+        class="boton boton--primario btn-primary"
+        [disabled]="cuposDisponibles === 0 || yaInscrito"
+        (click)="onInscribir()">
+
+        {{
+          cuposDisponibles === 0
+            ? 'Agotado'
+            : yaInscrito
+              ? 'Ya inscrito'
+              : 'Inscribirme'
+        }}
+      </button>
+    </div>
+
+  </ng-container>
+
+  <!-- ========================= -->
+  <!-- TARJETA DE LIBRO O RECURSO -->
+  <!-- ========================= -->
+  <ng-container *ngIf="modo === 'libro' && recurso">
+
+    <div class="card-header">
+      <span class="badge recurso-badge">
+        {{ recurso.tipo }}
+      </span>
+
+      <span
+        class="capacity-tag"
+        [class.full]="disponibles(recurso) === 0">
+
+        {{
+          disponibles(recurso) > 0
+            ? disponibles(recurso) + ' disponibles'
+            : 'Agotado'
+        }}
+      </span>
+    </div>
+
+    <h3 class="card-title">{{ recurso.titulo }}</h3>
+
+    <p class="card-description">
+      Autor: {{ recurso.autor }}
+    </p>
+
+    <div class="card-details">
+
+      <div class="detail-item">
+        <span class="detail-label">Categoría</span>
+        <span class="detail-value">{{ recurso.categoria }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Tipo de recurso</span>
+        <span class="detail-value">{{ recurso.tipo }}</span>
+      </div>
+
+      <div class="detail-item">
+        <span class="detail-label">Ejemplares disponibles</span>
+        <span class="detail-value">
+          {{ disponibles(recurso) }} / {{ recurso.ejemplares }}
+        </span>
+      </div>
+
+    </div>
+
+    <div class="card-footer">
+
+      <button
+        type="button"
+        class="boton boton--primario btn-primary"
+        [disabled]="
+          esAdmin ||
+          disponibles(recurso) <= 0 ||
+          yaReservado
+        "
+        (click)="onReservar()">
+
+        {{
+          esAdmin
+            ? 'Solo para ciudadanos'
+            : yaReservado
+              ? 'Ya reservado'
+              : disponibles(recurso) <= 0
+                ? 'Sin disponibilidad'
+                : 'Reservar'
+        }}
+
+      </button>
+
+    </div>
+
+  </ng-container>
+
 </div>

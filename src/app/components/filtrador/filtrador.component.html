@@ -1,0 +1,50 @@
+<section class="filtros-recursos">
+
+  <div class="campo">
+    <label for="buscar">Buscar recurso</label>
+
+    <input
+      id="buscar"
+      type="search"
+      [(ngModel)]="filtros.texto"
+      (ngModelChange)="emitirFiltros()"
+      placeholder="Título, autor o categoría">
+  </div>
+
+  <div class="campo">
+    <label for="categoria">Categoría</label>
+
+    <select
+      id="categoria"
+      [(ngModel)]="filtros.categoria"
+      (ngModelChange)="emitirFiltros()">
+
+      <option value="">Todas las categorías</option>
+
+      <option
+        *ngFor="let categoria of categorias"
+        [value]="categoria">
+        {{ categoria }}
+      </option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="disponibilidad">Disponibilidad</label>
+
+    <select
+      id="disponibilidad"
+      [(ngModel)]="filtros.disponibilidad"
+      (ngModelChange)="emitirFiltros()">
+
+      <option value="todos">Todos</option>
+      <option value="disponibles">Disponibles</option>
+      <option value="agotados">Agotados</option>
+    </select>
+  </div>
+
+  <button type="button" (click)="limpiar()">
+    Limpiar filtros
+  </button>
+
+</section>

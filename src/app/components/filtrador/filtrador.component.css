@@ -1,0 +1,61 @@
+.filtros-recursos {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  padding: 20px;
+  margin: 20px 0;
+  background: #ffffff;
+  border: 1px solid #e0e5ec;
+  border-radius: 12px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.campo label {
+  color: #344054;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.campo input,
+.campo select {
+  width: 100%;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #cbd2dc;
+  border-radius: 7px;
+  background: #ffffff;
+}
+
+.filtros-recursos button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid #cbd2dc;
+  border-radius: 7px;
+  background: #f4f6f9;
+  cursor: pointer;
+}
+
+.filtros-recursos button:hover {
+  background: #e7edf5;
+}
+
+@media (max-width: 850px) {
+  .filtros-recursos {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .filtros-recursos {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+}

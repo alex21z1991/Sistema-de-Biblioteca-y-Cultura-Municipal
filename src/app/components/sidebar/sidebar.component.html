@@ -12,18 +12,19 @@
             <a routerLink="/explorar">
                 Explorar
             </a>
+
+            <a
+                routerLink="/reservas"
+                routerLinkActive="activo">
+                Reservas
+            </a>
         }
-        
+
         @if (esAdmin) {
             <a routerLink="/admin-catalogo">
                 Catálogo
             </a>
         }
-
-        <a routerLink="/reservas">
-            Reservas
-        </a>
-
         <a routerLink="/multas">
             Multas
         </a>

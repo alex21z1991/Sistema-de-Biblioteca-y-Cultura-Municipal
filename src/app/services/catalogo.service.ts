@@ -89,4 +89,75 @@ export class CatalogoService {
     if (titulo && autor && duplicado) errores.push('Ya existe un recurso con el mismo título y autor.');
     return errores;
   }
+    // Registrar una reserva para el usuario que inició sesión
+  reservarRecurso(id: number): Observable<IResultadoRecurso> {
+
+    const usuario = this.loginService.getUsuarioActual();
+
+    if (!usuario) {
+      return of({
+        ok: false,
+        errores: ['Debes iniciar sesión para reservar.']
+      });
+    }
+
+    if (this.loginService.isAdmin()) {
+      return of({
+        ok: false,
+        errores: ['El administrador no puede reservar recursos.']
+      });
+    }
+
+    const recurso = this.getRecurso(id);
+
+    if (!recurso || !recurso.activo) {
+      return of({
+        ok: false,
+        errores: ['El recurso no existe o no está disponible.']
+      });
+    }
+
+    // Evitar que el mismo usuario reserve dos veces el mismo recurso
+    if (usuario.librosPedidos.includes(id)) {
+      return of({
+        ok: false,
+        errores: ['Ya tienes una reserva de este recurso.']
+      });
+    }
+
+    // Verificar los ejemplares disponibles
+    const disponibles =
+      recurso.ejemplares - recurso.ejemplaresComprometidos;
+
+    if (disponibles <= 0) {
+      return of({
+        ok: false,
+        errores: ['No quedan ejemplares disponibles.']
+      });
+    }
+
+    // Registrar la reserva
+    usuario.librosPedidos.push(id);
+    recurso.ejemplaresComprometidos++;
+
+    return of({
+      ok: true,
+      errores: [],
+      recurso
+    });
+  }
+
+  // Consultar las reservas del usuario actual
+  getMisRecursosReservados(): IRecurso[] {
+
+    const usuario = this.loginService.getUsuarioActual();
+
+    if (!usuario) {
+      return [];
+    }
+
+    return usuario.librosPedidos
+      .map(id => this.getRecurso(id))
+      .filter((recurso): recurso is IRecurso => !!recurso);
+  }
 }

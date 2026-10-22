@@ -1,0 +1,115 @@
+
+<div class="reservas-container contenedor">
+
+  <!-- Encabezado -->
+  <header class="encabezado">
+    <h1>Reservas de recursos</h1>
+
+    <p>
+      Encuentra libros y otros recursos del catálogo
+      de la biblioteca municipal.
+    </p>
+  </header>
+
+  <!-- Buscador y filtros de la HU03 -->
+  <app-filtrador
+    [categorias]="categorias"
+    (filtrosChange)="recibirFiltros($event)">
+  </app-filtrador>
+
+  <!-- Mensaje de éxito -->
+  <div
+    *ngIf="mensaje"
+    class="mensaje exito"
+    role="status">
+    {{ mensaje }}
+  </div>
+
+  <!-- Mensajes de error -->
+  <div
+    *ngIf="errores.length > 0"
+    class="mensaje error"
+    role="alert">
+
+    <p *ngFor="let error of errores">
+      {{ error }}
+    </p>
+  </div>
+
+  <!-- Catálogo de recursos -->
+  <section class="seccion-catalogo">
+
+    <h2>Catálogo disponible</h2>
+
+    <p class="contador">
+      {{ recursosFiltrados.length }} recurso(s) encontrado(s)
+    </p>
+
+    <div
+      *ngIf="recursosFiltrados.length > 0; else sinResultados"
+      class="recursos-grid">
+
+      <!-- Reutilizar la tarjeta existente -->
+      <app-activity-card
+        *ngFor="let recurso of recursosFiltrados"
+        [modo]="'libro'"
+        [recurso]="recurso"
+        [yaReservado]="estaReservado(recurso)"
+        [esAdmin]="esAdmin"
+        (reservarRecurso)="reservar($event)">
+      </app-activity-card>
+
+    </div>
+
+    <!-- Cuando no hay resultados -->
+    <ng-template #sinResultados>
+      <div class="sin-resultados">
+        <h3>No se encontraron recursos</h3>
+
+        <p>
+          Cambia las palabras de búsqueda o modifica
+          los filtros para encontrar otros libros.
+        </p>
+      </div>
+    </ng-template>
+
+  </section>
+
+  <!-- Reservas del ciudadano -->
+  <section
+    class="seccion-mis-reservas"
+    *ngIf="!esAdmin">
+
+    <h2>Mis reservas</h2>
+
+    <p *ngIf="misReservas.length === 0">
+      Todavía no tienes recursos reservados.
+    </p>
+
+    <div
+      *ngIf="misReservas.length > 0"
+      class="reservas-lista">
+
+      <article
+        class="reserva-item"
+        *ngFor="let recurso of misReservas">
+
+        <div>
+          <h3>{{ recurso.titulo }}</h3>
+
+          <p>Autor: {{ recurso.autor }}</p>
+
+          <p>Categoría: {{ recurso.categoria }}</p>
+        </div>
+
+        <span class="reserva-confirmada">
+          Reserva registrada
+        </span>
+
+      </article>
+
+    </div>
+
+  </section>
+
+</div>
