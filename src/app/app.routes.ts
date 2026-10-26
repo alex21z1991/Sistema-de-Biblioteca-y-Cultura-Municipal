@@ -7,9 +7,11 @@ import { AdminCatalogoComponent } from './components/admin-catalogo/admin-catalo
 
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { CiudadanoGuard } from './guards/ciudadano.guard';
 
 import { LayoutComponent } from './components/layout/layout.component';
 import { ExploreComponent } from './components/explore/explore.component';
+import { ConfirmarReservaComponent } from './components/confirmar-reserva/confirmar-reserva.component';
 
 
 export const routes: Routes = [
@@ -47,6 +49,13 @@ export const routes: Routes = [
             
             },
             
+            // HU-C05: confirmar reservas (solo ciudadano)
+            {
+                path: 'reservas/confirmar',
+                component: ConfirmarReservaComponent,
+                canActivate: [CiudadanoGuard]
+            },
+
             // HU-A02: gestión del catálogo
             {
                 path: 'admin-catalogo',
