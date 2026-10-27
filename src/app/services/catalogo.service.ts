@@ -9,10 +9,15 @@ export class CatalogoService {
   private recursos: IRecurso[] = [
     { id: 1, titulo: 'Cien años de soledad', autor: 'Gabriel García Márquez', categoria: 'Literatura', tipo: 'Libro', ejemplares: 5, ejemplaresComprometidos: 2, activo: true },
     { id: 2, titulo: 'Libro1', autor: 'Autor1', categoria: 'Historia', tipo: 'Libro', ejemplares: 3, ejemplaresComprometidos: 0, activo: true },
-    { id: 3, titulo: 'Libro2', autor: 'Autor2', categoria: 'Ciencia', tipo: 'Revista', ejemplares: 2, ejemplaresComprometidos: 0, activo: false }
+    { id: 3, titulo: 'Libro2', autor: 'Autor2', categoria: 'Ciencia', tipo: 'Revista', ejemplares: 2, ejemplaresComprometidos: 0, activo: false },
+    // Datos de prueba para la HU-C05 (confirmar reservas)
+    { id: 4, titulo: 'Subterra', autor: 'Baldomero Lillo', categoria: 'Cuentos y relatos', tipo: 'Libro', ejemplares: 4, ejemplaresComprometidos: 1, activo: true },
+    { id: 5, titulo: 'Historia de Arica', autor: 'Autor3', categoria: 'Historia', tipo: 'Libro', ejemplares: 2, ejemplaresComprometidos: 0, activo: true },
+    { id: 6, titulo: 'Introducción a la programación', autor: 'Autor4', categoria: 'Informática y programación', tipo: 'Libro electrónico (e-book)', ejemplares: 3, ejemplaresComprometidos: 0, activo: true },
+    { id: 7, titulo: 'Atlas de Chile', autor: 'Autor5', categoria: 'Geografía', tipo: 'Mapa / Atlas', ejemplares: 1, ejemplaresComprometidos: 1, activo: true }
   ];
 
-  private ultimoId = 3;
+  private ultimoId = 7;
 
   constructor(private loginService: LoginService) {}
 

@@ -1,0 +1,107 @@
+:host {
+    --c-navy: var(--navy, #112F4E);
+    --c-cian: var(--cian, #00BDE3);
+    --c-celeste-claro: #E7F6F8;
+    --c-peligro: #B50909;
+    --c-exito: #2e8540;
+    --c-borde: var(--borde, #d9d9d9);
+    --c-tx2: var(--tx2, #5c6a79);
+    --f-titulo: var(--fuente-titulo, 'Merriweather', Georgia, serif);
+
+    display: block;
+}
+
+.resumen-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--c-borde);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.resumen-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+}
+
+.resumen-item + .resumen-item {
+    border-top: 1px solid var(--c-borde);
+}
+
+.resumen-tipo {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: var(--c-celeste-claro);
+    color: var(--c-navy);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.resumen-info h3 {
+    margin: 6px 0 4px;
+    font-family: var(--f-titulo);
+    font-size: 17px;
+    color: var(--c-navy);
+}
+
+.resumen-info p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--c-tx2);
+}
+
+.resumen-acciones {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.resumen-stock {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-exito);
+}
+
+.resumen-stock--agotado {
+    color: var(--c-peligro);
+}
+
+.boton-quitar {
+    padding: 6px 12px;
+    border: 2px solid var(--c-peligro);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--c-peligro);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.boton-quitar:hover:not(:disabled) {
+    background: #fbe1e0;
+}
+
+.boton-quitar:focus-visible {
+    outline: 4px solid var(--c-cian);
+    outline-offset: 2px;
+}
+
+.boton-quitar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+    .resumen-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

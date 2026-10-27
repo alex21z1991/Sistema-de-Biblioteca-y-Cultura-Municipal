@@ -1,0 +1,174 @@
+<div class="confirmar-container">
+
+  <header class="page-header">
+    <h1>Confirmar reserva</h1>
+    <p class="subtitle">
+      Revisa los recursos seleccionados, elige cuándo los retirarás y confirma tu reserva.
+    </p>
+  </header>
+
+  <!-- Avisos (errores o éxito). Recibe el foco con @ViewChild -->
+  <div #avisos tabindex="-1" class="avisos">
+
+    <div *ngIf="errores.length > 0" class="alerta alerta--error" role="alert">
+      <strong>No pudimos confirmar tu reserva:</strong>
+      <ul>
+        <li *ngFor="let error of errores">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <ng-container [ngSwitch]="estado">
+
+    <!-- ============ Cargando ============ -->
+    <section *ngSwitchCase="Estado.Cargando" class="estado estado--cargando" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Cargando tu selección…</p>
+    </section>
+
+    <!-- ============ Error al cargar ============ -->
+    <section *ngSwitchCase="Estado.Error" class="estado">
+      <div class="alerta alerta--error" role="alert">
+        No se pudo cargar tu selección de recursos.
+      </div>
+      <button type="button" class="boton" (click)="cargarSeleccion()">Reintentar</button>
+    </section>
+
+    <!-- ============ Vacío ============ -->
+    <section *ngSwitchCase="Estado.Vacio" class="estado estado--vacio">
+      <h2>No tienes recursos seleccionados</h2>
+      <p>Agrega al menos un recurso del catálogo para poder confirmar una reserva.</p>
+
+      <div class="agregar" *ngIf="reservables.length > 0">
+        <label for="agregar-vacio">Recurso disponible</label>
+        <div class="agregar-fila">
+          <select id="agregar-vacio" class="campo" name="agregarVacio" [(ngModel)]="recursoAAgregar">
+            <option [ngValue]="null" disabled>Selecciona un recurso…</option>
+            <option *ngFor="let r of reservables" [ngValue]="r.id">{{ r.titulo }} — {{ r.autor }}</option>
+          </select>
+          <button type="button" class="boton" [disabled]="recursoAAgregar === null" (click)="agregar()">
+            Agregar
+          </button>
+        </div>
+      </div>
+
+      <a routerLink="/reservas" class="boton boton--contorno">Ir al catálogo</a>
+    </section>
+
+    <!-- ============ Éxito ============ -->
+    <section *ngSwitchCase="Estado.Exito" class="estado">
+      <div class="alerta alerta--ok" role="status">
+        <strong>¡Reserva confirmada!</strong>
+        Retira tus recursos en el mesón de préstamos a más tardar el
+        <strong>{{ aFecha(fechaRetiroConfirmada) | date: 'dd/MM/yyyy' }}</strong>.
+        Si no los retiras, la reserva se libera automáticamente.
+      </div>
+
+      <h2>Comprobante</h2>
+      <table class="tabla-comprobante">
+        <thead>
+          <tr>
+            <th scope="col">Código</th>
+            <th scope="col">Recurso</th>
+            <th scope="col">Retiro</th>
+            <th scope="col">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reserva of reservasConfirmadas">
+            <td><code>{{ reserva.codigo }}</code></td>
+            <td>{{ reserva.tituloRecurso }}</td>
+            <td>{{ aFecha(reserva.fechaRetiro) | date: 'dd/MM/yyyy' }}</td>
+            <td><span class="etiqueta-estado">{{ reserva.estado }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="acciones">
+        <button type="button" class="boton" (click)="nuevaReserva()">Hacer otra reserva</button>
+        <a routerLink="/home" class="boton boton--contorno">Volver al inicio</a>
+      </div>
+    </section>
+
+    <!-- ============ Listo / Confirmando ============ -->
+    <section *ngSwitchDefault class="grid-confirmar">
+
+      <div class="columna-resumen">
+        <h2>Recursos seleccionados ({{ recursos.length }})</h2>
+
+        <!-- Componente hijo: @Input recursos / @Output quitar -->
+        <app-resumen-reserva
+          [recursos]="recursos"
+          [bloqueado]="estado === Estado.Confirmando"
+          (quitar)="quitar($event)">
+        </app-resumen-reserva>
+
+        <div class="agregar" *ngIf="reservables.length > 0">
+          <label for="agregar-otro">¿Quieres agregar otro recurso?</label>
+          <div class="agregar-fila">
+            <select id="agregar-otro" class="campo" name="agregarOtro" [(ngModel)]="recursoAAgregar"
+                    [disabled]="estado === Estado.Confirmando">
+              <option [ngValue]="null" disabled>Selecciona un recurso…</option>
+              <option *ngFor="let r of reservables" [ngValue]="r.id">{{ r.titulo }} — {{ r.autor }}</option>
+            </select>
+            <button type="button" class="boton boton--contorno"
+                    [disabled]="recursoAAgregar === null || estado === Estado.Confirmando"
+                    (click)="agregar()">
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <form class="tarjeta-form" #formReserva="ngForm" (ngSubmit)="confirmar(formReserva)" novalidate>
+        <h2>Datos del retiro</h2>
+
+        <label for="fechaRetiro">Fecha de retiro</label>
+        <input
+          id="fechaRetiro"
+          class="campo"
+          type="date"
+          name="fechaRetiro"
+          required
+          [min]="fechaMinima"
+          [max]="fechaMaxima"
+          [(ngModel)]="formulario.fechaRetiro"
+          #fechaCtrl="ngModel"
+          [disabled]="estado === Estado.Confirmando">
+        <small class="ayuda">Puedes retirar desde hoy y hasta {{ diasRetiro }} días más.</small>
+        <small class="error-campo" *ngIf="fechaCtrl.invalid && fechaCtrl.touched">
+          Selecciona una fecha de retiro.
+        </small>
+
+        <ul class="condiciones">
+          <li>Máximo {{ maxReservas }} recursos reservados a la vez.</li>
+          <li>Si tienes multas pendientes no podrás reservar.</li>
+          <li>La reserva se libera si no retiras en la fecha indicada.</li>
+        </ul>
+
+        <label class="check">
+          <input
+            type="checkbox"
+            name="aceptaCondiciones"
+            required
+            [(ngModel)]="formulario.aceptaCondiciones"
+            #condCtrl="ngModel"
+            [disabled]="estado === Estado.Confirmando">
+          Acepto las condiciones de préstamo de la biblioteca.
+        </label>
+        <small class="error-campo" *ngIf="condCtrl.invalid && condCtrl.touched">
+          Debes aceptar las condiciones.
+        </small>
+
+        <button type="submit" class="boton boton--exito boton--ancho"
+                [disabled]="estado === Estado.Confirmando">
+          <span *ngIf="estado === Estado.Confirmando" class="spinner spinner--chico" aria-hidden="true"></span>
+          {{ estado === Estado.Confirmando ? 'Confirmando…' : 'Confirmar reserva' }}
+        </button>
+      </form>
+
+    </section>
+
+  </ng-container>
+</div>

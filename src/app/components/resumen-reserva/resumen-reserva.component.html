@@ -1,0 +1,28 @@
+<ul class="resumen-lista">
+  <li class="resumen-item" *ngFor="let recurso of recursos">
+
+    <div class="resumen-info">
+      <span class="resumen-tipo">{{ recurso.tipo }}</span>
+      <h3>{{ recurso.titulo }}</h3>
+      <p>{{ recurso.autor }} · {{ recurso.categoria }}</p>
+    </div>
+
+    <div class="resumen-acciones">
+      <span
+        class="resumen-stock"
+        [class.resumen-stock--agotado]="disponibles(recurso) === 0">
+        {{ disponibles(recurso) }} de {{ recurso.ejemplares }} disponible(s)
+      </span>
+
+      <button
+        type="button"
+        class="boton-quitar"
+        [disabled]="bloqueado"
+        [attr.aria-label]="'Quitar ' + recurso.titulo + ' de la reserva'"
+        (click)="quitarRecurso(recurso)">
+        Quitar
+      </button>
+    </div>
+
+  </li>
+</ul>

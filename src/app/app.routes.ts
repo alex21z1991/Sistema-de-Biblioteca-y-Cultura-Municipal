@@ -8,9 +8,11 @@ import { AdminCatalogoComponent } from './components/admin-catalogo/admin-catalo
 import { LayoutComponent } from './components/layout/layout.component';
 import { ExploreComponent } from './components/explore/explore.component';
 import { ReservasComponent } from './components/reservas/reservas.component';
+import { ConfirmarReservaComponent } from './components/confirmar-reserva/confirmar-reserva.component';
 
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { CiudadanoGuard } from './guards/ciudadano.guard';
 
 export const routes: Routes = [
   {
@@ -37,7 +39,13 @@ export const routes: Routes = [
       },
       {
         path: 'reservas',
-        component: ReservasComponent
+        component: ReservasComponent,
+        canActivate: [CiudadanoGuard]
+      },
+      {
+        path: 'reservas/confirmar',
+        component: ConfirmarReservaComponent,
+        canActivate: [CiudadanoGuard]
       },
       {
         path: 'admin-catalogo',
