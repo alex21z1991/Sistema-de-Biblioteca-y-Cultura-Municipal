@@ -1,0 +1,57 @@
+<div class="cart-container">
+  <header>
+    <h1>Mi carrito</h1>
+    <p>Revisa tu selección antes de reservar. Los ejemplares se reservan al confirmar.</p>
+  </header>
+
+  <p *ngIf="message" class="cart-message" role="status">{{ message }}</p>
+
+  <ng-container [ngSwitch]="state">
+    <section *ngSwitchCase="State.Loading" class="cart-state" role="status">
+      Cargando tu carrito…
+    </section>
+
+    <section *ngSwitchCase="State.Error" class="cart-state">
+      <p role="alert">No pudimos cargar tu carrito. Inténtalo nuevamente.</p>
+      <button class="cart-button" type="button" (click)="retry()">Reintentar</button>
+    </section>
+
+    <section *ngSwitchCase="State.Empty" class="cart-state">
+      <h2>Tu carrito está vacío</h2>
+      <p>Agrega recursos disponibles desde el catálogo.</p>
+      <a class="cart-button" routerLink="/reservas">Ir al catálogo</a>
+    </section>
+
+    <section *ngSwitchCase="State.Ready">
+      <h2>Recursos seleccionados ({{ resources.length + missingIds.length }})</h2>
+
+      <p *ngIf="hasUnavailableResources" class="cart-warning" role="alert">
+        Hay recursos que ya no están disponibles. Quítalos del carrito para continuar.
+      </p>
+
+      <p *ngFor="let warning of warnings" class="cart-warning" role="alert">{{ warning }}</p>
+
+      <app-resumen-reserva
+        [recursos]="resources"
+        (quitar)="removeResource($event)">
+      </app-resumen-reserva>
+
+      <div *ngFor="let id of missingIds" class="missing-resource">
+        <span>El recurso {{ id }} ya no está en el catálogo.</span>
+        <button class="cart-button cart-button--outline" type="button"
+                [attr.aria-label]="'Quitar recurso ' + id" (click)="removeMissingResource(id)">
+          Quitar
+        </button>
+      </div>
+
+      <div class="cart-actions">
+        <a class="cart-button cart-button--outline" routerLink="/reservas">Seguir buscando</a>
+        <a *ngIf="canContinue; else blocked" class="cart-button"
+           routerLink="/reservas/confirmar">Continuar a confirmación</a>
+        <ng-template #blocked>
+          <button class="cart-button" type="button" disabled>Continuar a confirmación</button>
+        </ng-template>
+      </div>
+    </section>
+  </ng-container>
+</div>

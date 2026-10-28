@@ -10,15 +10,15 @@
     <div class="resumen-acciones">
       <span
         class="resumen-stock"
-        [class.resumen-stock--agotado]="disponibles(recurso) === 0">
-        {{ disponibles(recurso) }} de {{ recurso.ejemplares }} disponible(s)
+        [class.resumen-stock--agotado]="!recurso.activo || disponibles(recurso) === 0">
+        {{ recurso.activo ? disponibles(recurso) + ' de ' + recurso.ejemplares + ' disponible(s)' : 'No disponible' }}
       </span>
 
       <button
         type="button"
         class="boton-quitar"
         [disabled]="bloqueado"
-        [attr.aria-label]="'Quitar ' + recurso.titulo + ' de la reserva'"
+        [attr.aria-label]="'Quitar ' + recurso.titulo + ' de la selección'"
         (click)="quitarRecurso(recurso)">
         Quitar
       </button>

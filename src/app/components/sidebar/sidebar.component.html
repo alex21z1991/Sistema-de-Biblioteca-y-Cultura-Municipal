@@ -18,6 +18,9 @@
                 routerLinkActive="activo">
                 Reservas
             </a>
+            <a routerLink="/carrito" routerLinkActive="activo">
+                Carrito ({{ (cartIds$ | async)?.length ?? 0 }})
+            </a>
         }
 
         @if (esAdmin) {

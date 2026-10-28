@@ -5,13 +5,15 @@
     <p class="subtitle">
       Revisa los recursos seleccionados, elige cuándo los retirarás y confirma tu reserva.
     </p>
+    <a *ngIf="estado !== Estado.Confirmando && estado !== Estado.Exito" routerLink="/carrito"
+       class="boton boton--contorno">Volver al carrito</a>
   </header>
 
   <!-- Avisos (errores o éxito). Recibe el foco con @ViewChild -->
   <div #avisos tabindex="-1" class="avisos">
 
     <div *ngIf="errores.length > 0" class="alerta alerta--error" role="alert">
-      <strong>No pudimos confirmar tu reserva:</strong>
+      <strong>Revisa tu selección:</strong>
       <ul>
         <li *ngFor="let error of errores">{{ error }}</li>
       </ul>
@@ -62,7 +64,6 @@
         <strong>¡Reserva confirmada!</strong>
         Retira tus recursos en el mesón de préstamos a más tardar el
         <strong>{{ aFecha(fechaRetiroConfirmada) | date: 'dd/MM/yyyy' }}</strong>.
-        Si no los retiras, la reserva se libera automáticamente.
       </div>
 
       <h2>Comprobante</h2>
@@ -144,7 +145,7 @@
         <ul class="condiciones">
           <li>Máximo {{ maxReservas }} recursos reservados a la vez.</li>
           <li>Si tienes multas pendientes no podrás reservar.</li>
-          <li>La reserva se libera si no retiras en la fecha indicada.</li>
+          <li>Retira los recursos en la fecha indicada.</li>
         </ul>
 
         <label class="check">
@@ -164,7 +165,7 @@
         <button type="submit" class="boton boton--exito boton--ancho"
                 [disabled]="estado === Estado.Confirmando">
           <span *ngIf="estado === Estado.Confirmando" class="spinner spinner--chico" aria-hidden="true"></span>
-          {{ estado === Estado.Confirmando ? 'Confirmando…' : 'Confirmar reserva' }}
+          {{ estado === Estado.Confirmando ? 'Confirmando…' : 'Confirmar todos los recursos' }}
         </button>
       </form>
 

@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  font-family: var(--fuente-texto, 'Source Sans 3', sans-serif);
+  color: var(--navy, #112F4E);
+}
+
+.cart-container { max-width: 1100px; margin: 0 auto; padding: 32px 28px; }
+h1, h2 { font-family: var(--fuente-titulo, 'Merriweather', Georgia, serif); }
+h1 { font-size: 30px; margin: 0 0 8px; }
+h2 { font-size: 20px; margin-bottom: 16px; }
+header p { color: var(--tx2, #5c6a79); margin-bottom: 24px; }
+
+.cart-state, .missing-resource {
+  padding: 24px;
+  border: 1px solid var(--borde, #d9d9d9);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.cart-actions, .missing-resource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.cart-button {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 2px solid var(--navy, #112F4E);
+  border-radius: 6px;
+  background: var(--navy, #112F4E);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cart-button:hover:not(:disabled) { background: #1A4480; color: #fff; }
+.cart-button--outline { background: #fff; color: var(--navy, #112F4E); }
+.cart-button:focus-visible { outline: 4px solid var(--cian, #00BDE3); outline-offset: 2px; }
+.cart-button:disabled { opacity: .5; cursor: not-allowed; }
+.cart-message, .cart-warning { padding: 14px; border-left: 4px solid var(--navy, #112F4E); }
+.cart-message { background: var(--celeste-claro, #E7F6F8); }
+.cart-warning { background: #fff3cd; border-color: #936f00; color: #594100; }
+
+@media (max-width: 640px) {
+  .cart-container { padding: 24px 16px; }
+  .cart-actions .cart-button { width: 100%; text-align: center; }
+}

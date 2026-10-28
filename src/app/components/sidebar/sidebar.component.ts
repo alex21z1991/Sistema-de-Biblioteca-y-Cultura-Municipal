@@ -1,21 +1,24 @@
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { AsyncPipe, isPlatformBrowser } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LoginService } from '../../services/login.service';
+import { ReservaService } from '../../services/reserva.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink],
+  imports: [AsyncPipe, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements OnInit {
   esAdmin: boolean = false;
+  readonly cartIds$ = this.reservaService.seleccion$;
 
   constructor(
     private loginService: LoginService,
     private router: Router,
+    private reservaService: ReservaService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 

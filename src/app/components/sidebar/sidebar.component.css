@@ -5,6 +5,7 @@
     padding: 10px 25px;
     background-color: var(--navy); 
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row; /* Convierte la lista en horizontal */
     align-items: center;
     justify-content: space-between; /* Enlaces a la izquierda, botón a la derecha */
@@ -18,6 +19,7 @@
 
 .sidebar nav {
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row; /* Enlaces horizontales */
     gap: 15px;
 }

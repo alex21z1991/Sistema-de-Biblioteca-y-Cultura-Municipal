@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
 
+import { CartResult } from '../interfaces/cart';
 import { IRecurso } from '../interfaces/irecurso';
 import {
     EstadoReserva,
@@ -21,9 +22,14 @@ const LATENCIA_SIMULADA = 500;           // ms, para ver el estado de carga
 @Injectable({ providedIn: 'root' })
 export class ReservaService {
 
-    // Selección del ciudadano antes de confirmar (el "carrito")
-    private seleccion = new BehaviorSubject<number[]>([]);
-    public seleccion$ = this.seleccion.asObservable();
+    // Cada ciudadano conserva su carrito mientras la aplicación está abierta.
+    private selectionsByUser = new BehaviorSubject<Record<number, number[]>>({});
+    readonly seleccion$ = combineLatest([
+        this.loginService.currentUser$,
+        this.selectionsByUser
+    ]).pipe(map(([user, selections]) =>
+        user?.role === 'usuario' ? [...(selections[user.id] ?? [])] : []
+    ));
 
     // Reservas confirmadas en memoria (mismo enfoque que los otros servicios)
     private reservas: IReserva[] = [];
@@ -40,37 +46,94 @@ export class ReservaService {
     // ------------------------------------------------------------------
 
     public getSeleccionIds(): number[] {
-        return this.seleccion.value;
+        const user = this.loginService.getUsuarioActual();
+        return user?.role === 'usuario'
+            ? [...(this.selectionsByUser.value[user.id] ?? [])]
+            : [];
     }
 
-    public agregarASeleccion(recursoId: number): void {
-        if (!this.seleccion.value.includes(recursoId)) {
-            this.seleccion.next([...this.seleccion.value, recursoId]);
+    public agregarASeleccion(recursoId: number): CartResult {
+        const user = this.loginService.getUsuarioActual();
+        if (!user || user.role !== 'usuario') {
+            return { ok: false, errors: ['Inicia sesión como ciudadano para agregar recursos al carrito.'] };
         }
+
+        const resource = this.catalogoService.getRecurso(recursoId);
+        if (!resource || !resource.activo) {
+            return { ok: false, errors: ['El recurso no está disponible en el catálogo.'] };
+        }
+        if (this.disponibles(resource) === 0) {
+            return { ok: false, errors: ['No quedan ejemplares disponibles de este recurso.'] };
+        }
+        if (user.librosPedidos.includes(recursoId)) {
+            return { ok: false, errors: ['Ya tienes una reserva de este recurso.'] };
+        }
+
+        const ids = this.getSeleccionIds();
+        if (ids.includes(recursoId)) {
+            return { ok: false, errors: ['Este recurso ya está en tu carrito.'] };
+        }
+
+        this.updateSelection([...ids, recursoId]);
+        return { ok: true, errors: [] };
     }
 
     public quitarDeSeleccion(recursoId: number): void {
-        this.seleccion.next(this.seleccion.value.filter(id => id !== recursoId));
+        this.updateSelection(this.getSeleccionIds().filter(id => id !== recursoId));
     }
 
     public limpiarSeleccion(): void {
-        this.seleccion.next([]);
+        this.updateSelection([]);
+    }
+
+    private updateSelection(ids: number[]): void {
+        const user = this.loginService.getUsuarioActual();
+        if (user?.role === 'usuario') {
+            this.selectionsByUser.next({ ...this.selectionsByUser.value, [user.id]: ids });
+        }
     }
 
     // Recursos de la selección con sus datos completos, listos para el resumen
     public getResumenSeleccion(): Observable<IRecurso[]> {
-        const recursos = this.seleccion.value
+        const recursos = this.getSeleccionIds()
             .map(id => this.catalogoService.getRecurso(id))
             .filter((recurso): recurso is IRecurso => !!recurso);
 
         return of(recursos).pipe(delay(LATENCIA_SIMULADA));
     }
 
+    // Avisos antes de confirmar la reserva.
+    public getCartWarnings(): string[] {
+        const user = this.loginService.getUsuarioActual();
+        if (!user || user.role !== 'usuario') {
+            return [];
+        }
+
+        const warnings: string[] = [];
+        if (user.multas.length > 0) {
+            warnings.push(
+                'Tienes ' + user.multas.length + ' multa(s) pendiente(s). ' +
+                'Regulariza tu situación antes de confirmar la reserva.'
+            );
+        }
+
+        const active = user.librosPedidos.length;
+        const excess = active + this.getSeleccionIds().length - MAX_RESERVAS_ACTIVAS;
+        if (excess > 0) {
+            warnings.push(
+                'Puedes tener como máximo ' + MAX_RESERVAS_ACTIVAS + ' recursos reservados y ya tienes ' + active + '. ' +
+                'Quita ' + excess + ' recurso(s) del carrito para continuar.'
+            );
+        }
+
+        return warnings;
+    }
+
     // Recursos que el ciudadano todavía puede agregar a la selección
     public getRecursosReservables(): IRecurso[] {
         const usuario = this.loginService.getUsuarioActual();
         const yaPedidos = usuario?.librosPedidos ?? [];
-        const seleccionados = this.seleccion.value;
+        const seleccionados = this.getSeleccionIds();
 
         let lista: IRecurso[] = [];
         this.catalogoService.getRecursos().subscribe(recursos => lista = recursos);

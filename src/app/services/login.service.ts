@@ -1,7 +1,7 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { IUserFormLogin } from '../interfaces/iuserformlogin';
 import { IUser } from '../interfaces/iuser';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser, Location } from '@angular/common';
 
@@ -42,11 +42,16 @@ export class LoginService {
         }
     ];
     
+    private currentUser = new BehaviorSubject<IUser | undefined>(undefined);
+    readonly currentUser$ = this.currentUser.asObservable();
+
     constructor(
         private router: Router,
         private location: Location,
         @Inject(PLATFORM_ID) private platformId: Object
-    ) {}
+    ) {
+        this.currentUser.next(this.getUsuarioActual());
+    }
 
     //Inicio de sesion
     public login(userLogin: IUserFormLogin): Observable<boolean>{
@@ -60,6 +65,7 @@ export class LoginService {
             sessionStorage.setItem('token', token);
             sessionStorage.setItem('role', foundUser.role || 'user');
             sessionStorage.setItem('userId', foundUser.id.toString());
+            this.currentUser.next(foundUser);
             return of(true);
         }
 
@@ -71,6 +77,7 @@ export class LoginService {
         if(sessionStorage.getItem('token')){
             sessionStorage.clear();
         }
+        this.currentUser.next(undefined);
         return of(true);
     }
 

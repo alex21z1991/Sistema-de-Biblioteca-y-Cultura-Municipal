@@ -1,10 +1,12 @@
 
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 import { ActivityCardComponent } from '../activity-card/activity-card.component';
 import { CatalogoService } from '../../services/catalogo.service';
 import { LoginService } from '../../services/login.service';
+import { ReservaService } from '../../services/reserva.service';
 import { IRecurso } from '../../interfaces/irecurso';
 
 import {
@@ -17,6 +19,7 @@ import {
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     FiltradorComponent,
     ActivityCardComponent
   ],
@@ -38,10 +41,12 @@ export class ReservasComponent implements OnInit {
   errores: string[] = [];
   idsReservados: number[] = [];
   esAdmin = false;
+  readonly cartIds$ = this.reservaService.seleccion$;
 
   constructor(
     private catalogoService: CatalogoService,
     private loginService: LoginService,
+    private reservaService: ReservaService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -148,42 +153,10 @@ export class ReservasComponent implements OnInit {
     );
   }
 
-  // Registrar una reserva.
- 
-reservar(recurso: IRecurso): void {
-  this.mensaje = '';
-  this.errores = [];
-
-  if (this.esAdmin) {
-    this.errores = [
-      'La cuenta de administrador no puede reservar recursos.'
-    ];
-    return;
+  addToCart(resource: IRecurso): void {
+    const result = this.reservaService.agregarASeleccion(resource.id);
+    this.errores = result.errors;
+    this.mensaje = result.ok ? `Agregaste “${resource.titulo}” al carrito.` : '';
   }
-
-  this.catalogoService.reservarRecurso(recurso.id).subscribe({
-    next: (resultado) => {
-      if (!resultado.ok) {
-        this.errores = resultado.errores;
-        return;
-      }
-
-      // Actualizar las reservas visibles.
-      const usuario = this.loginService.getUsuarioActual();
-
-      this.idsReservados = [
-        ...(usuario?.librosPedidos ?? [])
-      ];
-
-      this.mensaje =
-        `Solicitaste la reserva de “${recurso.titulo}”.`;
-    },
-    error: () => {
-      this.errores = [
-        'No se pudo registrar la reserva. Inténtalo nuevamente.'
-      ];
-    }
-  });
-}
 
 }
