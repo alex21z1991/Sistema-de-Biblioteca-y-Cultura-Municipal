@@ -77,6 +77,33 @@ describe('Flujo del carrito', () => {
     expect(element.querySelector<HTMLButtonElement>('.cart-actions button')!.disabled).toBeTrue();
   }));
 
+  it('avisa el exceso del límite y permite continuar al quitar lo que sobra', fakeAsync(() => {
+    reservations.agregarASeleccion(5);
+    reservations.agregarASeleccion(6);
+    TestBed.inject(LoginService).getUsuarioActual()!.librosPedidos.push(7);
+    const fixture = loadCart();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.textContent).toContain('Quita 1 recurso(s) del carrito para continuar');
+    expect(element.querySelector('a[href="/reservas/confirmar"]')).toBeNull();
+    expect(element.querySelector<HTMLButtonElement>('.cart-actions button')!.disabled).toBeTrue();
+
+    element.querySelector<HTMLButtonElement>('app-resumen-reserva button')!.click();
+    tick(500);
+    fixture.detectChanges();
+    expect(element.textContent).not.toContain('Quita 1 recurso(s)');
+    expect(element.querySelector('a[href="/reservas/confirmar"]')).not.toBeNull();
+  }));
+
+  it('avisa las multas pendientes y no deja continuar', fakeAsync(() => {
+    TestBed.inject(LoginService).login({ username: 'usuario', password: 'usuario' }).subscribe();
+    reservations.agregarASeleccion(5);
+    const fixture = loadCart();
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.textContent).toContain('1 multa(s) pendiente(s)');
+    expect(element.querySelector('a[href="/reservas/confirmar"]')).toBeNull();
+    expect(element.querySelector<HTMLButtonElement>('.cart-actions button')!.disabled).toBeTrue();
+  }));
+
   it('muestra un error de carga y permite reintentar', fakeAsync(() => {
     const load = spyOn(reservations, 'getResumenSeleccion').and.returnValue(throwError(() => new Error('error')));
     const fixture = loadCart();

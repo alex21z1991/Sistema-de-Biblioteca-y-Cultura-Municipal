@@ -102,6 +102,33 @@ export class ReservaService {
         return of(recursos).pipe(delay(LATENCIA_SIMULADA));
     }
 
+    // Avisos antes de confirmar la reserva.
+    public getCartWarnings(): string[] {
+        const user = this.loginService.getUsuarioActual();
+        if (!user || user.role !== 'usuario') {
+            return [];
+        }
+
+        const warnings: string[] = [];
+        if (user.multas.length > 0) {
+            warnings.push(
+                'Tienes ' + user.multas.length + ' multa(s) pendiente(s). ' +
+                'Regulariza tu situación antes de confirmar la reserva.'
+            );
+        }
+
+        const active = user.librosPedidos.length;
+        const excess = active + this.getSeleccionIds().length - MAX_RESERVAS_ACTIVAS;
+        if (excess > 0) {
+            warnings.push(
+                'Puedes tener como máximo ' + MAX_RESERVAS_ACTIVAS + ' recursos reservados y ya tienes ' + active + '. ' +
+                'Quita ' + excess + ' recurso(s) del carrito para continuar.'
+            );
+        }
+
+        return warnings;
+    }
+
     // Recursos que el ciudadano todavía puede agregar a la selección
     public getRecursosReservables(): IRecurso[] {
         const usuario = this.loginService.getUsuarioActual();

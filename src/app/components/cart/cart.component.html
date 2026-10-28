@@ -29,6 +29,8 @@
         Hay recursos que ya no están disponibles. Quítalos del carrito para continuar.
       </p>
 
+      <p *ngFor="let warning of warnings" class="cart-warning" role="alert">{{ warning }}</p>
+
       <app-resumen-reserva
         [recursos]="resources"
         (quitar)="removeResource($event)">
@@ -44,9 +46,9 @@
 
       <div class="cart-actions">
         <a class="cart-button cart-button--outline" routerLink="/reservas">Seguir buscando</a>
-        <a *ngIf="!hasUnavailableResources; else unavailable" class="cart-button"
+        <a *ngIf="canContinue; else blocked" class="cart-button"
            routerLink="/reservas/confirmar">Continuar a confirmación</a>
-        <ng-template #unavailable>
+        <ng-template #blocked>
           <button class="cart-button" type="button" disabled>Continuar a confirmación</button>
         </ng-template>
       </div>

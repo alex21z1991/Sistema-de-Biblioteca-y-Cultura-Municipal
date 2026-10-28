@@ -142,4 +142,20 @@ describe('Carrito de recursos', () => {
     expect(reservations.getSeleccionIds()).toEqual([5, 6]);
     expect(catalog.getRecurso(5)!.ejemplaresComprometidos).toBe(0);
   }));
+
+  it('avisa las multas y el exceso del límite antes de confirmar', () => {
+    reservations.agregarASeleccion(5);
+    reservations.agregarASeleccion(6);
+    expect(reservations.getCartWarnings()).toEqual([]);
+
+    login.getUsuarioActual()!.librosPedidos.push(7);
+    expect(reservations.getCartWarnings()).toEqual([jasmine.stringContaining('Quita 1 recurso(s) del carrito')]);
+
+    signIn('usuario');
+    reservations.agregarASeleccion(5);
+    expect(reservations.getCartWarnings()).toEqual([jasmine.stringContaining('1 multa(s) pendiente(s)')]);
+
+    signIn('admin');
+    expect(reservations.getCartWarnings()).toEqual([]);
+  });
 });

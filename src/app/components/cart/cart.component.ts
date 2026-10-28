@@ -21,6 +21,7 @@ export class CartComponent implements OnInit {
   state = CartViewState.Loading;
   resources: IRecurso[] = [];
   missingIds: number[] = [];
+  warnings: string[] = [];
   message = '';
 
   private destroyRef = inject(DestroyRef);
@@ -46,6 +47,7 @@ export class CartComponent implements OnInit {
       const ids = this.reservaService.getSeleccionIds();
       this.resources = resources;
       this.missingIds = ids.filter(id => !resources.some(resource => resource.id === id));
+      this.warnings = this.reservaService.getCartWarnings();
       this.state = ids.length ? CartViewState.Ready : CartViewState.Empty;
     });
   }
@@ -54,6 +56,10 @@ export class CartComponent implements OnInit {
     return this.missingIds.length > 0 || this.resources.some(resource =>
       !resource.activo || this.reservaService.disponibles(resource) === 0
     );
+  }
+
+  get canContinue(): boolean {
+    return !this.hasUnavailableResources && this.warnings.length === 0;
   }
 
   removeResource(resource: IRecurso): void {

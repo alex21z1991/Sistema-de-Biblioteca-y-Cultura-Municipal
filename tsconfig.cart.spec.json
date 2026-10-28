@@ -3,6 +3,7 @@
   "include": [
     "src/app/services/reserva-cart.service.spec.ts",
     "src/app/components/cart/cart-flow.spec.ts",
+    "src/app/components/reservas/reservas.component.spec.ts",
     "src/**/*.d.ts"
   ]
 }
