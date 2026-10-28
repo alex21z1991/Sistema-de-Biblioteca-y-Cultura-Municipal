@@ -62,7 +62,10 @@ export class ConfirmarReservaComponent implements OnInit {
       parametro.split(',')
         .map(valor => Number(valor))
         .filter(id => Number.isInteger(id) && id > 0)
-        .forEach(id => this.reservaService.agregarASeleccion(id));
+        .forEach(id => {
+          const result = this.reservaService.agregarASeleccion(id);
+          this.errores.push(...result.errors);
+        });
     }
 
     this.cargarSeleccion();
@@ -115,8 +118,12 @@ export class ConfirmarReservaComponent implements OnInit {
       return;
     }
 
-    this.reservaService.agregarASeleccion(Number(this.recursoAAgregar));
-    this.errores = [];
+    const result = this.reservaService.agregarASeleccion(Number(this.recursoAAgregar));
+    this.errores = result.errors;
+    if (!result.ok) {
+      this.enfocarAvisos();
+      return;
+    }
     this.cargarSeleccion();
   }
 
@@ -134,7 +141,7 @@ export class ConfirmarReservaComponent implements OnInit {
     form.control.markAllAsTouched();
 
     const dto: IConfirmarReservaDto = {
-      recursosIds: this.recursos.map(r => r.id),
+      recursosIds: this.reservaService.getSeleccionIds(),
       fechaRetiro: this.formulario.fechaRetiro,
       aceptaCondiciones: this.formulario.aceptaCondiciones
     };

@@ -29,8 +29,9 @@ export class ActivityCardComponent {
   // Datos de recursos del catálogo.
   @Input() recurso: IRecurso | null = null;
   @Input() yaReservado = false;
+  @Input() inCart = false;
 
-  @Output() reservarRecurso = new EventEmitter<IRecurso>();
+  @Output() addToCart = new EventEmitter<IRecurso>();
 
   // Texto de duración para las actividades.
   get duracionTexto(): string {
@@ -79,16 +80,18 @@ export class ActivityCardComponent {
     );
   }
 
-  // Solicitar la reserva desde la tarjeta.
-  onReservar(): void {
+  // Agregar al carrito sin reservar todavía.
+  onAddToCart(): void {
     if (
       this.modo === 'libro' &&
       this.recurso &&
       !this.esAdmin &&
       !this.yaReservado &&
+      !this.inCart &&
+      this.recurso.activo &&
       this.disponibles(this.recurso) > 0
     ) {
-      this.reservarRecurso.emit(this.recurso);
+      this.addToCart.emit(this.recurso);
     }
   }
 }

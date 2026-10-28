@@ -43,6 +43,11 @@ export const routes: Routes = [
         canActivate: [CiudadanoGuard]
       },
       {
+        path: 'carrito',
+        loadComponent: () => import('./components/cart/cart.component').then(module => module.CartComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'reservas/confirmar',
         component: ConfirmarReservaComponent,
         canActivate: [CiudadanoGuard]

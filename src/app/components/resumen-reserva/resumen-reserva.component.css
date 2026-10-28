@@ -50,6 +50,8 @@
     color: var(--c-navy);
 }
 
+.resumen-info { min-width: 0; overflow-wrap: anywhere; }
+
 .resumen-info p {
     margin: 0;
     font-size: 14px;
@@ -58,6 +60,7 @@
 
 .resumen-acciones {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 14px;
     flex-shrink: 0;

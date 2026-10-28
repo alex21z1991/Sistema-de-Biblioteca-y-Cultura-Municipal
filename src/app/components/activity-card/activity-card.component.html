@@ -129,19 +129,22 @@
         class="boton boton--primario btn-primary"
         [disabled]="
           esAdmin ||
+          !recurso.activo ||
           disponibles(recurso) <= 0 ||
-          yaReservado
+          yaReservado || inCart
         "
-        (click)="onReservar()">
+        (click)="onAddToCart()">
 
         {{
           esAdmin
             ? 'Solo para ciudadanos'
             : yaReservado
               ? 'Ya reservado'
-              : disponibles(recurso) <= 0
-                ? 'Sin disponibilidad'
-                : 'Reservar'
+              : inCart
+                ? 'En el carrito'
+                : !recurso.activo || disponibles(recurso) <= 0
+                  ? 'Sin disponibilidad'
+                  : 'Agregar al carrito'
         }}
 
       </button>
