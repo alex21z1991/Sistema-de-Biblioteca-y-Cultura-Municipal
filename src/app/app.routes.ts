@@ -4,6 +4,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { AdminPanelComponent } from './components/admin-panel/admin-panel.component';
+import { AdminDevolucionComponent } from './components/admin-devolucion/admin-devolucion.component';
 import { AdminCatalogoComponent } from './components/admin-catalogo/admin-catalogo.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { ExploreComponent } from './components/explore/explore.component';
@@ -51,6 +52,11 @@ export const routes: Routes = [
         path: 'reservas/confirmar',
         component: ConfirmarReservaComponent,
         canActivate: [CiudadanoGuard]
+      },
+      {
+        path: 'admin-devoluciones',
+        component: AdminDevolucionComponent,
+        canActivate: [AdminGuard]
       },
       {
         path: 'admin-catalogo',
