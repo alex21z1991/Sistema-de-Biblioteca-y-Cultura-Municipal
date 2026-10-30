@@ -1,7 +1,7 @@
 <div class="admin-container">
 
     <div class="welcome">
-        <h1>Cartelera de actividades</h1>
+        <h1>Cartelera de Actividades</h1>
         <p class="texto-suave">
             Crea, programa y gestiona los talleres y eventos culturales para los ciudadanos.
         </p>
@@ -79,15 +79,14 @@
                     <!-- Categoría -->
                     <div class="form-group">
                         <label for="tipo">Categoría</label>
-                        <select
-                            id="tipo"
+                        <app-selector-lista
+                            inputId="tipo"
                             name="tipo"
                             [(ngModel)]="formulario.tipo"
+                            [opciones]="opcionesCategoria"
+                            placeholder="Selecciona una categoría"
                             required
-                        >
-                            <option value="Taller">Taller</option>
-                            <option value="Evento">Evento</option>
-                        </select>
+                        ></app-selector-lista>
                     </div>
 
                     <!-- Lugar (Selector buscable con filtros de aforo) -->
@@ -286,16 +285,15 @@
                                 <!-- Hora de inicio -->
                                 <div class="form-group">
                                     <label for="horaInicio">Bloque de inicio</label>
-                                    <select
-                                        id="horaInicio"
+                                    <app-selector-lista
+                                        inputId="horaInicio"
                                         name="horaInicio"
                                         [(ngModel)]="horaInicio"
                                         (ngModelChange)="actualizarFecha()"
+                                        [opciones]="opcionesHora"
+                                        placeholder="Selecciona una hora"
                                         required
-                                    >
-                                        <option value="" disabled>Selecciona una hora</option>
-                                        <option *ngFor="let h of horasOpciones" [value]="h">{{ h }} hrs</option>
-                                    </select>
+                                    ></app-selector-lista>
                                     <small>Bloques cada 30 min (08:00 a 22:00).</small>
                                 </div>
 

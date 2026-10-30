@@ -34,19 +34,28 @@
 
       <div class="campo-grupo">
         <label class="etiqueta" for="categoria">Categoría</label>
-        <select class="campo" id="categoria" name="categoria" [(ngModel)]="formulario.categoria" required>
-          <option value="" disabled>Selecciona una categoría</option>
-          <optgroup *ngFor="let g of gruposCategorias" [label]="g.grupo">
-            <option *ngFor="let c of g.categorias" [value]="c">{{ c }}</option>
-          </optgroup>
-        </select>
+        <app-selector-lista
+          inputId="categoria"
+          name="categoria"
+          [(ngModel)]="formulario.categoria"
+          [opciones]="opcionesCategoria"
+          placeholder="Selecciona una categoría"
+          [buscable]="true"
+          textoBuscar="Buscar categoría…"
+          required
+        ></app-selector-lista>
       </div>
 
       <div class="campo-grupo">
         <label class="etiqueta" for="tipo">Tipo</label>
-        <select class="campo" id="tipo" name="tipo" [(ngModel)]="formulario.tipo" required>
-          <option *ngFor="let t of tiposRecurso" [value]="t">{{ t }}</option>
-        </select>
+        <app-selector-lista
+          inputId="tipo"
+          name="tipo"
+          [(ngModel)]="formulario.tipo"
+          [opciones]="opcionesTipo"
+          placeholder="Selecciona un tipo"
+          required
+        ></app-selector-lista>
       </div>
 
       <div class="campo-grupo">
@@ -96,15 +105,23 @@
         <button *ngIf="busqueda" type="button" class="buscador-limpiar" aria-label="Borrar búsqueda" (click)="busqueda = ''">×</button>
       </div>
 
-      <select class="campo filtro" name="filtroTipo" [(ngModel)]="filtroTipo" aria-label="Filtrar por tipo">
-        <option value="">Todos los tipos</option>
-        <option *ngFor="let t of tiposEnUso" [value]="t">{{ t }}</option>
-      </select>
+      <app-selector-lista
+        class="filtro"
+        name="filtroTipo"
+        [(ngModel)]="filtroTipo"
+        [opciones]="opcionesFiltroTipo"
+        ariaLabel="Filtrar por tipo"
+      ></app-selector-lista>
 
-      <select class="campo filtro" name="filtroCategoria" [(ngModel)]="filtroCategoria" aria-label="Filtrar por categoría">
-        <option value="">Todas las categorías</option>
-        <option *ngFor="let c of categoriasEnUso" [value]="c">{{ c }}</option>
-      </select>
+      <app-selector-lista
+        class="filtro"
+        name="filtroCategoria"
+        [(ngModel)]="filtroCategoria"
+        [opciones]="opcionesFiltroCategoria"
+        ariaLabel="Filtrar por categoría"
+        [buscable]="true"
+        textoBuscar="Buscar categoría…"
+      ></app-selector-lista>
 
     </div>
 

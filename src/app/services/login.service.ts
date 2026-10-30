@@ -116,4 +116,9 @@ export class LoginService {
     public getUsers(): IUser[] {
     return this.validUsers;
 }
+
+    // Ciudadanos (usuarios que no son administradores)
+    public getCiudadanos(): IUser[] {
+        return this.validUsers.filter(usuario => usuario.role === 'usuario');
+    }
 }

@@ -6,5 +6,6 @@ export interface IUser {
     librosPedidos: number[];
     salasPedidas: number[];
     actividadesAgendadas: number[];
-    multas: any[]
+    multas: any[];
+    habilitado?: boolean;   // false = cuenta inhabilitada (no puede recibir préstamos)
 }

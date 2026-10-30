@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CatalogoService } from '../../services/catalogo.service';
 import { IRecurso, IRecursoForm } from '../../interfaces/irecurso';
 import { GRUPOS_CATEGORIAS, TIPOS_RECURSO } from '../../data/listas';
+import { ISelectorOpcion, SelectorListaComponent } from '../selector-lista/selector-lista.component';
 
 type FiltroEstado = 'todos' | 'activos' | 'baja';
 type CampoOrden = 'titulo' | 'autor' | 'categoria' | 'disponibles';
@@ -11,13 +12,21 @@ type CampoOrden = 'titulo' | 'autor' | 'categoria' | 'disponibles';
 @Component({
   selector: 'app-admin-catalogo',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SelectorListaComponent],
   templateUrl: './admin-catalogo.component.html',
   styleUrl: './admin-catalogo.component.css'
 })
 export class AdminCatalogoComponent implements OnInit {
   readonly gruposCategorias = GRUPOS_CATEGORIAS;
   readonly tiposRecurso = TIPOS_RECURSO;
+
+  // Opciones de las listas desplegables
+  readonly opcionesCategoria: ISelectorOpcion[] = GRUPOS_CATEGORIAS.flatMap(g =>
+    g.categorias.map(c => ({ valor: c, etiqueta: c, grupo: g.grupo }))
+  );
+  readonly opcionesTipo: ISelectorOpcion[] = TIPOS_RECURSO.map(t => ({ valor: t, etiqueta: t }));
+  opcionesFiltroTipo: ISelectorOpcion[] = [{ valor: '', etiqueta: 'Todos los tipos' }];
+  opcionesFiltroCategoria: ISelectorOpcion[] = [{ valor: '', etiqueta: 'Todas las categorías' }];
 
   recursos: IRecurso[] = [];
   formulario: IRecursoForm = this.formularioVacio();
@@ -39,7 +48,19 @@ export class AdminCatalogoComponent implements OnInit {
   ngOnInit(): void { this.cargarRecursos(); }
 
   cargarRecursos(): void {
-    this.catalogoService.getRecursos().subscribe(lista => this.recursos = lista);
+    this.catalogoService.getRecursos().subscribe(lista => {
+      this.recursos = lista;
+
+      // Los filtros solo ofrecen lo que existe en el catálogo
+      this.opcionesFiltroTipo = [
+        { valor: '', etiqueta: 'Todos los tipos' },
+        ...this.tiposEnUso.map(t => ({ valor: t, etiqueta: t }))
+      ];
+      this.opcionesFiltroCategoria = [
+        { valor: '', etiqueta: 'Todas las categorías' },
+        ...this.categoriasEnUso.map(c => ({ valor: c, etiqueta: c }))
+      ];
+    });
   }
 
   // ------------------------------------------------------------------

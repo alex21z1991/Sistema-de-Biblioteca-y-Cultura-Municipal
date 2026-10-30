@@ -74,6 +74,15 @@ export class CatalogoService {
     return of({ ok: true, errores: [], recurso });
   }
 
+  // HU-A03: descuenta un ejemplar al registrar un préstamo directo
+  comprometerEjemplar(id: number): boolean {
+    const recurso = this.getRecurso(id);
+    if (!recurso || !recurso.activo) return false;
+    if (recurso.ejemplaresComprometidos >= recurso.ejemplares) return false;
+    recurso.ejemplaresComprometidos++;
+    return true;
+  }
+
   validar(datos: IRecursoForm, actual: IRecurso | null): string[] {
     const errores: string[] = [];
     const titulo = (datos.titulo || '').trim();

@@ -1,0 +1,260 @@
+<div class="prestamos-container">
+
+  <header class="welcome">
+    <h1>Préstamo directo</h1>
+    <p class="texto-suave">Entrega material a un ciudadano sin reserva previa.</p>
+  </header>
+
+  <!-- Sin sesión administrativa -->
+  <div *ngIf="!esAdmin" class="empty-state">
+    <h3>Necesitas una sesión administrativa</h3>
+    <p>Inicia sesión con una cuenta de administrador para registrar préstamos.</p>
+  </div>
+
+  <ng-container *ngIf="esAdmin">
+
+    <!-- ================= Formulario ================= -->
+    <section class="section">
+
+      <h2 class="titulo-seccion">Registrar préstamo</h2>
+
+      <div *ngIf="errores.length" class="alerta alerta--error" role="alert">
+        <strong>No se pudo registrar el préstamo:</strong>
+        <ul>
+          <li *ngFor="let error of errores">{{ error }}</li>
+        </ul>
+      </div>
+
+      <div *ngIf="mensajeExito" class="alerta alerta--ok" role="status">{{ mensajeExito }}</div>
+
+      <form (ngSubmit)="registrar()" #formPrestamo="ngForm">
+
+        <div class="pasos">
+
+          <!-- Columna izquierda: ciudadano y devolución -->
+          <div class="pasos__columna">
+
+            <!-- 1 · Ciudadano -->
+            <div class="paso">
+
+              <h3 class="paso__titulo"><span class="paso__numero">1</span> Ciudadano</h3>
+
+              <div class="campo-grupo">
+                <label class="etiqueta" for="ciudadano">Selecciona al ciudadano</label>
+                <app-selector-lista
+                  inputId="ciudadano"
+                  name="ciudadano"
+                  [(ngModel)]="usuarioId"
+                  (cambio)="limpiarAvisos()"
+                  [opciones]="opcionesCiudadano"
+                  placeholder="Selecciona un ciudadano"
+                ></app-selector-lista>
+              </div>
+
+              <!-- Estado del ciudadano elegido -->
+              <div *ngIf="ciudadanoElegido as ciudadano" class="ficha ficha--ok">
+                <strong>{{ ciudadano.username }}</strong>
+                <span class="pill pill--ok">Habilitado, sin bloqueos</span>
+                <span class="ficha__detalle">{{ prestamosActivos(ciudadano) }} préstamo(s) registrado(s) aquí</span>
+              </div>
+
+              <p class="ayuda">
+                Los ciudadanos inhabilitados o con multas pendientes aparecen bloqueados.
+              </p>
+
+            </div>
+
+
+            <!-- 3 · Devolución -->
+            <div class="paso">
+
+              <h3 class="paso__titulo"><span class="paso__numero">3</span> Devolución</h3>
+
+              <div class="campo-grupo selector-fecha-wrapper">
+                <label class="etiqueta" for="btnFecha">Fecha de devolución</label>
+
+                <button
+                  type="button"
+                  id="btnFecha"
+                  class="campo-fecha-boton"
+                  [class.abierto]="calendarioAbierto"
+                  (click)="alternarCalendario($event)"
+                  aria-haspopup="dialog"
+                  [attr.aria-expanded]="calendarioAbierto"
+                >
+                  <span>{{ fechaFormateadaBoton }}</span>
+                  <svg class="icono-calendario" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                    <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                  </svg>
+                </button>
+
+                <div *ngIf="calendarioAbierto" class="calendario-popup" role="dialog" aria-label="Selector de fecha">
+                  <div class="calendario-cabecera">
+                    <button type="button" class="cal-nav-btn" (click)="cambiarMes(-1, $event)" aria-label="Mes anterior">‹</button>
+                    <strong class="cal-mes-titulo">{{ tituloMesVisible }}</strong>
+                    <button type="button" class="cal-nav-btn" (click)="cambiarMes(1, $event)" aria-label="Mes siguiente">›</button>
+                  </div>
+
+                  <div class="calendario-semana">
+                    <span *ngFor="let d of diasSemana">{{ d }}</span>
+                  </div>
+
+                  <div class="calendario-dias">
+                    <button
+                      *ngFor="let dia of diasDelCalendario"
+                      type="button"
+                      class="cal-dia"
+                      [class.fuera-mes]="!dia.delMes"
+                      [class.es-hoy]="dia.esHoy"
+                      [class.seleccionado]="dia.iso === fechaDevolucion"
+                      [disabled]="dia.deshabilitado"
+                      (click)="seleccionarDia(dia, $event)"
+                    >
+                      {{ dia.numero }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="chips" role="group" aria-label="Plazos habituales">
+                <button
+                  *ngFor="let d of diasRapidos"
+                  type="button"
+                  class="chip-filtro"
+                  [class.activo]="esDiasElegido(d)"
+                  [attr.aria-pressed]="esDiasElegido(d)"
+                  (click)="elegirDias(d)"
+                >
+                  {{ d }} días
+                </button>
+              </div>
+
+              <p class="ayuda">Máximo {{ diasMaximo }} días desde hoy.</p>
+
+            </div>
+
+          </div>
+
+
+          <!-- Columna derecha: recurso -->
+          <div class="paso paso--recurso">
+
+            <h3 class="paso__titulo"><span class="paso__numero">2</span> Recurso</h3>
+
+            <input
+              class="campo"
+              type="search"
+              name="busqueda"
+              [(ngModel)]="busqueda"
+              aria-label="Buscar recurso"
+              placeholder="Busca por título, autor, categoría o tipo…"
+              autocomplete="off"
+              (keydown.enter)="$event.preventDefault()"
+            >
+
+            <p class="ayuda" aria-live="polite">
+              {{ recursosFiltrados.length }} de {{ recursos.length }} recursos
+            </p>
+
+            <ul class="recursos" role="list">
+
+              <li *ngFor="let r of recursosFiltrados">
+                <button
+                  type="button"
+                  class="recurso"
+                  [class.recurso--elegido]="r.id === recursoId"
+                  [disabled]="!estadoRecurso(r).ok"
+                  [attr.aria-pressed]="r.id === recursoId"
+                  (click)="elegirRecurso(r)"
+                >
+                  <span class="recurso__principal">
+                    <strong class="recurso__titulo">{{ r.titulo }}</strong>
+                    <span class="recurso__autor">{{ r.autor }}</span>
+                  </span>
+
+                  <span class="chip">{{ r.tipo }}</span>
+
+                  <span class="recurso__estado" [class.recurso__estado--agotado]="!estadoRecurso(r).ok">
+                    {{ estadoRecurso(r).ok ? disponibles(r) + ' disponible(s)' : estadoRecurso(r).motivo }}
+                  </span>
+                </button>
+              </li>
+
+              <li *ngIf="recursosFiltrados.length === 0" class="recursos__vacio">
+                No se encontraron recursos con esa búsqueda.
+              </li>
+
+            </ul>
+
+          </div>
+
+        </div>
+
+
+        <!-- Resumen y botón -->
+        <div class="resumen" [class.resumen--vacio]="!puedeRegistrar">
+
+          <ng-container *ngIf="puedeRegistrar; else faltan">
+            <div>
+              <span class="resumen__etiqueta">Se prestará</span>
+              <strong>{{ recursoElegido?.titulo }}</strong>
+              a <strong>{{ ciudadanoElegido?.username }}</strong>
+            </div>
+            <div>
+              <span class="resumen__etiqueta">Devolución</span>
+              <strong>{{ fechaDevolucion | date: 'dd/MM/yyyy' }}</strong>
+              <span class="chip">{{ diasDePrestamo }} días</span>
+            </div>
+          </ng-container>
+
+          <ng-template #faltan>
+            <span>Elige un ciudadano, un recurso y la fecha de devolución para continuar.</span>
+          </ng-template>
+
+          <button class="boton" type="submit" [disabled]="!puedeRegistrar">Registrar préstamo</button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    <!-- ================= Préstamos registrados ================= -->
+    <section class="section">
+
+      <h2 class="titulo-seccion">Préstamos registrados</h2>
+
+      <div *ngIf="prestamos.length === 0" class="empty-state">
+        <h3>Todavía no hay préstamos</h3>
+        <p>Los préstamos que registres aparecerán aquí.</p>
+      </div>
+
+      <div *ngIf="prestamos.length > 0" class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ciudadano</th>
+              <th>Recurso</th>
+              <th>Fecha de préstamo</th>
+              <th>Devolución</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of prestamos">
+              <td>{{ p.usuarioNombre }}</td>
+              <td class="titulo-recurso">{{ p.recursoTitulo }}</td>
+              <td>{{ p.fechaPrestamo | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ p.fechaDevolucion | date: 'dd/MM/yyyy' }}</td>
+              <td><span class="pill pill--prestado">{{ p.estado }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </ng-container>
+
+</div>

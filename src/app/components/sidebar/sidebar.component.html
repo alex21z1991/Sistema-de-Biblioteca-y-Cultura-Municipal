@@ -5,7 +5,7 @@
     <nav>
 
         <a routerLink="/admin-panel">
-            Inicio
+            {{ esAdmin ? 'Cartelera' : 'Inicio' }}
         </a>
 
         @if (!esAdmin) {
@@ -26,6 +26,10 @@
         @if (esAdmin) {
             <a routerLink="/admin-catalogo">
                 Catálogo
+            </a>
+
+            <a routerLink="/admin-prestamos" routerLinkActive="activo">
+                Préstamos
             </a>
             <a routerLink="/admin-devoluciones" routerLinkActive="activo">Devoluciones</a>
         }

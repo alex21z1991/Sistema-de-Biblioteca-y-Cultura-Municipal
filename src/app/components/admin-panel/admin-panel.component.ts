@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ISelectorOpcion, SelectorListaComponent } from '../selector-lista/selector-lista.component';
 
 import { ActividadService } from '../../services/actividad.service';
 import { LoginService } from '../../services/login.service';
@@ -31,7 +32,8 @@ interface DiaCalendario {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    SelectorListaComponent
   ],
   templateUrl: './admin-panel.component.html',
   styleUrl: './admin-panel.component.css'
@@ -487,6 +489,27 @@ export class AdminPanelComponent implements OnInit {
     const objetivo = new Date();
     objetivo.setDate(objetivo.getDate() + diasDesdeHoy);
     return this.fechaDia === this.aTexto(objetivo).slice(0, 10);
+  }
+
+  // Categorías de actividad para la lista desplegable
+  readonly opcionesCategoria: ISelectorOpcion[] = [
+    { valor: 'Taller', etiqueta: 'Taller' },
+    { valor: 'Evento', etiqueta: 'Evento' }
+  ];
+
+  // Horas de inicio para la lista desplegable (se reutiliza el arreglo mientras no cambien)
+  private opcionesHoraCache: ISelectorOpcion[] = [];
+  private opcionesHoraClave = '';
+
+  get opcionesHora(): ISelectorOpcion[] {
+    const horas = this.horasOpciones;
+    const clave = horas.join('|');
+
+    if (clave !== this.opcionesHoraClave) {
+      this.opcionesHoraClave = clave;
+      this.opcionesHoraCache = horas.map(h => ({ valor: h, etiqueta: h + ' hrs' }));
+    }
+    return this.opcionesHoraCache;
   }
 
   get horasOpciones(): string[] {

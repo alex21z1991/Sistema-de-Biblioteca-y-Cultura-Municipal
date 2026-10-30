@@ -9,6 +9,7 @@ import { AdminCatalogoComponent } from './components/admin-catalogo/admin-catalo
 import { LayoutComponent } from './components/layout/layout.component';
 import { ExploreComponent } from './components/explore/explore.component';
 import { ReservasComponent } from './components/reservas/reservas.component';
+import { AdminPrestamosComponent } from './components/admin-prestamos/admin-prestamos.component';
 import { ConfirmarReservaComponent } from './components/confirmar-reserva/confirmar-reserva.component';
 
 import { AuthGuard } from './guards/auth.guard';
@@ -61,6 +62,12 @@ export const routes: Routes = [
       {
         path: 'admin-catalogo',
         component: AdminCatalogoComponent,
+        canActivate: [AdminGuard]
+      },
+      {
+        // HU-A03: registrar préstamo directo
+        path: 'admin-prestamos',
+        component: AdminPrestamosComponent,
         canActivate: [AdminGuard]
       },
       {

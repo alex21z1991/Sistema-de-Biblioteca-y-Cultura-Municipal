@@ -257,7 +257,7 @@ h1, h2, h3 {
     background: #fff;
     font-family: var(--f-texto);
     font-size: 15px;
-    color: #1b1b1b;
+    color: var(--c-navy);
     cursor: pointer;
     text-align: left;
     transition: border-color 0.15s, background-color 0.15s;
@@ -270,6 +270,7 @@ h1, h2, h3 {
 
 .campo-lugar-boton:hover {
     border-color: var(--c-navy);
+    background: var(--c-celeste-claro);
 }
 
 .campo-lugar-boton:focus-visible,
@@ -406,20 +407,27 @@ h1, h2, h3 {
 
 .bloque-horario {
     margin: 4px 0 0;
-    padding: 18px 20px 20px;
+    padding: 22px 24px 24px;
     border: 1px solid var(--c-borde);
-    border-radius: 8px;
+    border-left: 6px solid var(--c-cian);
+    border-radius: 10px;
     background: var(--c-fondo-suave);
     min-width: 0;
 }
 
+/* La leyenda flotante queda dentro de la tarjeta, alineada a la izquierda */
 .bloque-horario legend {
-    padding: 0 10px;
+    float: left;
+    width: 100%;
+    margin: 0 0 16px;
+    padding: 0;
     font-family: var(--f-titulo);
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--c-navy);
 }
+
+.bloque-horario legend + * { clear: both; }
 
 .horario-grid {
     display: grid;
