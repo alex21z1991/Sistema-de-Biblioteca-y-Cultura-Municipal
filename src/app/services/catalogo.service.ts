@@ -152,6 +152,14 @@ export class CatalogoService {
     });
   }
 
+  // HU-A05: libera una copia que estaba prestada.
+  liberarEjemplar(id: number): boolean {
+    const recurso = this.getRecurso(id);
+    if (!recurso || recurso.ejemplaresComprometidos <= 0) return false;
+    recurso.ejemplaresComprometidos--;
+    return true;
+  }
+
   // Consultar las reservas del usuario actual
   getMisRecursosReservados(): IRecurso[] {
 
