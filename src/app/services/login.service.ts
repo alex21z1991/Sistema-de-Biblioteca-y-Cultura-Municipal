@@ -56,6 +56,10 @@ export class LoginService {
     //Inicio de sesion
     public login(userLogin: IUserFormLogin): Observable<boolean>{
 
+        if (!isPlatformBrowser(this.platformId)) {
+            return of(false);
+        }
+
         const foundUser = this.validUsers.find(
             u => u.username === userLogin.username && u.password === userLogin.password
         );
@@ -74,6 +78,11 @@ export class LoginService {
 
     //Cerrar sesion
     public logout(): Observable<boolean>{
+        if (!isPlatformBrowser(this.platformId)) {
+            this.currentUser.next(undefined);
+            return of(true);
+        }
+
         if(sessionStorage.getItem('token')){
             sessionStorage.clear();
         }
@@ -84,10 +93,18 @@ export class LoginService {
     //Metodos de consulta
 
     public isAuth(): Observable<boolean>{
+        if (!isPlatformBrowser(this.platformId)) {
+            return of(false);
+        }
+
         return of(!!sessionStorage.getItem('token'));
     }
 
     public getRole(): string | null {
+        if (!isPlatformBrowser(this.platformId)) {
+            return null;
+        }
+
         return sessionStorage.getItem('role');
     }
 

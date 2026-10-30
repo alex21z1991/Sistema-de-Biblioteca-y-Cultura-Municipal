@@ -1,7 +1,12 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { IResultadoReserva } from '../interfaces/ireserva';
+import {
+  EstadoReserva,
+  IResultadoEntrega,
+  IReserva,
+  IResultadoReserva
+} from '../interfaces/ireserva';
 import { CatalogoService } from './catalogo.service';
 import { LoginService } from './login.service';
 import { ReservaService } from './reserva.service';
@@ -158,4 +163,51 @@ describe('Carrito de recursos', () => {
     signIn('admin');
     expect(reservations.getCartWarnings()).toEqual([]);
   });
+
+  it('HU-A04 convierte una reserva lista en un préstamo activo para el administrador', fakeAsync(() => {
+    reservations.agregarASeleccion(5);
+    const confirmacion = confirm();
+    const reserva = confirmacion?.reservas?.[0];
+
+    expect(confirmacion?.ok).toBeTrue();
+    expect(reserva?.estado).toBe(EstadoReserva.PendienteRetiro);
+
+    signIn('admin');
+
+    let pendientes: IReserva[] = [];
+    reservations.getReservasPendientes().subscribe(list => pendientes = list);
+    expect(pendientes.length).toBe(1);
+    expect(pendientes[0].id).toBe(reserva!.id);
+
+    let entrega: IResultadoEntrega | undefined;
+    reservations.entregarReservas(
+      [reserva!.id],
+      reservations.fechaLocal(reservations.sumarDias(new Date(), 7))
+    ).subscribe(resultado => entrega = resultado);
+
+    expect(entrega?.ok).toBeTrue();
+    expect(entrega?.prestamos?.length).toBe(1);
+    expect(entrega?.prestamos?.[0].origen).toBe('reserva');
+    expect(entrega?.prestamos?.[0].reservaId).toBe(reserva!.id);
+    expect(entrega?.prestamos?.[0].activo).toBeTrue();
+
+    signIn('alex');
+    reservations.getMisReservas().subscribe(list => {
+      expect(list[0].estado).toBe(EstadoReserva.Retirada);
+    });
+  }));
+
+  it('HU-A04 rechaza la entrega si la sesión no es administrativa', fakeAsync(() => {
+    reservations.agregarASeleccion(5);
+    const confirmacion = confirm();
+
+    let resultado: IResultadoEntrega | undefined;
+    reservations.entregarReservas(
+      [confirmacion!.reservas![0].id],
+      reservations.fechaLocal(new Date())
+    ).subscribe(value => resultado = value);
+
+    expect(resultado?.ok).toBeFalse();
+    expect(resultado?.errores[0]).toContain('administrador');
+  }));
 });

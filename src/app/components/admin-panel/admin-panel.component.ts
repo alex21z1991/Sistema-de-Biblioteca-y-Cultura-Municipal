@@ -17,6 +17,8 @@ import {
   horaFin
 } from '../../data/listas';
 import { IUser } from '../../interfaces/iuser';
+import { IReserva } from '../../interfaces/ireserva';
+import { ReservaService } from '../../services/reserva.service';
 
 interface DiaCalendario {
   numero: number;
@@ -82,9 +84,14 @@ export class AdminPanelComponent implements OnInit {
   selectedActivity: IActividad | null = null;
   usersWindow: IUser[] = [];
 
+  reservasPendientes: IReserva[] = [];
+  reservasSeleccionadas: number[] = [];
+  fechaDevolucion = '';
+
   constructor(
     private actividadService: ActividadService,
     private loginService: LoginService,
+    private reservaService: ReservaService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -99,6 +106,8 @@ export class AdminPanelComponent implements OnInit {
 
     this.fijarDia(0);
     this.cargarActividades();
+    this.fechaDevolucion = this.fechaLocal(this.sumarDias(new Date(), 7));
+    this.cargarReservasPendientes();
   }
 
   @HostListener('document:click', ['$event'])
@@ -120,6 +129,96 @@ export class AdminPanelComponent implements OnInit {
         this.errores = ['No se pudo cargar la cartelera.'];
       }
     });
+  }
+
+  cargarReservasPendientes(): void {
+    this.reservaService.getReservasPendientes().subscribe({
+      next: reservas => {
+        this.reservasPendientes = reservas;
+        const disponibles = new Set(reservas.map(reserva => reserva.id));
+        this.reservasSeleccionadas = this.reservasSeleccionadas
+          .filter(id => disponibles.has(id));
+      },
+      error: () => {
+        this.errores = ['No se pudieron cargar las reservas pendientes.'];
+      }
+    });
+  }
+
+  estaSeleccionada(reservaId: number): boolean {
+    return this.reservasSeleccionadas.includes(reservaId);
+  }
+
+  alternarReserva(reservaId: number): void {
+    const reserva = this.reservasPendientes.find(item => item.id === reservaId);
+    if (reserva && !this.estaListaParaRetiro(reserva)) {
+      return;
+    }
+
+    this.reservasSeleccionadas = this.estaSeleccionada(reservaId)
+      ? this.reservasSeleccionadas.filter(id => id !== reservaId)
+      : [...this.reservasSeleccionadas, reservaId];
+  }
+
+  seleccionarTodasLasReservas(): void {
+    this.reservasSeleccionadas = this.reservasPendientes
+      .filter(reserva => this.estaListaParaRetiro(reserva))
+      .map(reserva => reserva.id);
+  }
+
+  limpiarSeleccionReservas(): void {
+    this.reservasSeleccionadas = [];
+  }
+
+  entregarUna(reserva: IReserva): void {
+    this.reservasSeleccionadas = [reserva.id];
+    this.entregarSeleccionadas();
+  }
+
+  entregarSeleccionadas(): void {
+    this.errores = [];
+    this.mensajeExito = '';
+
+    this.reservaService
+      .entregarReservas(this.reservasSeleccionadas, this.fechaDevolucion)
+      .subscribe(resultado => {
+        if (!resultado.ok) {
+          this.errores = resultado.errores;
+          return;
+        }
+
+        const cantidad = resultado.prestamos?.length ?? 0;
+        this.mensajeExito = cantidad === 1
+          ? 'La reserva fue entregada y convertida en préstamo activo.'
+          : cantidad + ' reservas fueron entregadas y convertidas en préstamos activos.';
+        this.limpiarSeleccionReservas();
+        this.cargarReservasPendientes();
+      });
+  }
+
+  nombreUsuario(usuarioId: number): string {
+    return this.loginService.getUsers().find(usuario => usuario.id === usuarioId)?.username
+      ?? 'Usuario #' + usuarioId;
+  }
+
+  estaListaParaRetiro(reserva: IReserva): boolean {
+    return reserva.fechaRetiro <= this.fechaLocal(new Date());
+  }
+
+  get hayReservasSeleccionadas(): boolean {
+    return this.reservasSeleccionadas.length > 0;
+  }
+
+  private fechaLocal(fecha: Date): string {
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    return fecha.getFullYear() + '-' + mes + '-' + dia;
+  }
+
+  private sumarDias(fecha: Date, dias: number): Date {
+    const copia = new Date(fecha);
+    copia.setDate(copia.getDate() + dias);
+    return copia;
   }
 
   // ------------------------------------------------------------------
