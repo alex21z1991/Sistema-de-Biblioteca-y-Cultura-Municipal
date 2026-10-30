@@ -42,25 +42,3 @@ export interface IResultadoReserva {
     errores: string[];
     reservas?: IReserva[];
 }
-
-// Préstamo activo creado al entregar una reserva (HU-A04).
-// Los campos opcionales permiten que HU-A03 y HU-A05 se agreguen después
-// sin cambiar la estructura de los préstamos creados por esta historia.
-export interface IPrestamo {
-    id: number;
-    origen: 'reserva' | 'directo';
-    reservaId?: number;
-    usuarioId: number;
-    recursoId: number;
-    tituloRecurso: string;
-    fechaEntrega: string;
-    fechaDevolucionPrevista: string;
-    fechaDevolucionReal?: string;
-    activo: boolean;
-}
-
-export interface IResultadoEntrega {
-    ok: boolean;
-    errores: string[];
-    prestamos?: IPrestamo[];
-}

@@ -1,5 +1,4 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 
@@ -9,9 +8,7 @@ import {
     EstadoReserva,
     IConfirmarReservaDto,
     IReserva,
-    IResultadoReserva,
-    IPrestamo,
-    IResultadoEntrega
+    IResultadoReserva
 } from '../interfaces/ireserva';
 
 import { CatalogoService } from './catalogo.service';
@@ -38,22 +35,10 @@ export class ReservaService {
     private reservas: IReserva[] = [];
     private ultimoId = 0;
 
-    // Préstamos activos generados al entregar reservas.
-    // HU-A03 podrá agregar préstamos directos y HU-A05 podrá cerrarlos.
-    private prestamos: IPrestamo[] = [];
-    private ultimoPrestamoId = 0;
-    private readonly reservasStorageKey = 'biblioteca.reservas';
-    private readonly prestamosStorageKey = 'biblioteca.prestamos';
-    private readonly browser: boolean;
-
     constructor(
         private catalogoService: CatalogoService,
-        private loginService: LoginService,
-        @Inject(PLATFORM_ID) platformId: Object
-    ) {
-        this.browser = isPlatformBrowser(platformId);
-        this.cargarPersistencia();
-    }
+        private loginService: LoginService
+    ) {}
 
 
     // ------------------------------------------------------------------
@@ -205,7 +190,6 @@ export class ReservaService {
         }
 
         this.limpiarSeleccion();
-        this.guardarPersistencia();
 
         return of({ ok: true, errores: [], reservas: nuevas }).pipe(delay(LATENCIA_SIMULADA));
     }
@@ -219,135 +203,6 @@ export class ReservaService {
         }
 
         return of(this.reservas.filter(r => r.usuarioId === usuario.id));
-    }
-
-    // ------------------------------------------------------------------
-    // Entregar reservas (HU-A04)
-    // ------------------------------------------------------------------
-
-    // Reservas cuya fecha de retiro ya llegó y que aún no fueron entregadas.
-    public getReservasPendientes(): Observable<IReserva[]> {
-        if (!this.loginService.isAdmin()) {
-            return of([]);
-        }
-
-        const pendientes = this.reservas
-            .filter(reserva => reserva.estado === EstadoReserva.PendienteRetiro)
-            .sort((a, b) => a.fechaRetiro.localeCompare(b.fechaRetiro));
-
-        return of([...pendientes]);
-    }
-
-    // Consulta de apoyo para la futura HU-A05 (devolución).
-    public getPrestamosActivos(): Observable<IPrestamo[]> {
-        if (!this.loginService.isAdmin()) {
-            return of([]);
-        }
-
-        return of(this.prestamos.filter(prestamo => prestamo.activo));
-    }
-
-    public entregarReservas(
-        reservaIds: number[],
-        fechaDevolucionPrevista: string
-    ): Observable<IResultadoEntrega> {
-        if (!this.loginService.isAdmin()) {
-            return of({
-                ok: false,
-                errores: ['Solo un administrador puede entregar reservas.']
-            });
-        }
-
-        const errores: string[] = [];
-        const ids = reservaIds ?? [];
-        const hoy = this.fechaLocal(new Date());
-
-        if (ids.length === 0) {
-            errores.push('Selecciona al menos una reserva para entregar.');
-        }
-
-        if (new Set(ids).size !== ids.length) {
-            errores.push('Hay reservas repetidas en la selección.');
-        }
-
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(fechaDevolucionPrevista)) {
-            errores.push('La fecha de devolución no es válida.');
-        } else if (fechaDevolucionPrevista < hoy) {
-            errores.push('La fecha de devolución no puede estar en el pasado.');
-        }
-
-        const seleccionadas = ids.map(id => this.reservas.find(reserva => reserva.id === id));
-
-        if (seleccionadas.some(reserva => !reserva)) {
-            errores.push('Una o más reservas seleccionadas ya no existen.');
-        }
-
-        const reservasValidas = seleccionadas.filter(
-            (reserva): reserva is IReserva => !!reserva
-        );
-
-        for (const reserva of reservasValidas) {
-            if (reserva.estado !== EstadoReserva.PendienteRetiro) {
-                errores.push('La reserva ' + reserva.codigo + ' ya no está pendiente de retiro.');
-            } else if (reserva.fechaRetiro > hoy) {
-                errores.push(
-                    'La reserva ' + reserva.codigo +
-                    ' todavía no está lista para retiro (' + reserva.fechaRetiro + ').'
-                );
-            }
-        }
-
-        // Se valida todo antes de cambiar reservas o crear préstamos.
-        if (errores.length > 0) {
-            return of({ ok: false, errores });
-        }
-
-        const nuevosPrestamos: IPrestamo[] = reservasValidas.map(reserva => {
-            const prestamo: IPrestamo = {
-                id: ++this.ultimoPrestamoId,
-                origen: 'reserva',
-                reservaId: reserva.id,
-                usuarioId: reserva.usuarioId,
-                recursoId: reserva.recursoId,
-                tituloRecurso: reserva.tituloRecurso,
-                fechaEntrega: hoy,
-                fechaDevolucionPrevista,
-                activo: true
-            };
-
-            reserva.estado = EstadoReserva.Retirada;
-            this.prestamos.push(prestamo);
-            return prestamo;
-        });
-
-        this.guardarPersistencia();
-
-        return of({ ok: true, errores: [], prestamos: nuevosPrestamos });
-    }
-
-    private cargarPersistencia(): void {
-        if (!this.browser) return;
-
-        try {
-            const reservas = localStorage.getItem(this.reservasStorageKey);
-            const prestamos = localStorage.getItem(this.prestamosStorageKey);
-            this.reservas = reservas ? JSON.parse(reservas) as IReserva[] : [];
-            this.prestamos = prestamos ? JSON.parse(prestamos) as IPrestamo[] : [];
-            this.ultimoId = this.reservas.reduce((max, reserva) => Math.max(max, reserva.id), 0);
-            this.ultimoPrestamoId = this.prestamos.reduce((max, prestamo) => Math.max(max, prestamo.id), 0);
-        } catch {
-            this.reservas = [];
-            this.prestamos = [];
-            this.ultimoId = 0;
-            this.ultimoPrestamoId = 0;
-        }
-    }
-
-    private guardarPersistencia(): void {
-        if (!this.browser) return;
-
-        localStorage.setItem(this.reservasStorageKey, JSON.stringify(this.reservas));
-        localStorage.setItem(this.prestamosStorageKey, JSON.stringify(this.prestamos));
     }
 
 
