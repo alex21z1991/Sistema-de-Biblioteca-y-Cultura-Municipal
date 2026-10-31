@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { AsyncPipe, isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { ReservaService } from '../../services/reserva.service';
@@ -7,12 +7,13 @@ import { ReservaService } from '../../services/reserva.service';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [AsyncPipe, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements OnInit {
   esAdmin: boolean = false;
+  isCitizen = false;
   readonly cartIds$ = this.reservaService.seleccion$;
 
   constructor(
@@ -25,6 +26,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.esAdmin = this.loginService.isAdmin();
+      this.isCitizen = this.loginService.getRole() === 'usuario';
     }
   }
 

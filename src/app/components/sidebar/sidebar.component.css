@@ -3,9 +3,10 @@
     height: auto;
     min-height: auto;
     padding: 10px 25px;
-    background-color: var(--navy); 
+    background-color: var(--blanco, #fff);
     display: flex;
     flex-wrap: wrap;
+    gap: 12px;
     flex-direction: row; /* Convierte la lista en horizontal */
     align-items: center;
     justify-content: space-between; /* Enlaces a la izquierda, botón a la derecha */
@@ -25,7 +26,7 @@
 }
 
 .sidebar a {
-    color: var(--celeste);
+    color: var(--navy, #112F4E);
     padding: 6px 12px;
     text-decoration: none;
     font-weight: 600;
@@ -34,11 +35,11 @@
 }
 
 .sidebar a:hover {
-    color: var(--blanco);
+    color: #1A4480;
 }
 
 .sidebar a:focus-visible {
-    outline: 4px solid var(--cian);
+    outline: 4px solid var(--cian, #00BDE3);
 }
 
 /* Botón de cerrar sesión alineado a la derecha */
@@ -57,4 +58,57 @@
 
 .sidebar button:hover {
     text-decoration: underline;
+}
+
+.sidebar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+}
+
+.sidebar .cart-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--navy, #112F4E);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--navy, #112F4E);
+}
+
+.sidebar .cart-button:hover,
+.sidebar .cart-button--active {
+    background: var(--navy, #112F4E);
+    color: #fff;
+}
+
+.sidebar .cart-button:focus-visible {
+    outline: 3px solid var(--cian, #00BDE3);
+    outline-offset: 3px;
+}
+
+.cart-count {
+    position: absolute;
+    top: -3px;
+    right: -5px;
+    min-width: 19px;
+    padding: 1px 5px;
+    border-radius: 12px;
+    background: var(--cian, #00BDE3);
+    color: var(--navy, #112F4E);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 17px;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .sidebar { padding: 10px 16px; }
+    .sidebar-actions { gap: 10px; }
 }
