@@ -9,7 +9,7 @@ import { DevolucionService } from '../../services/devolucion.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-devolucion.component.html',
-  styleUrl: './admin-devolucion.component.css'
+  styleUrls: ['./admin-devolucion.component.css']
 })
 export class AdminDevolucionComponent implements OnInit {
   prestamos: IDevolucion[] = [];
