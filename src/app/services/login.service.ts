@@ -84,11 +84,11 @@ export class LoginService {
     //Metodos de consulta
 
     public isAuth(): Observable<boolean>{
-        return of(!!sessionStorage.getItem('token'));
+        return of(isPlatformBrowser(this.platformId) && !!sessionStorage.getItem('token'));
     }
 
     public getRole(): string | null {
-        return sessionStorage.getItem('role');
+        return isPlatformBrowser(this.platformId) ? sessionStorage.getItem('role') : null;
     }
 
     public isAdmin(): boolean {
