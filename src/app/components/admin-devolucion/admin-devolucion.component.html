@@ -1,1 +1,18 @@
-<p>admin-devolucion works!</p>
+<section class="devoluciones">
+  <h1>Registrar devolución</h1>
+  <label for="buscar">Buscar por libro, usuario o número de préstamo</label>
+  <input id="buscar" type="text" [(ngModel)]="busqueda" placeholder="Buscar préstamo" />
+  <p *ngIf="mensaje" role="status">{{ mensaje }}</p>
+  <table>
+    <thead><tr><th>N.º</th><th>Usuario</th><th>Libro</th><th>Fecha préstamo</th><th>Estado</th><th>Acción</th></tr></thead>
+    <tbody>
+      <tr *ngFor="let p of prestamosFiltrados">
+        <td>{{ p.id }}</td><td>{{ p.usuario }}</td><td>{{ p.titulo }}</td>
+        <td>{{ p.fechaPrestamo }}</td><td>{{ p.estado }}</td>
+        <td><button type="button" [disabled]="p.estado === 'Devuelto'" (click)="devolverLibro(p.id)">Registrar devolución</button></td>
+      </tr>
+      <tr *ngIf="prestamosFiltrados.length === 0"><td colspan="6">No se encontraron préstamos.</td></tr>
+    </tbody>
+  </table>
+</section>
+
