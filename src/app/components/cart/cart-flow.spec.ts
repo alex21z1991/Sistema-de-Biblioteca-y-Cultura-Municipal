@@ -6,6 +6,7 @@ import { CatalogoService } from '../../services/catalogo.service';
 import { LoginService } from '../../services/login.service';
 import { ReservaService } from '../../services/reserva.service';
 import { ConfirmarReservaComponent } from '../confirmar-reserva/confirmar-reserva.component';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 import { ReservasComponent } from '../reservas/reservas.component';
 import { CartComponent } from './cart.component';
 
@@ -16,7 +17,7 @@ describe('Flujo del carrito', () => {
   beforeEach(async () => {
     sessionStorage.clear();
     await TestBed.configureTestingModule({
-      imports: [CartComponent, ReservasComponent, ConfirmarReservaComponent],
+      imports: [CartComponent, ReservasComponent, ConfirmarReservaComponent, SidebarComponent],
       providers: [provideRouter([])]
     }).compileComponents();
     TestBed.inject(LoginService).login({ username: 'alex', password: 'alex' }).subscribe();
@@ -35,6 +36,8 @@ describe('Flujo del carrito', () => {
   }
 
   it('la tarjeta agrega al carrito sin hacer una reserva directa', () => {
+    const sidebar = TestBed.createComponent(SidebarComponent);
+    sidebar.detectChanges();
     const fixture = TestBed.createComponent(ReservasComponent);
     fixture.detectChanges();
     const element: HTMLElement = fixture.nativeElement;
@@ -42,12 +45,20 @@ describe('Flujo del carrito', () => {
       .find(item => item.textContent?.includes('Historia de Arica'))!;
     card.querySelector('button')!.click();
     fixture.detectChanges();
+    sidebar.detectChanges();
 
     expect(reservations.getSeleccionIds()).toEqual([5]);
     expect(catalog.getRecurso(5)!.ejemplaresComprometidos).toBe(0);
     expect(card.querySelector('button')!.disabled).toBeTrue();
     expect(card.textContent).toContain('En el carrito');
-    expect(element.querySelector('.cart-link')!.textContent).toContain('(1)');
+    const menu: HTMLElement = sidebar.nativeElement;
+    expect(menu.querySelector('.sidebar-actions .cart-button')!.getAttribute('href')).toBe('/carrito');
+    expect(menu.querySelector('.cart-count')!.textContent).toBe('1');
+
+    reservations.quitarDeSeleccion(5);
+    sidebar.detectChanges();
+    expect(menu.querySelector('.cart-count')).toBeNull();
+    expect(menu.querySelector('.cart-button')!.getAttribute('aria-label')).toContain('0 recursos');
   });
 
   it('muestra carga, permite quitar y vuelve al estado vacío', fakeAsync(() => {

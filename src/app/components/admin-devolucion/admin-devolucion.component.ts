@@ -15,6 +15,7 @@ export class AdminDevolucionComponent implements OnInit {
   prestamos: IDevolucion[] = [];
   busqueda = '';
   mensaje = '';
+  mensajeEsExito = false;
 
   constructor(private devoluciones: DevolucionService) {}
 
@@ -35,6 +36,7 @@ export class AdminDevolucionComponent implements OnInit {
 
   devolverLibro(id: number): void {
     this.mensaje = this.devoluciones.devolverLibro(id);
+    this.mensajeEsExito = this.mensaje.startsWith('Devolución registrada');
     this.obtenerPrestamos();
   }
 }

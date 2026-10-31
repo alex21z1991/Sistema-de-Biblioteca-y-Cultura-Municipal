@@ -1,6 +1,240 @@
-.devoluciones { padding: 24px; max-width: 1100px; margin: auto; }
-input { display: block; width: 100%; max-width: 420px; padding: 10px; margin: 10px 0 20px; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-button { padding: 8px 12px; cursor: pointer; }
-button:disabled { cursor: not-allowed; opacity: .5; }
+/* ===================================================================
+   Devoluciones · Guía de diseño del Portal Municipal
+   Variables globales con valor de respaldo (ver admin-prestamos).
+   =================================================================== */
+
+:host {
+    --c-navy: var(--navy, #112F4E);
+    --c-rojo: var(--rojo, #D83933);
+    --c-cian: var(--cian, #00BDE3);
+    --c-celeste: var(--celeste, #D2EBF1);
+    --c-peligro: #B50909;
+    --c-exito: #2e8540;
+    --c-borde: var(--borde, #d9d9d9);
+    --c-fondo-suave: var(--fondo-suave, #F4F7FA);
+    --c-tx2: var(--tx2, #5c6a79);
+    --f-texto: var(--fuente-texto, 'Source Sans 3', sans-serif);
+    --f-titulo: var(--fuente-titulo, 'Merriweather', Georgia, serif);
+
+    display: block;
+    font-family: var(--f-texto);
+    color: #1b1b1b;
+}
+
+.devoluciones-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+/* ---------- Títulos ---------- */
+
+h1, h2, h3 {
+    font-family: var(--f-titulo);
+    font-weight: 700;
+}
+
+.welcome { margin-bottom: 28px; }
+
+.welcome h1 {
+    margin: 0;
+    font-size: 30px;
+    color: var(--c-navy);
+}
+
+/* Título de sección: rojo con filete inferior rojo de 5 px */
+.titulo-seccion {
+    display: inline-block;
+    margin: 0 0 22px;
+    padding-bottom: 6px;
+    font-size: 26px;
+    color: var(--c-rojo);
+    border-bottom: 5px solid var(--c-rojo);
+}
+
+
+/* ---------- Secciones ---------- */
+
+.section {
+    background: #fff;
+    border: 1px solid var(--c-borde);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(17, 47, 78, 0.08);
+    padding: 26px;
+    margin-bottom: 26px;
+}
+
+
+/* ---------- Notificación del sistema ---------- */
+
+.alerta {
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border-left: 5px solid;
+}
+
+.alerta--ok {
+    background: #e7f4e4;
+    border-color: var(--c-exito);
+    color: #1f5a2d;
+}
+
+.alerta--error {
+    background: #fbe1e0;
+    border-color: var(--c-peligro);
+    color: var(--c-peligro);
+}
+
+
+/* ---------- Búsqueda ---------- */
+
+.etiqueta {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--c-navy);
+}
+
+.buscador-caja {
+    position: relative;
+    max-width: 480px;
+    margin-bottom: 22px;
+}
+
+.buscador-icono {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--c-tx2);
+    pointer-events: none;
+}
+
+.campo {
+    padding: 10px 12px;
+    border: 1px solid #8b96a3;
+    border-radius: 5px;
+    background: #fff;
+    font-family: var(--f-texto);
+    font-size: 15px;
+    color: #1b1b1b;
+}
+
+.buscador {
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 38px;
+}
+
+.campo:focus-visible {
+    outline: 4px solid var(--c-cian);
+    outline-offset: 0;
+    border-color: var(--c-navy);
+}
+
+
+/* ---------- Tabla ---------- */
+
+.table-wrap { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--c-borde);
+    vertical-align: middle;
+}
+
+th {
+    background: var(--c-fondo-suave);
+    color: var(--c-navy);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+tbody tr:hover { background: var(--c-fondo-suave); }
+
+.titulo-recurso {
+    font-family: var(--f-titulo);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--c-navy);
+}
+
+
+/* ---------- Estado ---------- */
+
+.pill {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pill--prestado { background: var(--c-celeste); color: var(--c-navy); }
+.pill--devuelto { background: #e7f4e4; color: var(--c-exito); }
+
+
+/* ---------- Botón (normal, hover, foco, deshabilitado) ---------- */
+
+.boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 2px solid var(--c-navy);
+    border-radius: 6px;
+    background: var(--c-navy);
+    color: #fff;
+    font-family: var(--f-texto);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color .15s, border-color .15s;
+}
+
+.boton:hover:not(:disabled) {
+    background: #1A4480;
+    border-color: #1A4480;
+}
+
+.boton:focus-visible { outline: 4px solid var(--c-cian); outline-offset: 2px; }
+.boton:disabled { opacity: .6; cursor: not-allowed; }
+
+.boton--chico {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+
+/* ---------- Estado vacío ---------- */
+
+.empty-state {
+    margin-top: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    background: var(--c-fondo-suave);
+    border: 1px dashed var(--c-borde);
+    border-radius: 8px;
+}
+
+.empty-state h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--c-navy);
+}
+
+
+/* ---------- Pantallas pequeñas ---------- */
+
+@media (max-width: 860px) {
+    .devoluciones-container { padding: 18px; }
+}

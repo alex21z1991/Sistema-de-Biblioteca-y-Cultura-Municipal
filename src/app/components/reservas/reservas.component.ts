@@ -1,7 +1,6 @@
 
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
 
 import { ActivityCardComponent } from '../activity-card/activity-card.component';
 import { MisReservasComponent } from '../mis-reservas/mis-reservas.component';
@@ -20,7 +19,6 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     FiltradorComponent,
     ActivityCardComponent,
     MisReservasComponent
