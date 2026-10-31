@@ -38,7 +38,30 @@ export class ReservaService {
     constructor(
         private catalogoService: CatalogoService,
         private loginService: LoginService
-    ) {}
+    ) {
+        this.cargarDatosDePrueba();
+    }
+
+    // HU-C06: reservas de ejemplo para el ciudadano "alex"
+    private cargarDatosDePrueba(): void {
+        const hoy = new Date();
+        const dia = (dias: number) => this.fechaLocal(this.sumarDias(hoy, dias));
+
+        const reservas: Omit<IReserva, 'id' | 'codigo'>[] = [
+            { usuarioId: 3, recursoId: 2, tituloRecurso: 'Libro1', fechaSolicitud: dia(-10), fechaRetiro: dia(-8), estado: EstadoReserva.Retirada },
+            { usuarioId: 3, recursoId: 7, tituloRecurso: 'Atlas de Chile', fechaSolicitud: dia(-6), fechaRetiro: dia(-4), estado: EstadoReserva.Cancelada, fechaCancelacion: dia(-5) },
+            { usuarioId: 3, recursoId: 4, tituloRecurso: 'Subterra', fechaSolicitud: dia(-2), fechaRetiro: dia(1), estado: EstadoReserva.PendienteRetiro },
+            { usuarioId: 3, recursoId: 1, tituloRecurso: 'Cien años de soledad', fechaSolicitud: dia(-1), fechaRetiro: dia(3), estado: EstadoReserva.PendienteRetiro }
+        ];
+
+        for (const semilla of reservas) {
+            this.reservas.push({ ...semilla, id: ++this.ultimoId, codigo: this.generarCodigo(this.ultimoId) });
+        }
+    }
+
+    private generarCodigo(id: number): string {
+        return 'RES-' + String(id).padStart(4, '0');
+    }
 
 
     // ------------------------------------------------------------------
@@ -172,7 +195,7 @@ export class ReservaService {
 
             const reserva: IReserva = {
                 id: ++this.ultimoId,
-                codigo: 'RES-' + String(this.ultimoId).padStart(4, '0'),
+                codigo: this.generarCodigo(this.ultimoId),
                 usuarioId: usuario.id,
                 recursoId: recurso.id,
                 tituloRecurso: recurso.titulo,
@@ -194,7 +217,12 @@ export class ReservaService {
         return of({ ok: true, errores: [], reservas: nuevas }).pipe(delay(LATENCIA_SIMULADA));
     }
 
-    // Reservas confirmadas del ciudadano en sesión
+    // ------------------------------------------------------------------
+    // HU-C06: consultar y cancelar reservas
+    // ------------------------------------------------------------------
+
+    // Reservas del ciudadano en sesión, las más recientes primero.
+    // Se entregan copias para que la vista no modifique los datos del servicio.
     public getMisReservas(): Observable<IReserva[]> {
         const usuario = this.loginService.getUsuarioActual();
 
@@ -202,12 +230,61 @@ export class ReservaService {
             return of([]);
         }
 
-        return of(this.reservas.filter(r => r.usuarioId === usuario.id));
+        const propias = this.reservas
+            .filter(r => r.usuarioId === usuario.id)
+            .sort((a, b) => b.fechaSolicitud.localeCompare(a.fechaSolicitud) || b.id - a.id)
+            .map(r => ({ ...r }));
+
+        return of(propias);
+    }
+
+    // Solo se cancela lo que todavía no se retira
+    public puedeCancelar(reserva: IReserva): boolean {
+        return reserva.estado === EstadoReserva.PendienteRetiro;
+    }
+
+    public cancelarReserva(reservaId: number): Observable<IResultadoReserva> {
+        const usuario = this.loginService.getUsuarioActual();
+
+        if (!usuario || usuario.role !== 'usuario') {
+            return of({ ok: false, errores: ['Inicia sesión como ciudadano para cancelar reservas.'] });
+        }
+
+        // Una reserva ajena se trata igual que una inexistente
+        const reserva = this.reservas.find(r => r.id === reservaId && r.usuarioId === usuario.id);
+
+        if (!reserva) {
+            return of({ ok: false, errores: ['La reserva no existe o no pertenece a tu cuenta.'] });
+        }
+
+        if (reserva.estado === EstadoReserva.Retirada) {
+            return of({ ok: false, errores: ['No puedes cancelar "' + reserva.tituloRecurso + '" porque ya lo retiraste.'] });
+        }
+
+        if (reserva.estado === EstadoReserva.Cancelada) {
+            return of({ ok: false, errores: ['La reserva ' + reserva.codigo + ' ya estaba cancelada.'] });
+        }
+
+        reserva.estado = EstadoReserva.Cancelada;
+        reserva.fechaCancelacion = this.fechaLocal(new Date());
+
+        // Liberar el ejemplar en el catálogo y en el registro del ciudadano
+        const recurso = this.catalogoService.getRecurso(reserva.recursoId);
+        if (recurso) {
+            recurso.ejemplaresComprometidos = Math.max(0, recurso.ejemplaresComprometidos - 1);
+        }
+
+        const indice = usuario.librosPedidos.indexOf(reserva.recursoId);
+        if (indice >= 0) {
+            usuario.librosPedidos.splice(indice, 1);
+        }
+
+        return of({ ok: true, errores: [], reservas: [{ ...reserva }] }).pipe(delay(LATENCIA_SIMULADA));
     }
 
 
     // ------------------------------------------------------------------
-    // Validaciones (excepciones de la HU)
+    // Validaciones
     // ------------------------------------------------------------------
     public validar(dto: IConfirmarReservaDto): string[] {
 
@@ -301,7 +378,7 @@ export class ReservaService {
 
 
     // ------------------------------------------------------------------
-    // Apoyo de fechas (en hora local, formato 'YYYY-MM-DD')
+    // Apoyo de fechas
     // ------------------------------------------------------------------
     public fechaLocal(fecha: Date): string {
         const y = fecha.getFullYear();

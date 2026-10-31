@@ -1,7 +1,7 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
-import { IResultadoReserva } from '../interfaces/ireserva';
+import { EstadoReserva, IResultadoReserva } from '../interfaces/ireserva';
 import { CatalogoService } from './catalogo.service';
 import { LoginService } from './login.service';
 import { ReservaService } from './reserva.service';
@@ -44,7 +44,8 @@ describe('Carrito de recursos', () => {
     expect(reservations.getSeleccionIds()).toEqual([5]);
     expect(catalog.getRecurso(5)!.ejemplaresComprometidos).toBe(0);
     expect(login.getUsuarioActual()!.librosPedidos).toEqual(orders);
-    reservations.getMisReservas().subscribe(list => expect(list).toEqual([]));
+    // alex trae reservas de ejemplo (HU-C06): solo se verifica que no se creó una nueva
+    reservations.getMisReservas().subscribe(list => expect(list.some(r => r.recursoId === 5)).toBeFalse());
 
     reservations.quitarDeSeleccion(5);
     expect(reservations.getSeleccionIds()).toEqual([]);
@@ -110,7 +111,7 @@ describe('Carrito de recursos', () => {
     expect(catalog.getRecurso(5)!.ejemplaresComprometidos).toBe(1);
     expect(catalog.getRecurso(6)!.ejemplaresComprometidos).toBe(1);
     expect(reservations.getSeleccionIds()).toEqual([]);
-    reservations.getMisReservas().subscribe(list => expect(list.length).toBe(2));
+    reservations.getMisReservas().subscribe(list => expect(list.filter(r => [5, 6].includes(r.recursoId) && r.estado === EstadoReserva.PendienteRetiro).length).toBe(2));
 
     signIn('usuario');
     expect(reservations.getSeleccionIds()).toEqual([2]);
@@ -125,7 +126,7 @@ describe('Carrito de recursos', () => {
     expect(reservations.getSeleccionIds()).toEqual([5, 6]);
     expect(catalog.getRecurso(5)!.ejemplaresComprometidos).toBe(0);
     expect(login.getUsuarioActual()!.librosPedidos).toEqual([1, 2, 4]);
-    reservations.getMisReservas().subscribe(list => expect(list).toEqual([]));
+    reservations.getMisReservas().subscribe(list => expect(list.some(r => r.estado === EstadoReserva.PendienteRetiro && [5, 6].includes(r.recursoId))).toBeFalse());
   }));
 
   it('conserva el carrito cuando HU05 rechaza las multas o el límite de reservas', fakeAsync(() => {

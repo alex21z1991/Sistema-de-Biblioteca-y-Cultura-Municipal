@@ -7,6 +7,9 @@ export enum EstadoReserva {
     Cancelada = 'Cancelada'
 }
 
+// HU-C06: filtro de la vista "Mis reservas"
+export type FiltroReserva = 'Todas' | EstadoReserva;
+
 // Estados de la vista de confirmación (carga / vacío / error / éxito)
 export enum EstadoVistaReserva {
     Cargando = 'cargando',
@@ -27,6 +30,7 @@ export interface IReserva {
     fechaSolicitud: string;     // formato 'YYYY-MM-DD'
     fechaRetiro: string;        // formato 'YYYY-MM-DD'
     estado: EstadoReserva;
+    fechaCancelacion?: string;  // formato 'YYYY-MM-DD' (solo si fue cancelada)
 }
 
 // DTO que viaja desde el formulario de confirmación (todavía sin validar)

@@ -78,39 +78,15 @@
   </section>
 
   <!-- Reservas del ciudadano -->
+  <!-- HU-C06: consultar el estado y cancelar reservas -->
   <section
+    id="mis-reservas"
     class="seccion-mis-reservas"
     *ngIf="!esAdmin">
 
     <h2>Mis reservas</h2>
 
-    <p *ngIf="misReservas.length === 0">
-      Todavía no tienes recursos reservados.
-    </p>
-
-    <div
-      *ngIf="misReservas.length > 0"
-      class="reservas-lista">
-
-      <article
-        class="reserva-item"
-        *ngFor="let recurso of misReservas">
-
-        <div>
-          <h3>{{ recurso.titulo }}</h3>
-
-          <p>Autor: {{ recurso.autor }}</p>
-
-          <p>Categoría: {{ recurso.categoria }}</p>
-        </div>
-
-        <span class="reserva-confirmada">
-          Reserva registrada
-        </span>
-
-      </article>
-
-    </div>
+    <app-mis-reservas (reservaCancelada)="alCancelarReserva()"></app-mis-reservas>
 
   </section>
 

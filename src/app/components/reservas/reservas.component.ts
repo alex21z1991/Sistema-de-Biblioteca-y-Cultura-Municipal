@@ -4,6 +4,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { ActivityCardComponent } from '../activity-card/activity-card.component';
+import { MisReservasComponent } from '../mis-reservas/mis-reservas.component';
 import { CatalogoService } from '../../services/catalogo.service';
 import { LoginService } from '../../services/login.service';
 import { ReservaService } from '../../services/reserva.service';
@@ -21,7 +22,8 @@ import {
     CommonModule,
     RouterLink,
     FiltradorComponent,
-    ActivityCardComponent
+    ActivityCardComponent,
+    MisReservasComponent
   ],
   templateUrl: './reservas.component.html',
   styleUrl: './reservas.component.css'
@@ -146,11 +148,11 @@ export class ReservasComponent implements OnInit {
     return this.idsReservados.includes(recurso.id);
   }
 
-  // Obtener los recursos reservados por el usuario actual.
-  get misReservas(): IRecurso[] {
-    return this.recursos.filter(recurso =>
-      this.idsReservados.includes(recurso.id)
-    );
+  // HU-C06: al cancelar, el recurso vuelve a estar disponible en el catálogo.
+  alCancelarReserva(): void {
+    const usuario = this.loginService.getUsuarioActual();
+    this.idsReservados = [...(usuario?.librosPedidos ?? [])];
+    this.cargarRecursos();
   }
 
   addToCart(resource: IRecurso): void {
