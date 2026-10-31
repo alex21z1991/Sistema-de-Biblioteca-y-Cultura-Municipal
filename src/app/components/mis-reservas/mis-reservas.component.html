@@ -1,0 +1,140 @@
+<!-- HU-C06: sección "Mis reservas" dentro de la página de Reservas -->
+<div class="mis-reservas">
+
+  <p class="subtitle">
+    Revisa el estado de tus reservas y cancela las que aún no retiras para liberar el material.
+  </p>
+
+  <!-- Avisos  -->
+  <div #avisos tabindex="-1" class="avisos">
+
+    <div *ngIf="mensajeExito" class="alerta alerta--ok" role="status">
+      {{ mensajeExito }}
+    </div>
+
+    <div *ngIf="errores.length > 0" class="alerta alerta--error" role="alert">
+      <ul>
+        <li *ngFor="let error of errores">{{ error }}</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Confirmar antes de cancelar -->
+  <div *ngIf="reservaPorCancelar" #confirmacion tabindex="-1" class="alerta alerta--aviso" role="alert">
+    <p>
+      ¿Quieres cancelar la reserva <strong>{{ reservaPorCancelar.codigo }}</strong>
+      de "{{ reservaPorCancelar.tituloRecurso }}"? El ejemplar quedará disponible para otros ciudadanos
+      y esta acción no se puede deshacer.
+    </p>
+    <div class="acciones">
+      <button type="button" class="boton boton--peligro" [disabled]="cancelando" (click)="confirmarCancelacion()">
+        <span *ngIf="cancelando" class="spinner spinner--chico" aria-hidden="true"></span>
+        {{ cancelando ? 'Cancelando…' : 'Confirmar cancelación' }}
+      </button>
+      <button type="button" class="boton boton--contorno" [disabled]="cancelando" (click)="mantenerReserva()">
+        Mantener reserva
+      </button>
+    </div>
+  </div>
+
+  <ng-container [ngSwitch]="estado">
+
+    <!-- ============ Cargando ============ -->
+    <section *ngSwitchCase="Estado.Cargando" class="estado estado--cargando" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Cargando tus reservas…</p>
+    </section>
+
+    <!-- ============ Error al cargar ============ -->
+    <section *ngSwitchCase="Estado.Error" class="estado">
+      <div class="alerta alerta--error" role="alert">
+        No se pudieron cargar tus reservas.
+      </div>
+      <button type="button" class="boton" (click)="cargarReservas()">Reintentar</button>
+    </section>
+
+    <!-- ============ Vacío ============ -->
+    <section *ngSwitchCase="Estado.Vacio" class="estado estado--vacio">
+      <h2>Todavía no tienes reservas</h2>
+      <p>Busca un recurso en el catálogo, agrégalo al carrito y confirma tu reserva.</p>
+    </section>
+
+    <!-- ============ Listado ============ -->
+    <section *ngSwitchDefault class="tarjeta">
+
+      <div class="resumen">
+        <p>
+          Tienes <strong>{{ activas }}</strong> reserva(s) activa(s) de un máximo de {{ maxReservas }}.
+        </p>
+      </div>
+
+      <!-- Filtros por estado -->
+      <div class="filter-bar" role="group" aria-label="Filtrar reservas por estado">
+        <button
+          *ngFor="let f of filtros"
+          type="button"
+          [class.active]="filtro === f"
+          [attr.aria-pressed]="filtro === f"
+          (click)="filtro = f">
+          {{ etiquetaFiltro(f) }}
+          <span class="contador">{{ contar(f) }}</span>
+        </button>
+      </div>
+
+      <div *ngIf="reservasFiltradas.length === 0" class="sin-resultados">
+        No tienes reservas en estado "{{ etiquetaFiltro(filtro).toLowerCase() }}".
+      </div>
+
+      <div *ngIf="reservasFiltradas.length > 0" class="table-wrapper">
+        <table class="tabla-reservas">
+          <caption class="sr-only">Listado de tus reservas</caption>
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Recurso</th>
+              <th scope="col">Solicitada</th>
+              <th scope="col">Retiro</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reserva of reservasFiltradas" [class.fila--cancelada]="reserva.estado === EstadoReserva.Cancelada">
+              <td><code>{{ reserva.codigo }}</code></td>
+              <td>
+                <strong class="titulo-recurso">{{ reserva.tituloRecurso }}</strong>
+              </td>
+              <td>{{ aFecha(reserva.fechaSolicitud) | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ aFecha(reserva.fechaRetiro) | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="pill" [ngClass]="claseEstado(reserva.estado)">{{ reserva.estado }}</span>
+
+                <small class="detalle-estado" [ngSwitch]="reserva.estado">
+                  <ng-container *ngSwitchCase="EstadoReserva.PendienteRetiro">Retíralo en el mesón de préstamos.</ng-container>
+                  <ng-container *ngSwitchCase="EstadoReserva.Retirada">Ya está en tus préstamos.</ng-container>
+                  <ng-container *ngSwitchCase="EstadoReserva.Cancelada">
+                    Cancelada el {{ aFecha(reserva.fechaCancelacion) | date: 'dd/MM/yyyy' }}.
+                  </ng-container>
+                </small>
+              </td>
+              <td class="celda-accion">
+                <button
+                  *ngIf="puedeCancelar(reserva)"
+                  type="button"
+                  class="boton boton--peligro boton--chico"
+                  [disabled]="cancelando"
+                  [attr.aria-label]="'Cancelar reserva ' + reserva.codigo + ' de ' + reserva.tituloRecurso"
+                  (click)="solicitarCancelacion(reserva)">
+                  Cancelar
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </ng-container>
+</div>

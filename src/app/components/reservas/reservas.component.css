@@ -143,40 +143,6 @@
   color: #667085;
 }
 
-.reservas-lista {
-  display: grid;
-  gap: 12px;
-}
-
-.reserva-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 18px;
-  border: 1px solid #d9e4f2;
-  border-radius: 12px;
-  background: #fff;
-}
-
-.reserva-item h3 {
-  margin: 0 0 8px;
-  color: #253858;
-}
-
-.reserva-item p {
-  margin: 5px 0;
-  color: #667085;
-  overflow-wrap: anywhere;
-}
-
-.reserva-confirmada {
-  flex-shrink: 0;
-  color: #067647;
-  font-size: 13px;
-  font-weight: 700;
-}
-
 .mensaje {
   padding: 14px;
   margin: 16px 0;
@@ -202,14 +168,5 @@
 @media (max-width: 600px) {
   .reservas-container {
     padding: 16px 12px 30px;
-  }
-
-  .reserva-item {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .reserva-confirmada {
-    white-space: normal;
   }
 }
