@@ -54,58 +54,61 @@ export class PrestamoService {
     // HU-A05: REGISTRAR DEVOLUCIÓN
     // --------------------------------------------------
 
-    public registrarDevolucion(id: number): string {
 
-        // Verificar que el usuario sea administrador
-        if (!this.loginService.isAdmin()) {
-            return 'Solo el administrador puede registrar devoluciones.';
-        }
+public registrarDevolucion(id: number): string {
 
-        // Buscar el préstamo
-        const prestamo = this.prestamos.find(p => p.id === id);
-
-        if (!prestamo) {
-            return 'El préstamo no existe.';
-        }
-
-        // Verificar que todavía no esté devuelto
-        if (prestamo.estado === EstadoPrestamo.Devuelto) {
-            return 'Este libro ya fue devuelto.';
-        }
-
-        // Liberar el ejemplar en el catálogo
-        if (!this.catalogoService.liberarEjemplar(prestamo.recursoId)) {
-            return 'No se pudo liberar el ejemplar.';
-        }
-
-        // Cambiar el estado del préstamo
-        prestamo.estado = EstadoPrestamo.Devuelto;
-
-        // Actualizar el resumen del ciudadano
-        const usuario = this.loginService.getCiudadanos()
-            .find(u => u.id === prestamo.usuarioId);
-
-        if (usuario) {
-
-            // Comprobar si mantiene otro préstamo activo
-            // del mismo recurso
-            const siguePrestado = this.prestamos.some(p =>
-                p.usuarioId === usuario.id &&
-                p.recursoId === prestamo.recursoId &&
-                p.estado === EstadoPrestamo.Prestado
-            );
-
-            // Si no tiene otro préstamo activo,
-            // quitar el recurso de sus libros pedidos
-            if (!siguePrestado) {
-                usuario.librosPedidos = usuario.librosPedidos
-                    .filter(id => id !== prestamo.recursoId);
-            }
-        }
-
-        return 'Devolución registrada correctamente.';
+    // Verificar que el usuario sea administrador
+    if (!this.loginService.isAdmin()) {
+        return 'Solo el administrador puede registrar devoluciones.';
     }
 
+    // Buscar el préstamo
+    const prestamo = this.prestamos.find(p => p.id === id);
+
+    if (!prestamo) {
+        return 'El préstamo no existe.';
+    }
+
+    // Verificar que todavía no esté devuelto
+    if (prestamo.estado === EstadoPrestamo.Devuelto) {
+        return 'Este libro ya fue devuelto.';
+    }
+
+    // Liberar el ejemplar en el catálogo
+    if (!this.catalogoService.liberarEjemplar(prestamo.recursoId)) {
+        return 'No se pudo liberar el ejemplar.';
+    }
+
+    // Cambiar el estado del préstamo
+    prestamo.estado = EstadoPrestamo.Devuelto;
+
+    // Registrar la fecha real de devolución
+    prestamo.fechaDevolucionReal = this.hoy();
+
+    // Actualizar el resumen del ciudadano
+    const usuario = this.loginService.getCiudadanos()
+        .find(u => u.id === prestamo.usuarioId);
+
+    if (usuario) {
+
+        // Comprobar si mantiene otro préstamo activo
+        // del mismo recurso
+        const siguePrestado = this.prestamos.some(p =>
+            p.usuarioId === usuario.id &&
+            p.recursoId === prestamo.recursoId &&
+            p.estado === EstadoPrestamo.Prestado
+        );
+
+        // Si no tiene otro préstamo activo,
+        // quitar el recurso de sus libros pedidos
+        if (!siguePrestado) {
+            usuario.librosPedidos = usuario.librosPedidos
+                .filter(id => id !== prestamo.recursoId);
+        }
+    }
+
+    return 'Devolución registrada correctamente.';
+}
 
     // --------------------------------------------------
     // FECHAS

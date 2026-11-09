@@ -16,6 +16,7 @@ export interface IPrestamo {
     recursoTitulo: string;
     fechaPrestamo: string;
     fechaDevolucion: string;
+    fechaDevolucionReal?: string;
     estado: EstadoPrestamo;
 }
 

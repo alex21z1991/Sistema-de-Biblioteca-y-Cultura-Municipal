@@ -48,9 +48,19 @@ export const routes: Routes = [
         canActivate: [CiudadanoGuard]
       },
       {
+        path: 'historial',
+        data: { seccion: 'biblioteca' },
+        loadComponent: () =>
+          import('./components/historial/historial.component')
+            .then(module => module.HistorialComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'carrito',
         data: { seccion: 'biblioteca' },
-        loadComponent: () => import('./components/cart/cart.component').then(module => module.CartComponent),
+        loadComponent: () =>
+          import('./components/cart/cart.component')
+            .then(module => module.CartComponent),
         canActivate: [CiudadanoGuard]
       },
       {
@@ -72,7 +82,6 @@ export const routes: Routes = [
         canActivate: [AdminGuard]
       },
       {
-        // HU-A03: registrar préstamo directo
         path: 'admin-prestamos',
         data: { seccion: 'administracion' },
         component: AdminPrestamosComponent,
