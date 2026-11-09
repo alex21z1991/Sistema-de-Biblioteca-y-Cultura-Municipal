@@ -1,0 +1,33 @@
+<header class="cabecera-municipal">
+  <div class="contenedor barra-municipal">
+    <a class="marca" routerLink="/home">Portal Municipal de New York</a>
+
+    <nav class="departamentos" aria-label="Portal municipal">
+      <a routerLink="/home" routerLinkActive="activo" ariaCurrentWhenActive="page">Inicio</a>
+
+      @for (departamento of departamentosPendientes; track departamento) {
+        <span class="proximamente" title="Próximamente">
+          {{ departamento }}<span class="visually-hidden"> (Próximamente)</span>
+        </span>
+      }
+
+      <a routerLink="/explorar" [class.activo]="bibliotecaActiva"
+         [attr.aria-current]="bibliotecaActiva ? 'location' : null">Biblioteca y cultura</a>
+
+      @if (esAdmin) {
+        <a routerLink="/admin-panel" [class.activo]="administracionActiva"
+           [attr.aria-current]="administracionActiva ? 'location' : null">Administración</a>
+      }
+    </nav>
+
+    <details #menu class="sesion"
+             (document:click)="cerrarMenuFuera($event, menu)"
+             (keydown.escape)="cerrarMenuConEscape(menu, control)">
+      <summary #control class="avatar" aria-label="Menú de usuario">{{ iniciales }}</summary>
+      <div class="menu-usuario">
+        <p class="nombre">{{ nombreUsuario }}</p>
+        <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    </details>
+  </div>
+</header>

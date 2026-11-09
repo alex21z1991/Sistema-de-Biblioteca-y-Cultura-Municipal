@@ -1,0 +1,33 @@
+[33mcommit 43bb321cbb077785ff81fcc10ddb07264f24ab55[m
+Author: Alexander <alexanderyeremipinto@gmail.com>
+Date:   Fri Sep 4 23:49:05 2026 -0400
+
+    initial commit
+
+ .editorconfig                 |    16 [32m+[m
+ .gitignore                    |    42 [32m+[m
+ .vscode/extensions.json       |     4 [32m+[m
+ .vscode/launch.json           |    20 [32m+[m
+ .vscode/tasks.json            |    42 [32m+[m
+ README.md                     |    27 [32m+[m
+ angular.json                  |   100 [32m+[m
+ package-lock.json             | 12234 [32m++++++++++++++++++++++++++++++++++++++++[m
+ package.json                  |    44 [32m+[m
+ server.ts                     |    56 [32m+[m
+ src/app/app.component.css     |     0
+ src/app/app.component.html    |   336 [32m++[m
+ src/app/app.component.spec.ts |    29 [32m+[m
+ src/app/app.component.ts      |    13 [32m+[m
+ src/app/app.config.server.ts  |    11 [32m+[m
+ src/app/app.config.ts         |     9 [32m+[m
+ src/app/app.routes.ts         |     3 [32m+[m
+ src/assets/.gitkeep           |     0
+ src/favicon.ico               |   Bin [31m0[m -> [32m15086[m bytes
+ src/index.html                |    13 [32m+[m
+ src/main.server.ts            |     7 [32m+[m
+ src/main.ts                   |     6 [32m+[m
+ src/styles.css                |     1 [32m+[m
+ tsconfig.app.json             |    18 [32m+[m
+ tsconfig.json                 |    32 [32m+[m
+ tsconfig.spec.json            |    14 [32m+[m
+ 26 files changed, 13077 insertions(+)

@@ -1,0 +1,21 @@
+.footer {
+  background: var(--navy);
+  color: var(--blanco);
+}
+
+.footer__interior {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+  padding-block: 16px;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer__marca {
+  font: 700 .95rem var(--fuente-titulo);
+}

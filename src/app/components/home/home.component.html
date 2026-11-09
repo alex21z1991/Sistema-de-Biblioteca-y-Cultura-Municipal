@@ -1,0 +1,302 @@
+<div class="home-container contenedor">
+
+    <!-- Bienvenida -->
+    <header class="welcome">
+
+        <h1>Bienvenido, {{ usuario }}</h1>
+
+        <p class="texto-suave">
+            Consulta el resumen de tu información municipal.
+        </p>
+
+    </header>
+
+
+    <!-- Mensajes de cancelación -->
+    <div *ngIf="mensajeExito" class="alerta alerta--ok" role="status">
+        {{ mensajeExito }}
+    </div>
+
+    <div *ngIf="errores.length > 0" class="alerta alerta--error" role="alert">
+        <ul>
+            <li *ngFor="let error of errores">{{ error }}</li>
+        </ul>
+    </div>
+
+    <!-- Confirmar antes de quitar la inscripción (confirmación en línea) -->
+    <div *ngIf="actividadPorCancelar" #confirmacion tabindex="-1" class="alerta alerta--aviso" role="alert">
+        <p>¿Quieres cancelar tu inscripción en "{{ actividadPorCancelar.titulo }}"?</p>
+        <div class="acciones">
+            <button type="button" class="boton boton--peligro" [disabled]="cancelando" (click)="confirmarCancelacion()">
+                <span *ngIf="cancelando" class="girador" aria-hidden="true"></span>
+                {{ cancelando ? 'Cancelando...' : 'Confirmar cancelación' }}
+            </button>
+            <button type="button" class="boton boton--contorno" [disabled]="cancelando" (click)="mantenerInscripcion()">
+                Mantener inscripción
+            </button>
+        </div>
+    </div>
+
+    <nav class="accesos tarjeta-municipal" aria-labelledby="titulo-accesos">
+        <h2 id="titulo-accesos" class="section-title">¿Cómo hago para…?</h2>
+        <ul>
+            <li><a routerLink="/explorar">Ver actividades culturales</a></li>
+            @if (!esAdmin) {
+                <li><a routerLink="/reservas">Buscar libros y recursos</a></li>
+                <li><a routerLink="/reservas" fragment="mis-reservas">Consultar mis reservas</a></li>
+            } @else {
+                <li><a routerLink="/admin-panel">Gestionar la cartelera</a></li>
+                <li><a routerLink="/admin-catalogo">Gestionar el catálogo</a></li>
+            }
+        </ul>
+    </nav>
+
+    <!-- Indicadores -->
+    <div class="summary-grid">
+
+        <!-- Movimientos -->
+        <div class="tarjeta summary-card">
+
+            <div class="card-content">
+
+                <h3>Movimientos</h3>
+
+                <span class="number">
+                    {{ librosPedidos + salasPedidas + actividadesAgendadas }}
+                </span>
+
+                <p>
+                    Movimientos registrados
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Disponibilidad -->
+        <div class="tarjeta summary-card">
+
+            <div class="card-content">
+
+                <h3>Disponibilidad</h3>
+
+                <span class="number">
+                    {{ salasPedidas }}
+                </span>
+
+                <p>
+                    Salas solicitadas
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Multas -->
+        <div class="tarjeta summary-card">
+
+            <div class="card-content">
+
+                <h3>Multas pendientes</h3>
+
+                <span class="number" [class.number--alerta]="multas > 0">
+                    {{ multas }}
+                </span>
+
+                <p>
+                    Multas pendientes
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Mis movimientos -->
+    <section class="section">
+
+        <div class="section-header">
+
+            <h2>Mis movimientos</h2>
+
+        </div>
+
+
+        <!-- Si existen movimientos -->
+        <ng-container *ngIf="librosPedidos + salasPedidas + actividadesAgendadas > 0">
+
+            <div class="movement-list">
+
+                <div class="movement">
+
+                    <strong>
+                        Mis libros pedidos
+                    </strong>
+
+                    <span>
+                        {{ librosPedidos }} libro(s)
+                    </span>
+
+                </div>
+
+
+                <div class="movement">
+
+                    <strong>
+                        Mis salas solicitadas
+                    </strong>
+
+                    <span>
+                        {{ salasPedidas }} sala(s)
+                    </span>
+
+                </div>
+
+
+                <div class="movement">
+
+                    <strong>
+                        Mis actividades
+                    </strong>
+
+                    <span>
+                        {{ actividadesAgendadas }} actividad(es)
+                    </span>
+
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= ACTIVIDADES ================= -->
+            <div class="actividades">
+
+                <!-- Ninguna inscripción -->
+                <div *ngIf="actividades.length === 0" class="empty-state">
+
+                    <h3>No te has inscrito a ninguna actividad</h3>
+
+                    <p>
+                        Inscríbete a una en la sección de actividades.
+                    </p>
+
+                </div>
+
+
+                <!-- Listado -->
+                <div *ngIf="actividades.length > 0" class="table-wrapper">
+
+                    <table class="tabla-actividades tabla-municipal">
+
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Fecha</th>
+                                <th>Lugar</th>
+                                <th>Inscritos</th>
+                                <th>Cupos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr
+                                *ngFor="let actividad of actividades"
+                            >
+
+                                <td>
+
+                                    <strong class="titulo-actividad">{{ actividad.titulo }}</strong>
+
+                                    <span class="etiqueta">{{ actividad.tipo }}</span>
+
+                                    <p class="descripcion">{{ actividad.descripcion }}</p>
+
+                                </td>
+
+                                <td>
+
+                                    {{ actividad.fecha | date: 'dd/MM/yyyy HH:mm' }}
+
+                                    <small class="duracion-linea">
+                                        hasta las {{ finDe(actividad) }} · {{ duracionTexto(actividad.duracion) }}
+                                    </small>
+
+                                    <span *ngIf="yaPaso(actividad)" class="etiqueta etiqueta-pasada">
+                                        Finalizada
+                                    </span>
+
+                                </td>
+
+                                <td>{{ actividad.lugar }}</td>
+
+                                <td>{{ actividad.inscritos.length }} / {{ actividad.capacidad }}</td>
+
+                                <td>
+
+                                    <span *ngIf="cuposDisponibles(actividad) > 0">
+                                        {{ cuposDisponibles(actividad) }} disponibles
+                                    </span>
+
+                                    <span *ngIf="cuposDisponibles(actividad) === 0" class="sin-cupos">
+                                        Sin cupos
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                  <div class="acciones">
+
+                                    <button
+                                        type="button"
+                                        class="boton boton--peligro boton--chico"
+                                        [disabled]="cancelando"
+                                        (click)="solicitarCancelacion(actividad)"
+                                    >
+                                        Cancelar inscripción
+                                    </button>
+
+                                  </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </ng-container>
+
+
+        <!-- Si no existen movimientos -->
+        <div
+            *ngIf="librosPedidos + salasPedidas + actividadesAgendadas === 0"
+            class="empty-state"
+        >
+
+            <h3>
+                No tienes movimientos registrados
+            </h3>
+
+            <p>
+                Cuando realices un movimiento,
+                aparecerá información en esta sección.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>

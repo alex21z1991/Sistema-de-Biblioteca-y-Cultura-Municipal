@@ -1,0 +1,124 @@
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { IUserFormLogin } from '../interfaces/iuserformlogin';
+import { IUser } from '../interfaces/iuser';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { Router } from '@angular/router';
+import { isPlatformBrowser, Location } from '@angular/common';
+
+@Injectable({ providedIn: 'root'})
+
+export class LoginService {
+    private validUsers: IUser[] = [
+        {
+            id: 1,
+            username: 'admin',
+            password: 'admin',
+            role: 'admin',
+            librosPedidos: [],
+            salasPedidas: [],
+            actividadesAgendadas: [],
+            multas: []
+        },
+        {
+            id: 2,
+            username: 'usuario',
+            password: 'usuario',
+            role: 'usuario',
+            librosPedidos: [3232,444,445],
+            salasPedidas: [1],
+            actividadesAgendadas: [1,2],
+            multas: ["demora entrega"]
+        },
+        {
+            id:3,
+            username:"alex",
+            password:"alex",
+            role:"usuario",
+            librosPedidos:[1,2,4],
+            salasPedidas:[2],
+            actividadesAgendadas:[],
+            multas:[]
+            
+        }
+    ];
+    
+    private currentUser = new BehaviorSubject<IUser | undefined>(undefined);
+    readonly currentUser$ = this.currentUser.asObservable();
+
+    constructor(
+        private router: Router,
+        private location: Location,
+        @Inject(PLATFORM_ID) private platformId: Object
+    ) {
+        this.currentUser.next(this.getUsuarioActual());
+    }
+
+    //Inicio de sesion
+    public login(userLogin: IUserFormLogin): Observable<boolean>{
+
+        const foundUser = this.validUsers.find(
+            u => u.username === userLogin.username && u.password === userLogin.password
+        );
+
+        if(foundUser){
+            const token = btoa(foundUser.username + foundUser.password || '');
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('role', foundUser.role || 'user');
+            sessionStorage.setItem('userId', foundUser.id.toString());
+            this.currentUser.next(foundUser);
+            return of(true);
+        }
+
+        return of(false);
+    }
+
+    //Cerrar sesion
+    public logout(): Observable<boolean>{
+        if(sessionStorage.getItem('token')){
+            sessionStorage.clear();
+        }
+        this.currentUser.next(undefined);
+        return of(true);
+    }
+
+    //Metodos de consulta
+
+    public isAuth(): Observable<boolean>{
+        return of(isPlatformBrowser(this.platformId) && !!sessionStorage.getItem('token'));
+    }
+
+    public getRole(): string | null {
+        return isPlatformBrowser(this.platformId) ? sessionStorage.getItem('role') : null;
+    }
+
+    public isAdmin(): boolean {
+        return this.getRole() === 'admin';
+    }
+
+    public isUser(): boolean {
+        return this.getRole() === 'user';
+    }
+
+    // Obtener al usuario de la sesión actual
+    public getUsuarioActual(): IUser | undefined {
+        if (!isPlatformBrowser(this.platformId)) {
+            return undefined;
+        }
+
+        if (!sessionStorage.getItem('token')) {
+            return undefined;
+        }
+
+        const userId = Number(sessionStorage.getItem('userId'));
+        return this.validUsers.find(usuario => usuario.id === userId);
+    }
+
+    public getUsers(): IUser[] {
+    return this.validUsers;
+}
+
+    // Ciudadanos (usuarios que no son administradores)
+    public getCiudadanos(): IUser[] {
+        return this.validUsers.filter(usuario => usuario.role === 'usuario');
+    }
+}

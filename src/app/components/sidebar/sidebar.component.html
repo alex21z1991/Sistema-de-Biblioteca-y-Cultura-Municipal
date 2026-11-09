@@ -1,0 +1,35 @@
+<nav class="subnavegacion" [attr.aria-label]="seccion === 'administracion' ? 'Administración de Biblioteca' : 'Biblioteca y Cultura'">
+  <div class="contenedor subnavegacion__interior">
+    @if (seccion === 'administracion') {
+      <a routerLink="/admin-panel" routerLinkActive="activo" ariaCurrentWhenActive="page">Cartelera</a>
+      <a routerLink="/admin-catalogo" routerLinkActive="activo" ariaCurrentWhenActive="page">Catálogo</a>
+      <a routerLink="/admin-prestamos" routerLinkActive="activo" ariaCurrentWhenActive="page">Préstamos</a>
+      <a routerLink="/admin-devoluciones" routerLinkActive="activo" ariaCurrentWhenActive="page">Devoluciones</a>
+    } @else {
+      <a routerLink="/explorar" routerLinkActive="activo" ariaCurrentWhenActive="page">Explorar</a>
+
+      @if (isCitizen) {
+        <a routerLink="/reservas" fragment="mis-reservas" routerLinkActive="activo" ariaCurrentWhenActive="location">Mis reservas</a>
+        <div class="sidebar-actions">
+          <a *ngIf="cartIds$ | async as cartIds"
+             class="cart-button"
+             routerLink="/carrito"
+             routerLinkActive="cart-button--active"
+             ariaCurrentWhenActive="page"
+             title="Mi carrito"
+             [attr.aria-label]="'Carrito, ' + cartIds.length + (cartIds.length === 1 ? ' recurso seleccionado' : ' recursos seleccionados')">
+              <span>Carrito</span>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                   stroke-linejoin="round" aria-hidden="true" focusable="false">
+                  <path d="M3 3h2l3 13h11l2-9H6" />
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="18" cy="21" r="1" />
+              </svg>
+              <span *ngIf="cartIds.length > 0" class="cart-count" aria-hidden="true">{{ cartIds.length }}</span>
+          </a>
+        </div>
+      }
+    }
+  </div>
+</nav>

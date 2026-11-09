@@ -1,0 +1,12 @@
+<app-navbar></app-navbar>
+
+<div class="layout">
+    @if (seccion; as seccionActual) {
+        <app-sidebar [seccion]="seccionActual"></app-sidebar>
+    }
+    <main class="content">
+        <router-outlet></router-outlet>
+    </main>
+</div>
+
+<app-footer></app-footer>

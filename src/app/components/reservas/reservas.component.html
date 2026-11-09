@@ -1,0 +1,92 @@
+
+<div class="reservas-container contenedor" *ngIf="cartIds$ | async as cartIds">
+
+  <!-- Encabezado -->
+  <header class="encabezado">
+    <h1>Reservas de recursos</h1>
+
+    <p>
+      Encuentra libros y otros recursos del catálogo
+      de la biblioteca municipal.
+    </p>
+  </header>
+
+  <!-- Buscador y filtros de la HU03 -->
+  <app-filtrador
+    [categorias]="categorias"
+    (filtrosChange)="recibirFiltros($event)">
+  </app-filtrador>
+
+  <!-- Mensaje de éxito -->
+  <div
+    *ngIf="mensaje"
+    class="mensaje exito"
+    role="status">
+    {{ mensaje }}
+  </div>
+
+  <!-- Mensajes de error -->
+  <div
+    *ngIf="errores.length > 0"
+    class="mensaje error"
+    role="alert">
+
+    <p *ngFor="let error of errores">
+      {{ error }}
+    </p>
+  </div>
+
+  <!-- Catálogo de recursos -->
+  <section class="seccion-catalogo">
+
+    <h2 class="section-title">Catálogo disponible</h2>
+
+    <p class="contador">
+      {{ recursosFiltrados.length }} recurso(s) encontrado(s)
+    </p>
+
+    <div
+      *ngIf="recursosFiltrados.length > 0; else sinResultados"
+      class="recursos-grid">
+
+      <!-- Reutilizar la tarjeta existente -->
+      <app-activity-card
+        *ngFor="let recurso of recursosFiltrados"
+        [modo]="'libro'"
+        [recurso]="recurso"
+        [yaReservado]="estaReservado(recurso)"
+        [inCart]="cartIds.includes(recurso.id)"
+        [esAdmin]="esAdmin"
+        (addToCart)="addToCart($event)">
+      </app-activity-card>
+
+    </div>
+
+    <!-- Cuando no hay resultados -->
+    <ng-template #sinResultados>
+      <div class="sin-resultados">
+        <h3>No se encontraron recursos</h3>
+
+        <p>
+          Cambia las palabras de búsqueda o modifica
+          los filtros para encontrar otros libros.
+        </p>
+      </div>
+    </ng-template>
+
+  </section>
+
+  <!-- Reservas del ciudadano -->
+  <!-- HU-C06: consultar el estado y cancelar reservas -->
+  <section
+    id="mis-reservas"
+    class="seccion-mis-reservas"
+    *ngIf="!esAdmin">
+
+    <h2 class="section-title">Mis reservas</h2>
+
+    <app-mis-reservas (reservaCancelada)="alCancelarReserva()"></app-mis-reservas>
+
+  </section>
+
+</div>

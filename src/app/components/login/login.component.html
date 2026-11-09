@@ -1,0 +1,57 @@
+<header class="login-brand">
+  <div class="contenedor">Portal Municipal de New York</div>
+</header>
+
+<main class="login-wrapper">
+  <div class="login-panel">
+    <header class="brand-header">
+      <div class="login-icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+        </svg>
+      </div>
+      <h1>Iniciar sesión</h1>
+      <p class="subtitle">Accede a Biblioteca y Cultura con tu cuenta municipal.</p>
+    </header>
+
+    <div class="login-card tarjeta-municipal">
+      <div *ngIf="errorMessage" class="alerta--error" role="alert">{{ errorMessage }}</div>
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm" [attr.aria-busy]="isLoading">
+        <div class="campo-grupo">
+          <label for="username" class="etiqueta">Usuario</label>
+          <input type="text" id="username" name="username" class="campo"
+                 autocomplete="username" autocapitalize="none" required
+                 [(ngModel)]="loginData.username" #usernameCtrl="ngModel"
+                 [class.input-error]="usernameCtrl.invalid && usernameCtrl.touched"
+                 [attr.aria-invalid]="usernameCtrl.invalid && usernameCtrl.touched"
+                 [attr.aria-describedby]="usernameCtrl.invalid && usernameCtrl.touched ? 'username-error' : null" />
+          <span id="username-error" class="field-error" *ngIf="usernameCtrl.invalid && usernameCtrl.touched">
+            El usuario es obligatorio.
+          </span>
+        </div>
+
+        <div class="campo-grupo">
+          <label for="password" class="etiqueta">Contraseña</label>
+          <input type="password" id="password" name="password" class="campo"
+                 autocomplete="current-password" required
+                 [(ngModel)]="loginData.password" #passwordCtrl="ngModel"
+                 [class.input-error]="passwordCtrl.invalid && passwordCtrl.touched"
+                 [attr.aria-invalid]="passwordCtrl.invalid && passwordCtrl.touched"
+                 [attr.aria-describedby]="passwordCtrl.invalid && passwordCtrl.touched ? 'password-error' : null" />
+          <span id="password-error" class="field-error" *ngIf="passwordCtrl.invalid && passwordCtrl.touched">
+            La contraseña es obligatoria.
+          </span>
+        </div>
+
+        <button type="submit" class="boton btn-submit" [disabled]="!loginForm.form.valid || isLoading">
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+          {{ isLoading ? 'Iniciando sesión…' : 'Ingresar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

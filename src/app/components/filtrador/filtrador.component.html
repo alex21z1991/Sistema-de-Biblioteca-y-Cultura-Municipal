@@ -1,0 +1,50 @@
+<section class="filtros-recursos tarjeta-municipal">
+
+  <div class="campo-grupo">
+    <label for="buscar">Buscar recurso</label>
+
+    <input
+      id="buscar" class="campo"
+      type="search"
+      [(ngModel)]="filtros.texto"
+      (ngModelChange)="emitirFiltros()"
+      placeholder="Título, autor o categoría">
+  </div>
+
+  <div class="campo-grupo">
+    <label for="categoria">Categoría</label>
+
+    <select
+      id="categoria" class="campo"
+      [(ngModel)]="filtros.categoria"
+      (ngModelChange)="emitirFiltros()">
+
+      <option value="">Todas las categorías</option>
+
+      <option
+        *ngFor="let categoria of categorias"
+        [value]="categoria">
+        {{ categoria }}
+      </option>
+    </select>
+  </div>
+
+  <div class="campo-grupo">
+    <label for="disponibilidad">Disponibilidad</label>
+
+    <select
+      id="disponibilidad" class="campo"
+      [(ngModel)]="filtros.disponibilidad"
+      (ngModelChange)="emitirFiltros()">
+
+      <option value="todos">Todos</option>
+      <option value="disponibles">Disponibles</option>
+      <option value="agotados">Agotados</option>
+    </select>
+  </div>
+
+  <button class="boton boton--contorno" type="button" (click)="limpiar()">
+    Limpiar filtros
+  </button>
+
+</section>

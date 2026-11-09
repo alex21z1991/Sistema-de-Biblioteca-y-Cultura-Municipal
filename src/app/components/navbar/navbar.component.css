@@ -1,0 +1,126 @@
+.cabecera-municipal {
+  background: var(--navy);
+  color: var(--blanco);
+}
+
+.barra-municipal {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding-block: 10px;
+}
+
+.marca {
+  color: var(--blanco);
+  font: 700 1rem var(--fuente-titulo);
+  text-decoration: none;
+}
+
+.departamentos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 12px;
+}
+
+.departamentos a,
+.proximamente {
+  padding: 6px 4px;
+  border-bottom: 2px solid transparent;
+}
+
+.departamentos a {
+  color: var(--celeste);
+  text-decoration: none;
+}
+
+.departamentos a:hover,
+.departamentos a.activo {
+  color: var(--blanco);
+  border-bottom-color: var(--cian);
+}
+
+.proximamente {
+  color: var(--texto-pendiente);
+  cursor: not-allowed;
+}
+
+.sesion {
+  position: relative;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  list-style: none;
+  border: 2px solid var(--blanco);
+  border-radius: 50%;
+  background: var(--cian);
+  color: var(--navy);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.avatar::-webkit-details-marker {
+  display: none;
+}
+
+.avatar:hover {
+  background: var(--celeste);
+}
+
+.menu-usuario {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 200px;
+  padding: 8px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--blanco);
+  box-shadow: 0 8px 22px rgb(17 47 78 / 25%);
+  color: var(--navy);
+}
+
+.nombre {
+  margin: 0;
+  padding: 6px 8px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.menu-usuario button {
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--rojo);
+  font-weight: 700;
+  text-align: left;
+}
+
+.menu-usuario button:hover {
+  background: var(--fondo-suave);
+}
+
+@media (max-width: 860px) {
+  .barra-municipal {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px;
+  }
+
+  .departamentos {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: flex-start;
+  }
+
+  .sesion {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

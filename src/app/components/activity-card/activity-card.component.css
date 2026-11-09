@@ -1,0 +1,129 @@
+
+.activity-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: var(--fuente-texto, 'Source Sans 3', sans-serif);
+  box-sizing: border-box;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.badge.taller {
+  background-color: var(--celeste-claro, #E7F6F8);
+  color: var(--navy, #112F4E);
+}
+
+.badge.evento {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+/* Etiqueta de libros, revistas y otros recursos. */
+.recurso-badge {
+  background-color: var(--celeste-claro, #E7F6F8);
+  color: var(--navy, #112F4E);
+}
+
+.capacity-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--verde-exito, #2e8540);
+}
+
+.capacity-tag.full {
+  color: var(--rojo, #B50909);
+}
+
+.card-title {
+  margin: 0 0 8px;
+  min-height: 40px;
+  font-size: 16px;
+  color: var(--navy, #112F4E);
+  font-weight: 700;
+  font-family: var(--fuente-titulo, 'Merriweather', Georgia, serif);
+  overflow-wrap: anywhere;
+}
+
+.card-description {
+  font-size: 14px;
+  color: var(--tx2, #5c6a79);
+  margin: 0 0 16px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.card-details {
+  border-top: 1px solid var(--borde, #d9d9d9);
+  border-bottom: 1px solid var(--borde, #d9d9d9);
+  padding: 12px 0;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.detail-label {
+  color: var(--tx2, #5c6a79);
+  flex: 1;
+}
+
+.detail-value {
+  color: var(--navy, #112F4E);
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+  flex: 1;
+}
+
+.card-footer {
+  margin-top: auto;
+}
+
+.accion-tarjeta {
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .activity-card {
+    padding: 16px;
+  }
+
+  .card-header {
+    align-items: flex-start;
+  }
+
+  .detail-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .detail-value {
+    text-align: left;
+  }
+}
