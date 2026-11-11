@@ -1,0 +1,71 @@
+<div class="perfil-contenedor">
+  <header class="perfil-cabecera">
+    <h1>Mi perfil</h1>
+    <p>Tus datos personales, tus reservas con sus comprobantes y los reportes que has enviado.</p>
+  </header>
+
+  <div class="perfil-layout">
+    <!-- COLUMNA IZQUIERDA -->
+    <aside class="columna-aside">
+      <!-- Tarjeta 1: Datos Personales -->
+      <div class="tarjeta">
+        <div class="usuario-info">
+          <div class="avatar">{{ iniciales }}</div>
+          <div class="usuario-textos">
+            <h2>{{ usuarioActual?.username }}</h2>
+            <p class="usuario-rol">{{ usuarioActual?.username }} · {{ usuarioActual?.role | titlecase }}</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="guardarPerfil()">
+          <div class="form-grupo">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" [(ngModel)]="nombreForm" type="text" class="input-control">
+          </div>
+          
+          <div class="form-grupo">
+            <label for="nuevaClave">Nueva contraseña (opcional)</label>
+            <input id="nuevaClave" name="nuevaClave" [(ngModel)]="nuevaClave" type="password" class="input-control" placeholder="Déjala vacía para mantener la actual">
+          </div>
+          
+          <button type="submit" class="btn btn-primario">Guardar cambios</button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- COLUMNA DERECHA -->
+    <main class="columna-principal">
+      <h2 class="titulo-seccion">Mis reservas ({{ misReservas.length }})</h2>
+
+      <!-- Tarjetas de Reservas iteradas -->
+      <div class="tarjeta-reserva" *ngFor="let reserva of misReservas">
+        <div class="reserva-encabezado">
+          <h3 class="reserva-titulo">{{ reserva.tituloRecurso }}</h3>
+          <div class="reserva-acciones">
+            <span class="badge badge-{{ reserva.estado.toLowerCase().replace(' ', '') }}">
+              {{ reserva.estado }}
+            </span>
+            <button class="btn btn-delineado btn-sm">Ver detalle</button>
+          </div>
+        </div>
+        
+        <p class="reserva-meta">
+          Solicitado: {{ reserva.fechaSolicitud }} · Retiro: {{ reserva.fechaRetiro }}
+        </p>
+
+        <div class="reserva-comprobante">
+          <details>
+            <summary>▶ Ver comprobante {{ reserva.codigo }}</summary>
+            <div class="comprobante-contenido">
+              Aquí puedes integrar la vista del comprobante para {{ reserva.codigo }}.
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div *ngIf="misReservas.length === 0" class="mensaje-vacio">
+        Aún no tienes reservas activas.
+      </div>
+    </main>
+  </div>
+</div>
