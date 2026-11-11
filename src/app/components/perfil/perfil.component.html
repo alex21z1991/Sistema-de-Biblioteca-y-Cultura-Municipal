@@ -1,0 +1,56 @@
+<main class="perfil-pagina contenedor">
+  <h1>Mi perfil</h1>
+  <p class="introduccion">Tus datos personales y el historial de tus libros solicitados.</p>
+
+  <div class="perfil-contenido">
+    <!-- COLUMNA IZQUIERDA: Datos Personales -->
+    <div class="columna-cuenta">
+      <section class="tarjeta-perfil" aria-label="Datos personales">
+        <div class="usuario-cabecera">
+          <span class="usuario-avatar" aria-hidden="true">{{ iniciales }}</span>
+          <div class="usuario-identidad">
+            <h2>{{ usuarioActual?.username }}</h2>
+            <p>{{ usuarioActual?.role }}</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="guardarPerfil()">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" [(ngModel)]="nombreForm" maxlength="100" required>
+
+          <label for="nuevaClave">Nueva contraseña (opcional)</label>
+          <input id="nuevaClave" name="nuevaClave" type="password" [(ngModel)]="nuevaClave"
+                 autocomplete="new-password" placeholder="Déjala vacía para mantener la actual">
+
+          <button type="submit" class="boton boton--primario">Guardar cambios</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- COLUMNA DERECHA: Historial de Libros -->
+    <section class="reservas-perfil" aria-labelledby="titulo-reservas">
+      <h2 id="titulo-reservas">Mis libros ({{ misReservas?.length || 0 }})</h2>
+
+      <p *ngIf="!misReservas || misReservas.length === 0" class="vacio">
+        Aún no has solicitado libros.
+        <a routerLink="/explore">Explorar catálogo</a>
+      </p>
+
+      <article class="reserva-perfil" *ngFor="let reserva of misReservas">
+        <div class="reserva-perfil__encabezado">
+          <div class="reserva-perfil__datos">
+            <h3>{{ reserva.tituloRecurso }}</h3>
+            <p class="fechas-texto">
+              Retirado: {{ reserva.fechaRetiro }}
+            </p>
+          </div>
+          <div class="reserva-perfil__acciones">
+            <span class="estado" [ngClass]="'estado--' + reserva.estado.toLowerCase()">
+              {{ reserva.estado }}
+            </span>
+          </div>
+        </div>
+      </article>
+    </section>
+  </div>
+</main>
