@@ -124,3 +124,15 @@
     grid-row: 1;
   }
 }
+
+.menu-usuario a {
+  display: block;
+  padding: 6px 8px;
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.menu-usuario a:hover {
+  background: var(--fondo-suave);
+}
