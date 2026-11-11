@@ -1,199 +1,275 @@
-/* Contenedor principal */
-.perfil-pagina {
-  padding: 2rem;
+/* --- Variables de color basadas en tu imagen --- */
+:host {
+  --color-primario: #0B233F; 
+  --color-avatar-bg: #00B3E6; 
+  --color-avatar-txt: #0B233F;
+  --color-texto: #333333;
+  --color-texto-suave: #666666;
+  --color-borde: #EAEAEA; 
+  --color-fondo-caja: #F9F9F9; 
+  
+  --fuente-serif: Georgia, 'Times New Roman', serif;
+  --fuente-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.perfil-contenedor {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem 2rem 4rem 2rem; 
+  font-family: var(--fuente-sans);
+  color: var(--color-texto);
 }
 
-.perfil-pagina h1 {
+/* --- Cabecera --- */
+.perfil-cabecera h1 {
+  font-family: var(--fuente-serif);
   font-size: 2rem;
+  color: var(--color-primario);
   margin-bottom: 0.5rem;
-  color: #333;
+  margin-top: 0;
 }
 
-.introduccion {
-  color: #666;
+.perfil-cabecera p {
+  color: var(--color-texto-suave);
+  margin-top: 0;
   margin-bottom: 2rem;
+  font-size: 0.9rem;
 }
 
-/* Layout de dos columnas */
-.perfil-contenido {
+/* --- Layout Principal --- */
+.perfil-layout {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
+  grid-template-columns: 320px 1fr; 
+  gap: 2rem; 
   align-items: start;
 }
 
-/* --- COLUMNA IZQUIERDA: Cuenta --- */
-.tarjeta-perfil {
-  background-color: #fff;
-  border-radius: 8px;
+/* --- Tarjetas Globales --- */
+.tarjeta {
+  background: #FFFFFF;
+  border: 1px solid var(--color-borde);
+  border-radius: 6px; 
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02); 
 }
 
-.usuario-cabecera {
+/* --- Columna Izquierda: Info Usuario --- */
+.usuario-info {
   display: flex;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
 }
 
-.usuario-avatar {
-  background-color: #0056b3;
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  width: 60px;
-  height: 60px;
+.avatar {
+  width: 45px;
+  height: 45px;
+  background-color: var(--color-avatar-bg);
+  color: var(--color-avatar-txt);
   border-radius: 50%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1rem;
 }
 
-.usuario-identidad h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #333;
-  text-transform: capitalize;
+.usuario-textos h2 {
+  font-family: var(--fuente-serif);
+  font-size: 1.1rem;
+  color: var(--color-primario);
+  margin: 0 0 0.2rem 0;
 }
 
-.usuario-identidad p {
+.usuario-rol {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
   margin: 0;
-  color: #666;
-  font-size: 0.9rem;
-  text-transform: capitalize;
 }
 
 /* Formulario */
-form label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
-}
-
-form input {
-  width: 100%;
-  padding: 0.75rem;
+.form-grupo {
   margin-bottom: 1.25rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-  box-sizing: border-box;
 }
 
-form input:focus {
-  border-color: #0056b3;
-  outline: none;
+.form-grupo label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-primario);
 }
 
-.boton {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
+.input-control {
   width: 100%;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #D1D5DB; 
+  border-radius: 4px;
+  font-family: var(--fuente-sans);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  color: var(--color-texto);
+}
+.input-control:focus {
+    outline: none;
+    border-color: var(--color-primario);
 }
 
-.boton--primario {
-  background-color: #0056b3;
-  color: #fff;
+.input-control::placeholder {
+    color: #9CA3AF;
 }
 
-.boton--primario:hover {
-  background-color: #004494;
-}
-
-/* --- COLUMNA DERECHA: Historial --- */
-.reservas-perfil h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  color: #333;
-  border-bottom: 2px solid #0056b3;
-  padding-bottom: 0.5rem;
-}
-
-.vacio {
-  color: #666;
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 8px;
+/* Botones */
+.btn {
+  display: inline-block;
   text-align: center;
-}
-
-.vacio a {
-  color: #0056b3;
+  cursor: pointer;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-family: var(--fuente-sans);
   text-decoration: none;
-  font-weight: bold;
-  margin-left: 0.5rem;
+  transition: all 0.2s;
 }
 
-.vacio a:hover {
-  text-decoration: underline;
+.btn-primario {
+  background-color: var(--color-primario);
+  color: #fff;
+  border: 1px solid var(--color-primario);
 }
 
-/* Tarjeta individual de reserva */
-.reserva-perfil {
-  background-color: #fff;
-  border: 1px solid #eee;
-  border-radius: 8px;
+.btn-primario:hover {
+  background-color: #061526;
+}
+
+.btn-delineado {
+  background-color: transparent;
+  color: var(--color-primario);
+  border: 1px solid var(--color-primario);
+}
+
+.btn-delineado:hover {
+  background-color: #F3F4F6;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+/* --- Columna Derecha: Reservas --- */
+.titulo-seccion {
+  font-family: var(--fuente-serif);
+  font-size: 1.25rem;
+  color: var(--color-primario);
+  margin-top: 0;
+  margin-bottom: 1rem; 
+}
+
+.tarjeta-reserva {
+  background: #FFFFFF;
+  border: 1px solid var(--color-borde);
+  border-radius: 6px;
   padding: 1.25rem;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
-.reserva-perfil__encabezado {
+.reserva-encabezado {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-.reserva-perfil__datos h3 {
-  margin: 0 0 0.5rem 0;
+.reserva-titulo {
+  font-family: var(--fuente-serif);
   font-size: 1.1rem;
-  color: #333;
+  color: var(--color-primario);
+  margin: 0;
 }
 
-.fechas-texto {
-  margin: 0;
-  color: #666;
+.reserva-acciones {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reserva-meta {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+/* Badges de estado */
+.badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-retirada,
+.badge-confirmada {
+  background-color: #D1FAE5; 
+  color: #065F46;
+}
+
+.badge-pendienteretiro,
+.badge-pendiente {
+  background-color: #FEF3C7; 
+  color: #92400E;
+}
+
+.badge-cancelada {
+  background-color: #FEE2E2; 
+  color: #991B1B;
+}
+
+/* Comprobante */
+.reserva-comprobante details {
+  background-color: var(--color-fondo-caja);
+  border: 1px solid var(--color-borde);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.reserva-comprobante summary {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-primario);
+  cursor: pointer;
+  list-style: none; 
+}
+
+.reserva-comprobante summary::-webkit-details-marker {
+  display: none;
+}
+
+.comprobante-contenido {
+  padding: 1rem;
+  border-top: 1px solid var(--color-borde);
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+
+/* Mensaje vacío */
+.mensaje-vacio {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-texto-suave);
+  background-color: #FFFFFF;
+  border: 1px dashed #D1D5DB; 
+  border-radius: 6px;
   font-size: 0.9rem;
 }
 
-/* Etiquetas de Estado */
-.estado {
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  text-transform: capitalize;
-}
-
-.estado--pendienteretiro {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.estado--retirada {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.estado--cancelada {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-/* --- Responsividad --- */
-@media (max-width: 768px) {
-  .perfil-contenido {
+/* Responsivo */
+@media (max-width: 900px) {
+  .perfil-layout {
     grid-template-columns: 1fr;
   }
 }
