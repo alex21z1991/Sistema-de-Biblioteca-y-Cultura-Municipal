@@ -1,0 +1,31 @@
+<section class="contenedor multas" aria-labelledby="titulo-multas">
+  <header class="mb-4">
+    <a routerLink="/home">Volver a Inicio</a>
+    <h1 id="titulo-multas" class="mt-2 mb-0">Mis multas y sanciones</h1>
+  </header>
+
+  @if (multas$ | async; as multas) {
+    @if (multas.length) {
+      <ul class="list-unstyled d-grid gap-3 mb-0">
+        @for (multa of multas; track multa.id) {
+          <li class="tarjeta-municipal registro">
+            <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+              <h2 class="h5 mb-0">{{ multa.motivo }}</h2>
+              <span class="estado" [class.estado--pendiente]="multa.estado === pendiente">
+                {{ multa.estado }}
+              </span>
+            </div>
+            <p class="detalle mt-2 mb-0">
+              {{ multa.tipo }}
+              @if (multa.fecha; as fecha) {
+                <span> · <time [attr.datetime]="fecha">{{ fecha | date:'dd/MM/yyyy' }}</time></span>
+              }
+            </p>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="tarjeta-municipal registro mb-0">No tienes multas ni sanciones registradas.</p>
+    }
+  }
+</section>

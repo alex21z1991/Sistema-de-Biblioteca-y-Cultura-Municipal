@@ -76,6 +76,12 @@ export const routes: Routes = [
         canActivate: [AdminGuard]
       },
       {
+        path: 'multas',
+        data: { seccion: 'biblioteca' },
+        loadComponent: () => import('./components/multas/multas.component').then(module => module.MultasComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'admin-catalogo',
         data: { seccion: 'administracion' },
         component: AdminCatalogoComponent,

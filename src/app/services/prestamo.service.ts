@@ -16,6 +16,7 @@ import { IUser } from '../interfaces/iuser';
 
 import { CatalogoService } from './catalogo.service';
 import { LoginService } from './login.service';
+import { MultasService } from './multas.service';
 
 @Injectable({ providedIn: 'root' })
 export class PrestamoService {
@@ -26,7 +27,8 @@ export class PrestamoService {
 
     constructor(
         private loginService: LoginService,
-        private catalogoService: CatalogoService
+        private catalogoService: CatalogoService,
+        private multasService: MultasService
     ) {}
 
 
@@ -141,7 +143,7 @@ public registrarDevolucion(id: number): string {
     // PRECONDICIONES
     // --------------------------------------------------
 
-    // Verificar que el ciudadano esté habilitado y sin multas
+    // Verificar que el ciudadano esté habilitado y sin multas ni sanciones pendientes
     public estadoCiudadano(usuario: IUser): IEstadoPrestamo {
 
         if (usuario.habilitado === false) {
@@ -151,14 +153,12 @@ public registrarDevolucion(id: number): string {
             };
         }
 
-        const multas = usuario.multas.length;
+        const multas = this.multasService.contarPendientes(usuario);
 
         if (multas > 0) {
             return {
                 ok: false,
-                motivo: multas === 1
-                    ? 'Tiene 1 multa pendiente'
-                    : 'Tiene ' + multas + ' multas pendientes'
+                motivo: 'Tiene ' + this.multasService.textoPendientes(multas)
             };
         }
 

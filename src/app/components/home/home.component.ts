@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 import { IActividad } from '../../interfaces/iactividad';
 import { ActividadService } from '../../services/actividad.service';
+import { MultasService } from '../../services/multas.service';
 import { formatearDuracion, horaFin } from '../../data/listas';
 
 @Component({
@@ -42,8 +43,13 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private loginService: LoginService,
-    private actividadService: ActividadService
+    private actividadService: ActividadService,
+    private multasService: MultasService
   ) {}
+
+  get esCiudadano(): boolean {
+    return this.loginService.getRole() === 'usuario';
+  }
 
 
   get esAdmin(): boolean {
@@ -71,7 +77,7 @@ export class HomeComponent implements OnInit {
     this.librosPedidos = ciudadano.librosPedidos.length;
     this.salasPedidas = ciudadano.salasPedidas.length;
     this.actividadesAgendadas = ciudadano.actividadesAgendadas.length;
-    this.multas = ciudadano.multas.length;
+    this.multas = this.multasService.contarPendientes(ciudadano);
 
     // Mostrar solamente las actividades del ciudadano
     this.actividadService.getActividades().subscribe({

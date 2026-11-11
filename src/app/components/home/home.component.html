@@ -99,14 +99,14 @@
 
             <div class="card-content">
 
-                <h3>Multas pendientes</h3>
+                <h3>Multas y sanciones pendientes</h3>
 
                 <span class="number" [class.number--alerta]="multas > 0">
                     {{ multas }}
                 </span>
 
-                <p>
-                    Multas pendientes
+                <p *ngIf="esCiudadano">
+                    <a routerLink="/multas">Consultar multas y sanciones</a>
                 </p>
 
             </div>

@@ -1,6 +1,7 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { IUserFormLogin } from '../interfaces/iuserformlogin';
 import { IUser } from '../interfaces/iuser';
+import { EstadoMultaSancion, TipoMultaSancion } from '../interfaces/imulta-sancion';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser, Location } from '@angular/common';
@@ -27,7 +28,12 @@ export class LoginService {
             librosPedidos: [3232,444,445],
             salasPedidas: [1],
             actividadesAgendadas: [1,2],
-            multas: ["demora entrega"]
+            multas: [{
+                id: 1,
+                tipo: TipoMultaSancion.Multa,
+                motivo: 'Demora en la entrega',
+                estado: EstadoMultaSancion.Pendiente
+            }]
         },
         {
             id:3,

@@ -53,7 +53,7 @@ describe('Flujo del carrito', () => {
     expect(card.textContent).toContain('En el carrito');
     const menu: HTMLElement = sidebar.nativeElement;
     expect(menu.querySelector('.sidebar-actions .cart-button')!.getAttribute('href')).toBe('/carrito');
-    expect(menu.querySelector('.cart-count')!.textContent).toBe('1');
+    expect(menu.querySelector('.cart-count')!.textContent?.trim()).toBe('1');
 
     reservations.quitarDeSeleccion(5);
     sidebar.detectChanges();
@@ -110,7 +110,7 @@ describe('Flujo del carrito', () => {
     reservations.agregarASeleccion(5);
     const fixture = loadCart();
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.textContent).toContain('1 multa(s) pendiente(s)');
+    expect(element.textContent).toContain('1 multa o sanción pendiente');
     expect(element.querySelector('a[href="/reservas/confirmar"]')).toBeNull();
     expect(element.querySelector<HTMLButtonElement>('.cart-actions button')!.disabled).toBeTrue();
   }));

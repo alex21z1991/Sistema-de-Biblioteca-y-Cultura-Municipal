@@ -13,6 +13,7 @@ import {
 
 import { CatalogoService } from './catalogo.service';
 import { LoginService } from './login.service';
+import { MultasService } from './multas.service';
 
 // Reglas de negocio de la HU-C05
 export const MAX_RESERVAS_ACTIVAS = 5;   // recursos reservados a la vez por ciudadano
@@ -37,7 +38,8 @@ export class ReservaService {
 
     constructor(
         private catalogoService: CatalogoService,
-        private loginService: LoginService
+        private loginService: LoginService,
+        private multasService: MultasService
     ) {
         this.cargarDatosDePrueba();
     }
@@ -133,9 +135,10 @@ export class ReservaService {
         }
 
         const warnings: string[] = [];
-        if (user.multas.length > 0) {
+        const multasPendientes = this.multasService.contarPendientes(user);
+        if (multasPendientes > 0) {
             warnings.push(
-                'Tienes ' + user.multas.length + ' multa(s) pendiente(s). ' +
+                'Tienes ' + this.multasService.textoPendientes(multasPendientes) + '. ' +
                 'Regulariza tu situación antes de confirmar la reserva.'
             );
         }
@@ -296,10 +299,11 @@ export class ReservaService {
             return ['Inicia sesión como ciudadano para confirmar reservas.'];
         }
 
-        // ----- Sanciones pendientes -----
-        if (usuario.multas.length > 0) {
+        // ----- Multas y sanciones pendientes -----
+        const multasPendientes = this.multasService.contarPendientes(usuario);
+        if (multasPendientes > 0) {
             errores.push(
-                'Tienes ' + usuario.multas.length + ' multa(s) pendiente(s). ' +
+                'Tienes ' + this.multasService.textoPendientes(multasPendientes) + '. ' +
                 'Regulariza tu situación antes de reservar nuevos recursos.'
             );
         }
