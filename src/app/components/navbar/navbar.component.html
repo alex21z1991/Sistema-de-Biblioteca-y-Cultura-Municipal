@@ -25,7 +25,7 @@
              (keydown.escape)="cerrarMenuConEscape(menu, control)">
       <summary #control class="avatar" aria-label="Menú de usuario">{{ iniciales }}</summary>
       <div class="menu-usuario">
-        <p class="nombre">{{ nombreUsuario }}</p>
+        <a routerLink="/perfil" (click)="menu.removeAttribute('open')">Mi perfil</a>
         <button type="button" (click)="cerrarSesion()">Cerrar sesión</button>
       </div>
     </details>

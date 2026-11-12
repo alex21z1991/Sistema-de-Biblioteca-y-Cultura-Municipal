@@ -11,6 +11,7 @@ import { ExploreComponent } from './components/explore/explore.component';
 import { ReservasComponent } from './components/reservas/reservas.component';
 import { AdminPrestamosComponent } from './components/admin-prestamos/admin-prestamos.component';
 import { ConfirmarReservaComponent } from './components/confirmar-reserva/confirmar-reserva.component';
+import { PerfilComponent } from './components/perfil/perfil.component';
 
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
@@ -40,6 +41,10 @@ export const routes: Routes = [
         path: 'explorar',
         data: { seccion: 'biblioteca' },
         component: ExploreComponent
+      },
+      {
+        path: 'perfil',
+        component: PerfilComponent
       },
       {
         path: 'reservas',
