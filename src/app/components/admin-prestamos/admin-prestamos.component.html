@@ -1,8 +1,8 @@
 <div class="prestamos-container">
 
   <header class="welcome">
-    <h1>Préstamo directo</h1>
-    <p class="texto-suave">Entrega material a un ciudadano sin reserva previa.</p>
+    <h1>Préstamos</h1>
+    <p class="texto-suave">Entrega el material que un ciudadano reservó o registra un préstamo sin reserva previa.</p>
   </header>
 
   <!-- Sin sesión administrativa -->
@@ -29,6 +29,34 @@
 
       <form (ngSubmit)="registrar()" #formPrestamo="ngForm">
 
+        <!-- Tipo de préstamo -->
+        <div class="modos" role="group" aria-label="Tipo de préstamo">
+          <button
+            type="button"
+            class="chip-filtro"
+            [class.activo]="modo === 'reserva'"
+            [attr.aria-pressed]="modo === 'reserva'"
+            (click)="cambiarModo('reserva')"
+          >
+            Retiro de reserva
+            <span class="modos__contador">{{ reservasPendientes.length }}</span>
+          </button>
+          <button
+            type="button"
+            class="chip-filtro"
+            [class.activo]="modo === 'directo'"
+            [attr.aria-pressed]="modo === 'directo'"
+            (click)="cambiarModo('directo')"
+          >
+            Préstamo directo
+          </button>
+        </div>
+
+        <p class="ayuda modos__ayuda">
+          <ng-container *ngIf="modo === 'reserva'">El ciudadano viene a buscar lo que reservó: el ejemplar ya está apartado para él.</ng-container>
+          <ng-container *ngIf="modo === 'directo'">El ciudadano pide material en mesón sin haberlo reservado.</ng-container>
+        </p>
+
         <div class="pasos">
 
           <!-- Columna izquierda: ciudadano y devolución -->
@@ -45,17 +73,33 @@
                   inputId="ciudadano"
                   name="ciudadano"
                   [(ngModel)]="usuarioId"
-                  (cambio)="limpiarAvisos()"
+                  (cambio)="alCambiarCiudadano()"
                   [opciones]="opcionesCiudadano"
                   placeholder="Selecciona un ciudadano"
                 ></app-selector-lista>
               </div>
 
+              <p *ngIf="modo === 'reserva'" class="ayuda">
+                Filtra las reservas de un ciudadano o elige la reserva directamente.
+              </p>
+
               <!-- Estado del ciudadano elegido -->
-              <div *ngIf="ciudadanoElegido as ciudadano" class="ficha ficha--ok">
+              <div *ngIf="ciudadanoElegido as ciudadano" class="ficha" [class.ficha--bloqueo]="!estadoCiudadano(ciudadano).ok">
                 <strong>{{ ciudadano.username }}</strong>
-                <span class="pill pill--ok">Habilitado, sin bloqueos</span>
-                <span class="ficha__detalle">{{ prestamosActivos(ciudadano) }} préstamo(s) registrado(s) aquí</span>
+                <span *ngIf="estadoCiudadano(ciudadano).ok" class="pill pill--ok">Habilitado, sin bloqueos</span>
+                <span *ngIf="!estadoCiudadano(ciudadano).ok" class="pill pill--bloqueo">{{ estadoCiudadano(ciudadano).motivo }}</span>
+                <span class="ficha__detalle">
+                  {{ prestamosActivos(ciudadano) }} préstamo(s) activo(s) ·
+                  {{ reservasPorRetirarDe(ciudadano) }} reserva(s) por retirar
+                </span>
+                <button
+                  *ngIf="modo === 'directo' && reservasPorRetirarDe(ciudadano) > 0"
+                  type="button"
+                  class="enlace"
+                  (click)="cambiarModo('reserva')"
+                >
+                  Viene a retirar una reserva → ver sus reservas
+                </button>
               </div>
 
               <p class="ayuda">
@@ -136,8 +180,69 @@
           </div>
 
 
-          <!-- Columna derecha: recurso -->
-          <div class="paso paso--recurso">
+          <!-- Columna derecha (retiro): reserva -->
+          <div *ngIf="modo === 'reserva'" class="paso paso--recurso">
+
+            <h3 class="paso__titulo"><span class="paso__numero">2</span> Reserva</h3>
+
+            <input
+              class="campo"
+              type="search"
+              name="busquedaReserva"
+              [(ngModel)]="busqueda"
+              aria-label="Buscar reserva"
+              placeholder="Busca por código (RES-0003), título o ciudadano…"
+              autocomplete="off"
+              (keydown.enter)="$event.preventDefault()"
+            >
+
+            <p class="ayuda" aria-live="polite">
+              {{ reservasFiltradas.length }} reserva(s) pendiente(s) de retiro
+              <ng-container *ngIf="ciudadanoElegido as ciudadano"> de {{ ciudadano.username }}</ng-container>
+            </p>
+
+            <ul class="recursos" role="list">
+
+              <li *ngFor="let r of reservasFiltradas">
+                <button
+                  type="button"
+                  class="recurso"
+                  [class.recurso--elegido]="r.id === reservaId"
+                  [disabled]="!estadoReserva(r).ok"
+                  [attr.aria-pressed]="r.id === reservaId"
+                  (click)="elegirReserva(r)"
+                >
+                  <span class="recurso__principal">
+                    <strong class="recurso__titulo">{{ r.tituloRecurso }}</strong>
+                    <span class="recurso__autor">
+                      {{ nombreCiudadano(r.usuarioId) }} · retiro el {{ r.fechaRetiro | date: 'dd/MM/yyyy' }}
+                    </span>
+                  </span>
+
+                  <span class="chip">{{ r.codigo }}</span>
+
+                  <span
+                    class="recurso__estado"
+                    [class.recurso__estado--agotado]="!estadoReserva(r).ok"
+                    [class.recurso__estado--aviso]="estadoReserva(r).ok && retiroAtrasado(r)"
+                  >
+                    {{ !estadoReserva(r).ok ? estadoReserva(r).motivo : (retiroAtrasado(r) ? 'Retiro atrasado' : 'Lista para entregar') }}
+                  </span>
+                </button>
+              </li>
+
+              <li *ngIf="reservasFiltradas.length === 0" class="recursos__vacio">
+                <ng-container *ngIf="reservasPendientes.length === 0">No hay reservas pendientes de retiro.</ng-container>
+                <ng-container *ngIf="reservasPendientes.length > 0">No hay reservas pendientes que coincidan.</ng-container>
+              </li>
+
+            </ul>
+
+          </div>
+
+
+          <!-- Columna derecha (directo): recurso -->
+          <div *ngIf="modo === 'directo'" class="paso paso--recurso">
 
             <h3 class="paso__titulo"><span class="paso__numero">2</span> Recurso</h3>
 
@@ -195,7 +300,13 @@
         <div class="resumen" [class.resumen--vacio]="!puedeRegistrar">
 
           <ng-container *ngIf="puedeRegistrar; else faltan">
-            <div>
+            <div *ngIf="modo === 'reserva'">
+              <span class="resumen__etiqueta">Se entregará</span>
+              <strong>{{ reservaElegida?.tituloRecurso }}</strong>
+              a <strong>{{ ciudadanoElegido?.username }}</strong>
+              <span class="chip">{{ reservaElegida?.codigo }}</span>
+            </div>
+            <div *ngIf="modo === 'directo'">
               <span class="resumen__etiqueta">Se prestará</span>
               <strong>{{ recursoElegido?.titulo }}</strong>
               a <strong>{{ ciudadanoElegido?.username }}</strong>
@@ -208,10 +319,13 @@
           </ng-container>
 
           <ng-template #faltan>
-            <span>Elige un ciudadano, un recurso y la fecha de devolución para continuar.</span>
+            <span *ngIf="modo === 'reserva'">Elige la reserva que se entrega y la fecha de devolución para continuar.</span>
+            <span *ngIf="modo === 'directo'">Elige un ciudadano, un recurso y la fecha de devolución para continuar.</span>
           </ng-template>
 
-          <button class="boton" type="submit" [disabled]="!puedeRegistrar">Registrar préstamo</button>
+          <button class="boton" type="submit" [disabled]="!puedeRegistrar">
+            {{ modo === 'reserva' ? 'Registrar retiro' : 'Registrar préstamo' }}
+          </button>
 
         </div>
 
@@ -236,6 +350,7 @@
             <tr>
               <th>Ciudadano</th>
               <th>Recurso</th>
+              <th>Origen</th>
               <th>Fecha de préstamo</th>
               <th>Devolución</th>
               <th>Estado</th>
@@ -245,9 +360,17 @@
             <tr *ngFor="let p of prestamos">
               <td>{{ p.usuarioNombre }}</td>
               <td class="titulo-recurso">{{ p.recursoTitulo }}</td>
+              <td>
+                <span *ngIf="p.reservaCodigo" class="chip">Reserva {{ p.reservaCodigo }}</span>
+                <span *ngIf="!p.reservaCodigo" class="chip chip--directo">Directo</span>
+              </td>
               <td>{{ p.fechaPrestamo | date: 'dd/MM/yyyy' }}</td>
               <td>{{ p.fechaDevolucion | date: 'dd/MM/yyyy' }}</td>
-              <td><span class="pill pill--prestado">{{ p.estado }}</span></td>
+              <td>
+                <span class="pill" [class.pill--prestado]="p.estado === 'Prestado'" [class.pill--ok]="p.estado === 'Devuelto'">
+                  {{ p.estado }}
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>

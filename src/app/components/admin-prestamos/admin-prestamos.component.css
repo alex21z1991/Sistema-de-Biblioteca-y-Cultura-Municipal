@@ -493,6 +493,13 @@ h1, h2, h3 {
     white-space: nowrap;
 }
 
+/* Origen "Directo": misma cápsula, en tono neutro */
+.chip--directo {
+    background: var(--c-fondo-suave);
+    color: var(--c-tx2);
+    box-shadow: inset 0 0 0 1px var(--c-borde);
+}
+
 
 /* ---------- Resumen y botón ---------- */
 
@@ -593,6 +600,55 @@ tbody tr:hover { background: var(--c-fondo-suave); }
 }
 
 .empty-state p { margin: 0; color: var(--c-tx2); }
+
+
+/* ---------- Tipo de préstamo (retiro de reserva / directo) ---------- */
+
+.modos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.modos__contador {
+    display: inline-block;
+    min-width: 22px;
+    margin-left: 6px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--c-rojo);
+    color: #fff;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+}
+
+.modos__ayuda { margin: 8px 0 20px; }
+
+
+/* ---------- Avisos de reserva y ciudadano ---------- */
+
+.recurso__estado--aviso { color: #8a5a00; }
+
+.ficha--bloqueo { border-left-color: var(--c-peligro); }
+
+.pill--bloqueo { background: #fbe4e4; color: var(--c-peligro); }
+
+/* Botón con aspecto de enlace (acción secundaria dentro de la ficha) */
+.enlace {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--c-navy);
+    font-family: var(--f-texto);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.enlace:hover { color: var(--c-rojo); }
+.enlace:focus-visible { outline: 4px solid var(--c-cian); outline-offset: 2px; }
 
 
 /* ---------- Pantallas pequeñas ---------- */

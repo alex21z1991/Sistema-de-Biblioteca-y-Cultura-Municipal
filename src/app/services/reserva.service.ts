@@ -48,7 +48,7 @@ export class ReservaService {
         const dia = (dias: number) => this.fechaLocal(this.sumarDias(hoy, dias));
 
         const reservas: Omit<IReserva, 'id' | 'codigo'>[] = [
-            { usuarioId: 3, recursoId: 2, tituloRecurso: 'Libro1', fechaSolicitud: dia(-10), fechaRetiro: dia(-8), estado: EstadoReserva.Retirada },
+            { usuarioId: 3, recursoId: 2, tituloRecurso: 'Libro1', fechaSolicitud: dia(-10), fechaRetiro: dia(-8), estado: EstadoReserva.Retirada, fechaRetiroReal: dia(-8) },
             { usuarioId: 3, recursoId: 7, tituloRecurso: 'Atlas de Chile', fechaSolicitud: dia(-6), fechaRetiro: dia(-4), estado: EstadoReserva.Cancelada, fechaCancelacion: dia(-5) },
             { usuarioId: 3, recursoId: 4, tituloRecurso: 'Subterra', fechaSolicitud: dia(-2), fechaRetiro: dia(1), estado: EstadoReserva.PendienteRetiro },
             { usuarioId: 3, recursoId: 1, tituloRecurso: 'Cien años de soledad', fechaSolicitud: dia(-1), fechaRetiro: dia(3), estado: EstadoReserva.PendienteRetiro }
@@ -280,6 +280,63 @@ export class ReservaService {
         }
 
         return of({ ok: true, errores: [], reservas: [{ ...reserva }] }).pipe(delay(LATENCIA_SIMULADA));
+    }
+
+
+    // ------------------------------------------------------------------
+    // Retiro en biblioteca [Administrador]
+    // El préstamo se registra en PrestamoService; aquí solo se consulta
+    // y se marca la reserva como retirada.
+    // ------------------------------------------------------------------
+
+    // Reservas pendientes de retiro (todas o las de un ciudadano),
+    // ordenadas por la fecha en que se deben retirar.
+    public getReservasPorRetirar(usuarioId?: number | null): IReserva[] {
+        if (!this.loginService.isAdmin()) {
+            return [];
+        }
+
+        return this.reservas
+            .filter(r =>
+                r.estado === EstadoReserva.PendienteRetiro &&
+                (usuarioId === null || usuarioId === undefined || r.usuarioId === usuarioId)
+            )
+            .sort((a, b) => a.fechaRetiro.localeCompare(b.fechaRetiro) || a.id - b.id)
+            .map(r => ({ ...r }));
+    }
+
+    // Copia de una reserva por id (sin importar de quién sea)
+    public getReserva(reservaId: number): IReserva | undefined {
+        const reserva = this.reservas.find(r => r.id === reservaId);
+        return reserva ? { ...reserva } : undefined;
+    }
+
+    // Reserva pendiente de un ciudadano para un recurso, si existe
+    public getReservaPendienteDe(usuarioId: number, recursoId: number): IReserva | undefined {
+        const reserva = this.reservas.find(r =>
+            r.usuarioId === usuarioId &&
+            r.recursoId === recursoId &&
+            r.estado === EstadoReserva.PendienteRetiro
+        );
+        return reserva ? { ...reserva } : undefined;
+    }
+
+    // El ciudadano retiró el material. El ejemplar sigue comprometido
+    // (ahora por el préstamo) y el recurso sigue en sus librosPedidos.
+    public marcarRetirada(reservaId: number): boolean {
+        if (!this.loginService.isAdmin()) {
+            return false;
+        }
+
+        const reserva = this.reservas.find(r => r.id === reservaId);
+
+        if (!reserva || reserva.estado !== EstadoReserva.PendienteRetiro) {
+            return false;
+        }
+
+        reserva.estado = EstadoReserva.Retirada;
+        reserva.fechaRetiroReal = this.fechaLocal(new Date());
+        return true;
     }
 
 

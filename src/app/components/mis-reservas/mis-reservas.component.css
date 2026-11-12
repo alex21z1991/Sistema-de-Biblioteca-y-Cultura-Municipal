@@ -238,9 +238,9 @@ h2 {
     color: var(--c-navy);
 }
 
-.fila--cancelada .titulo-recurso,
-.fila--cancelada code {
+.sin-codigo {
     color: var(--c-tx2);
+    font-size: 14px;
 }
 
 .celda-accion {
@@ -253,6 +253,11 @@ h2 {
     margin-top: 6px;
     color: var(--c-tx2);
     font-size: 13px;
+}
+
+.detalle-estado--atraso {
+    color: var(--c-peligro, #B50909);
+    font-weight: 700;
 }
 
 
