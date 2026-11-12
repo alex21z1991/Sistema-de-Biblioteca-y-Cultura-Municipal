@@ -44,6 +44,7 @@
             @if (!esAdmin) {
                 <li><a routerLink="/reservas">Buscar libros y recursos</a></li>
                 <li><a routerLink="/reservas" fragment="mis-reservas">Consultar mis reservas</a></li>
+                <li *ngIf="esCiudadano"><a routerLink="/multas">Consultar mis multas</a></li>
             } @else {
                 <li><a routerLink="/admin-panel">Gestionar la cartelera</a></li>
                 <li><a routerLink="/admin-catalogo">Gestionar el catálogo</a></li>
@@ -99,14 +100,14 @@
 
             <div class="card-content">
 
-                <h3>Multas y sanciones pendientes</h3>
+                <h3>Multas</h3>
 
                 <span class="number" [class.number--alerta]="multas > 0">
                     {{ multas }}
                 </span>
 
-                <p *ngIf="esCiudadano">
-                    <a routerLink="/multas">Consultar multas y sanciones</a>
+                <p>
+                    Pendientes
                 </p>
 
             </div>
