@@ -75,6 +75,14 @@ export const routes: Routes = [
         canActivate: [CiudadanoGuard]
       },
       {
+        path: 'salas',
+        data: { seccion: 'biblioteca' },
+        loadComponent: () =>
+          import('./components/reservar-sala/reservar-sala.component')
+            .then(module => module.ReservarSalaComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'admin-devoluciones',
         data: { seccion: 'administracion' },
         component: AdminDevolucionComponent,

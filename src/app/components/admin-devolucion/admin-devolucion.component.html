@@ -19,7 +19,7 @@
       {{ mensaje }}
     </div>
 
-    <label class="etiqueta" for="buscar">Buscar por libro, usuario o número de préstamo</label>
+    <label class="etiqueta" for="buscar">Buscar por libro, usuario, número de préstamo o código de reserva</label>
 
     <div class="buscador-caja">
       <svg class="buscador-icono" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -42,7 +42,9 @@
             <th>N.º</th>
             <th>Usuario</th>
             <th>Libro</th>
+            <th>Origen</th>
             <th>Fecha préstamo</th>
+            <th>Devolución</th>
             <th>Estado</th>
             <th>Acción</th>
           </tr>
@@ -50,9 +52,14 @@
         <tbody>
           <tr *ngFor="let p of prestamosFiltrados">
             <td>{{ p.id }}</td>
-            <td>{{ p.usuario }}</td>
-            <td class="titulo-recurso">{{ p.titulo }}</td>
+            <td>{{ p.usuarioNombre }}</td>
+            <td class="titulo-recurso">{{ p.recursoTitulo }}</td>
+            <td>
+              <span *ngIf="p.reservaCodigo" class="chip">Reserva {{ p.reservaCodigo }}</span>
+              <span *ngIf="!p.reservaCodigo" class="chip chip--directo">Directo</span>
+            </td>
             <td>{{ p.fechaPrestamo | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ (p.fechaDevolucionReal ?? p.fechaDevolucion) | date: 'dd/MM/yyyy' }}</td>
             <td>
               <span class="pill" [class.pill--devuelto]="p.estado === 'Devuelto'" [class.pill--prestado]="p.estado !== 'Devuelto'">
                 {{ p.estado }}

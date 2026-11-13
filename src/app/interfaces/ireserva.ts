@@ -31,6 +31,7 @@ export interface IReserva {
     fechaRetiro: string;        // formato 'YYYY-MM-DD'
     estado: EstadoReserva;
     fechaCancelacion?: string;  // formato 'YYYY-MM-DD' (solo si fue cancelada)
+    fechaRetiroReal?: string;   // formato 'YYYY-MM-DD' (día en que el admin entregó el material)
 }
 
 // DTO que viaja desde el formulario de confirmación (todavía sin validar)

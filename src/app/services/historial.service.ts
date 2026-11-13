@@ -75,16 +75,10 @@ export class HistorialService {
 
           .filter(r => {
 
-            // Si la reserva fue retirada y ya existe
-            // un préstamo del mismo recurso, no duplicarla.
+            // Si la reserva fue retirada, su préstamo ya aparece
+            // en el historial: no duplicarla.
             if (r.estado === EstadoReserva.Retirada) {
-
-              const tienePrestamo = misPrestamos.some(
-                p => p.recursoId === r.recursoId &&
-                     p.fechaPrestamo >= r.fechaRetiro
-              );
-
-              return !tienePrestamo;
+              return !misPrestamos.some(p => p.reservaId === r.id);
             }
 
             return true;
@@ -123,7 +117,7 @@ export class HistorialService {
 
               fechaPrestamo:
                 r.estado === EstadoReserva.Retirada
-                  ? r.fechaRetiro
+                  ? (r.fechaRetiroReal ?? r.fechaRetiro)
                   : undefined,
 
               estado,

@@ -173,6 +173,26 @@ tbody tr:hover { background: var(--c-fondo-suave); }
 }
 
 .pill--prestado { background: var(--c-celeste); color: var(--c-navy); }
+.chip {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--c-celeste);
+    color: var(--c-navy);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Origen "Directo": misma cápsula, en tono neutro */
+.chip--directo {
+    background: var(--c-fondo-suave);
+    color: var(--c-tx2);
+    box-shadow: inset 0 0 0 1px var(--c-borde);
+}
+
 .pill--devuelto { background: var(--estado-exito-fondo); color: var(--c-exito); }
 
 

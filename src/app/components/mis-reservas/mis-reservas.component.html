@@ -2,7 +2,8 @@
 <div class="mis-reservas">
 
   <p class="subtitle">
-    Revisa el estado de tus reservas y cancela las que aún no retiras para liberar el material.
+    Aquí ves lo que tienes activo: reservas por retirar y material retirado que aún no devuelves.
+    Lo cancelado o ya devuelto queda en tu historial.
   </p>
 
   <!-- Avisos  -->
@@ -56,7 +57,7 @@
 
     <!-- ============ Vacío ============ -->
     <section *ngSwitchCase="Estado.Vacio" class="estado estado--vacio">
-      <h2>Todavía no tienes reservas</h2>
+      <h2>No tienes reservas ni préstamos activos</h2>
       <p>Busca un recurso en el catálogo, agrégalo al carrito y confirma tu reserva.</p>
     </section>
 
@@ -65,7 +66,7 @@
 
       <div class="resumen">
         <p>
-          Tienes <strong>{{ activas }}</strong> reserva(s) activa(s) de un máximo de {{ maxReservas }}.
+          Tienes <strong>{{ filas.length }}</strong> recurso(s) entre reservas y préstamos, de un máximo de {{ maxReservas }}.
         </p>
       </div>
 
@@ -82,50 +83,58 @@
         </button>
       </div>
 
-      <div *ngIf="reservasFiltradas.length === 0" class="sin-resultados">
-        No tienes reservas en estado "{{ etiquetaFiltro(filtro).toLowerCase() }}".
+      <div *ngIf="filasFiltradas.length === 0" class="sin-resultados">
+        No tienes recursos en "{{ etiquetaFiltro(filtro).toLowerCase() }}".
       </div>
 
-      <div *ngIf="reservasFiltradas.length > 0" class="table-wrapper">
+      <div *ngIf="filasFiltradas.length > 0" class="table-wrapper">
         <table class="tabla-reservas tabla-municipal tabla-municipal--navy">
-          <caption class="sr-only">Listado de tus reservas</caption>
+          <caption class="sr-only">Tus reservas y préstamos activos</caption>
           <thead>
             <tr>
               <th scope="col">Código</th>
               <th scope="col">Recurso</th>
               <th scope="col">Solicitada</th>
               <th scope="col">Retiro</th>
+              <th scope="col">Devolución</th>
               <th scope="col">Estado</th>
               <th scope="col"><span class="sr-only">Acciones</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let reserva of reservasFiltradas" [class.fila--cancelada]="reserva.estado === EstadoReserva.Cancelada">
-              <td><code>{{ reserva.codigo }}</code></td>
+            <tr *ngFor="let fila of filasFiltradas">
               <td>
-                <strong class="titulo-recurso">{{ reserva.tituloRecurso }}</strong>
+                <code *ngIf="fila.codigo">{{ fila.codigo }}</code>
+                <span *ngIf="!fila.codigo" class="sin-codigo">Préstamo directo</span>
               </td>
-              <td>{{ aFecha(reserva.fechaSolicitud) | date: 'dd/MM/yyyy' }}</td>
-              <td>{{ aFecha(reserva.fechaRetiro) | date: 'dd/MM/yyyy' }}</td>
               <td>
-                <span class="pill" [ngClass]="claseEstado(reserva.estado)">{{ reserva.estado }}</span>
+                <strong class="titulo-recurso">{{ fila.tituloRecurso }}</strong>
+              </td>
+              <td>{{ aFecha(fila.fechaSolicitud) | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ aFecha(fila.fechaRetiro) | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <ng-container *ngIf="fila.fechaDevolucion; else sinDevolucion">
+                  {{ aFecha(fila.fechaDevolucion) | date: 'dd/MM/yyyy' }}
+                </ng-container>
+                <ng-template #sinDevolucion><span class="sin-codigo">—</span></ng-template>
+              </td>
+              <td>
+                <span class="pill" [ngClass]="claseEstado(fila.estado)">{{ fila.estado }}</span>
 
-                <small class="detalle-estado" [ngSwitch]="reserva.estado">
-                  <ng-container *ngSwitchCase="EstadoReserva.PendienteRetiro">Retíralo en el mesón de préstamos.</ng-container>
-                  <ng-container *ngSwitchCase="EstadoReserva.Retirada">Ya está en tus préstamos.</ng-container>
-                  <ng-container *ngSwitchCase="EstadoReserva.Cancelada">
-                    Cancelada el {{ aFecha(reserva.fechaCancelacion) | date: 'dd/MM/yyyy' }}.
-                  </ng-container>
+                <small class="detalle-estado" [class.detalle-estado--atraso]="devolucionAtrasada(fila)">
+                  <ng-container *ngIf="fila.estado === EstadoReserva.PendienteRetiro">Retíralo en el mesón de préstamos.</ng-container>
+                  <ng-container *ngIf="fila.estado === EstadoReserva.Retirada && !devolucionAtrasada(fila)">Devuélvelo antes de la fecha indicada.</ng-container>
+                  <ng-container *ngIf="devolucionAtrasada(fila)">La fecha de devolución ya pasó.</ng-container>
                 </small>
               </td>
               <td class="celda-accion">
                 <button
-                  *ngIf="puedeCancelar(reserva)"
+                  *ngIf="fila.reserva && puedeCancelar(fila.reserva)"
                   type="button"
                   class="boton boton--peligro boton--chico"
                   [disabled]="cancelando"
-                  [attr.aria-label]="'Cancelar reserva ' + reserva.codigo + ' de ' + reserva.tituloRecurso"
-                  (click)="solicitarCancelacion(reserva)">
+                  [attr.aria-label]="'Cancelar reserva ' + fila.codigo + ' de ' + fila.tituloRecurso"
+                  (click)="solicitarCancelacion(fila.reserva)">
                   Cancelar
                 </button>
               </td>

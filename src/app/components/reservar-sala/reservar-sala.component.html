@@ -1,0 +1,270 @@
+<div class="sala-container">
+
+  <header class="page-header">
+    <h1>Reservar sala de estudio</h1>
+    <p class="subtitle">
+      Indica la fecha, el horario y cuántas personas asistirán para reservar un espacio adecuado para estudiar.
+    </p>
+  </header>
+
+  <!-- Avisos  -->
+  <div #avisos tabindex="-1" class="avisos">
+    @if (errores.length > 0) {
+      <div class="alerta alerta--error" role="alert">
+        <strong>Revisa tu reserva:</strong>
+        <ul>
+          @for (error of errores; track error) {
+            <li>{{ error }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+
+  @switch (estado) {
+
+    <!-- ============ Cargando ============ -->
+    @case (Estado.Cargando) {
+      <section class="estado estado--cargando" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Cargando salas de estudio…</p>
+      </section>
+    }
+
+    <!-- ============ Error al cargar ============ -->
+    @case (Estado.Error) {
+      <section class="estado">
+        <div class="alerta alerta--error" role="alert">
+          No se pudieron cargar las salas de estudio.
+        </div>
+        <button type="button" class="boton" (click)="cargarSalas()">Reintentar</button>
+      </section>
+    }
+
+    <!-- ============ Éxito ============ -->
+    @case (Estado.Exito) {
+      <section class="estado">
+        <div class="alerta alerta--ok" role="status">
+          <strong>¡Sala reservada!</strong>
+          Preséntate en el mesón de la biblioteca en la hora definida.
+        </div>
+
+        @if (reservaConfirmada) {
+          <h2>Comprobante</h2>
+          <table class="tabla-comprobante tabla-municipal tabla-municipal--navy">
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Sala</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Horario</th>
+                <th scope="col">Personas</th>
+                <th scope="col">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>{{ reservaConfirmada.codigo }}</code></td>
+                <td>{{ reservaConfirmada.nombreSala }}</td>
+                <td>{{ aFecha(reservaConfirmada.fecha) | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ reservaConfirmada.horaInicio }} – {{ reservaConfirmada.horaFin }}</td>
+                <td>{{ reservaConfirmada.personas }}</td>
+                <td><span class="etiqueta-estado">{{ reservaConfirmada.estado }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        }
+
+        <div class="acciones">
+          <button type="button" class="boton" (click)="nuevaReserva()">Reservar otra sala</button>
+          <a routerLink="/home" class="boton boton--contorno">Volver al inicio</a>
+        </div>
+      </section>
+    }
+
+    <!-- ============ Listo / Reservando ============ -->
+    @default {
+      <form class="grid-sala" #formSala="ngForm" (ngSubmit)="reservar(formSala)" novalidate>
+
+        <div class="columna-principal">
+
+          <!-- Paso 1: fecha, personas y duración -->
+          <section class="tarjeta-form">
+            <h2>1. ¿Cuándo y para cuántos?</h2>
+
+            <div class="campos-fila">
+              <div class="campo-grupo">
+                <label for="fecha">Fecha</label>
+                <input id="fecha" class="campo" type="date" name="fecha" required
+                       [min]="fechaMinima" [max]="fechaMaxima"
+                       [(ngModel)]="formulario.fecha" (ngModelChange)="actualizarDisponibilidad()"
+                       #fechaCtrl="ngModel" [disabled]="estado === Estado.Reservando">
+                @if (fechaCtrl.invalid && fechaCtrl.touched) {
+                  <small class="error-campo">Selecciona una fecha.</small>
+                }
+              </div>
+
+              <div class="campo-grupo">
+                <label for="personas">Personas</label>
+                <input id="personas" class="campo" type="number" name="personas" required
+                       min="1" [max]="capacidadMaxima" step="1"
+                       [(ngModel)]="formulario.personas" (ngModelChange)="cambiarPersonas()"
+                       #personasCtrl="ngModel" [disabled]="estado === Estado.Reservando">
+                @if (personasCtrl.invalid && personasCtrl.touched) {
+                  <small class="error-campo">Indica cuántas personas asistirán.</small>
+                }
+              </div>
+
+              <div class="campo-grupo">
+                <label for="duracion">Duración</label>
+                <select id="duracion" class="campo" name="duracion"
+                        [(ngModel)]="formulario.duracion" (ngModelChange)="actualizarDisponibilidad()"
+                        [disabled]="estado === Estado.Reservando">
+                  @for (horas of duraciones; track horas) {
+                    <option [ngValue]="horas">{{ horas }} {{ horas === 1 ? 'hora' : 'horas' }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <small class="ayuda">
+              Reserva desde hoy y hasta {{ diasAnticipacion }} días más, entre las {{ apertura }} y las {{ cierre }}.
+            </small>
+          </section>
+
+          <!-- Paso 2: elegir sala -->
+          <fieldset class="lista-salas" [disabled]="estado === Estado.Reservando">
+            <legend><h2>2. Elige una sala</h2></legend>
+
+            @for (sala of salas; track sala.id) {
+              <label class="tarjeta-sala"
+                     [class.tarjeta-sala--elegida]="formulario.salaId === sala.id"
+                     [class.tarjeta-sala--bloqueada]="!admitePersonas(sala)">
+
+                <input type="radio" name="salaId" class="visually-hidden"
+                       [value]="sala.id" [disabled]="!admitePersonas(sala)"
+                       [(ngModel)]="formulario.salaId" (ngModelChange)="elegirSala(sala)">
+
+                <div class="sala-encabezado">
+                  <div>
+                    <h3>{{ sala.nombre }}</h3>
+                    <p class="sala-meta">{{ sala.ubicacion }} · Hasta {{ sala.capacidad }} {{ sala.capacidad === 1 ? 'persona' : 'personas' }}</p>
+                  </div>
+
+                  @if (!admitePersonas(sala)) {
+                    <span class="etiqueta etiqueta--gris">Capacidad insuficiente</span>
+                  } @else if (bloquesLibres(sala) === 0) {
+                    <span class="etiqueta etiqueta--gris">Sin horarios este día</span>
+                  } @else if (formulario.salaId === sala.id) {
+                    <span class="etiqueta etiqueta--ok">Seleccionada</span>
+                  }
+                </div>
+
+                <ul class="equipamiento" aria-label="Equipamiento">
+                  @for (item of sala.equipamiento; track item) {
+                    <li>{{ item }}</li>
+                  }
+                </ul>
+
+                @if (bloquesPorSala[sala.id]; as bloques) {
+                  <ul class="bloques" [attr.aria-label]="'Disponibilidad de ' + sala.nombre">
+                    @for (bloque of bloques; track bloque.hora) {
+                      <li class="bloque" [class.bloque--ocupado]="!bloque.disponible"
+                          [attr.title]="bloque.hora + (bloque.disponible ? ' disponible' : ' no disponible')">
+                        {{ bloque.hora }}
+                        <span class="visually-hidden">{{ bloque.disponible ? 'disponible' : 'no disponible' }}</span>
+                      </li>
+                    }
+                  </ul>
+                }
+              </label>
+            } @empty {
+              <p class="sin-salas">No hay salas de estudio disponibles por ahora.</p>
+            }
+          </fieldset>
+        </div>
+
+        <!-- Paso 3: horario y confirmación -->
+        <aside class="tarjeta-form tarjeta-resumen">
+          <h2>3. Horario y confirmación</h2>
+
+          <label for="horaInicio">Hora de inicio</label>
+          <select id="horaInicio" class="campo" name="horaInicio" required
+                  [(ngModel)]="formulario.horaInicio" #horaCtrl="ngModel"
+                  [disabled]="!salaSeleccionada || horasDisponibles.length === 0 || estado === Estado.Reservando">
+            <option value="" disabled>
+              {{ !salaSeleccionada ? 'Primero elige una sala…' : horasDisponibles.length === 0 ? 'Sin horarios libres' : 'Selecciona una hora…' }}
+            </option>
+            @for (hora of horasDisponibles; track hora) {
+              <option [value]="hora">{{ hora }}</option>
+            }
+          </select>
+          @if (salaSeleccionada && horasDisponibles.length === 0) {
+            <small class="error-campo">
+              Esta sala no tiene {{ formulario.duracion }} {{ formulario.duracion === 1 ? 'hora libre' : 'horas seguidas libres' }} ese día.
+              Prueba otra fecha, duración o sala.
+            </small>
+          } @else if (horaCtrl.invalid && horaCtrl.touched && salaSeleccionada) {
+            <small class="error-campo">Selecciona la hora de inicio.</small>
+          }
+
+          <dl class="resumen">
+            <div><dt>Sala</dt><dd>{{ salaSeleccionada?.nombre ?? '—' }}</dd></div>
+            <div><dt>Fecha</dt><dd>{{ formulario.fecha ? (aFecha(formulario.fecha) | date: 'dd/MM/yyyy') : '—' }}</dd></div>
+            <div><dt>Horario</dt><dd>{{ formulario.horaInicio ? formulario.horaInicio + ' – ' + horaFin : '—' }}</dd></div>
+            <div><dt>Personas</dt><dd>{{ formulario.personas || '—' }}</dd></div>
+          </dl>
+
+          <ul class="condiciones">
+            <li>Máximo {{ maxReservas }} reservas de sala vigentes a la vez.</li>
+            <li>Si tienes multas pendientes no podrás reservar.</li>
+            <li>Respeta el silencio y deja la sala ordenada al salir.</li>
+          </ul>
+
+          <button type="submit" class="boton boton--exito boton--ancho"
+                  [disabled]="estado === Estado.Reservando">
+            @if (estado === Estado.Reservando) {
+              <span class="spinner spinner--chico" aria-hidden="true"></span>
+            }
+            {{ estado === Estado.Reservando ? 'Reservando…' : 'Reservar sala' }}
+          </button>
+        </aside>
+
+      </form>
+    }
+  }
+
+  <!-- Próximas reservas de sala del ciudadano -->
+  @if (estado !== Estado.Cargando && estado !== Estado.Error) {
+    <section class="mis-salas">
+      <h2>Mis próximas reservas de sala</h2>
+
+      @if (misReservas.length === 0) {
+        <p class="sin-salas">Aún no tienes reservas de sala vigentes.</p>
+      } @else {
+        <table class="tabla-comprobante tabla-municipal">
+          <thead>
+            <tr>
+              <th scope="col">Código</th>
+              <th scope="col">Sala</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Horario</th>
+              <th scope="col">Personas</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (reserva of misReservas; track reserva.id) {
+              <tr>
+                <td><code>{{ reserva.codigo }}</code></td>
+                <td>{{ reserva.nombreSala }}</td>
+                <td>{{ aFecha(reserva.fecha) | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ reserva.horaInicio }} – {{ reserva.horaFin }}</td>
+                <td>{{ reserva.personas }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+</div>
