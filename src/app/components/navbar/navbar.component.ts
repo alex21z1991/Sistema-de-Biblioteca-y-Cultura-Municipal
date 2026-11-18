@@ -40,7 +40,7 @@ export class NavbarComponent {
   }
 
   get administracionActiva(): boolean {
-    return ['/admin-panel', '/admin-catalogo', '/admin-prestamos', '/admin-devoluciones']
+    return ['/admin-resumen', '/admin-panel', '/admin-catalogo', '/admin-prestamos', '/admin-devoluciones']
       .some(ruta => this.router.isActive(ruta, false));
   }
 

@@ -36,7 +36,7 @@ export class LoginComponent {
         this.isLoading = false;
         if (isValid){
           if (this.loginService.isAdmin()){
-            this.router.navigate(['/admin-panel']);
+            this.router.navigate(['/admin-resumen']);
           } else {
             this.router.navigate(['/home']);
           }

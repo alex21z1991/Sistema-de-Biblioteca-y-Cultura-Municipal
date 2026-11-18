@@ -1,0 +1,427 @@
+/* ===================================================================
+   HU-A12 · Panel administrativo · Guía de diseño del Portal Municipal
+   Variables globales con valor de respaldo (ver admin-devolucion).
+   =================================================================== */
+
+:host {
+    --c-navy: var(--navy, #112F4E);
+    --c-rojo: var(--rojo, #D83933);
+    --c-cian: var(--cian, #00BDE3);
+    --c-peligro: var(--rojo-oscuro, #B50909);
+    --c-exito: var(--verde-exito, #2e8540);
+    --c-borde: var(--borde, #d9d9d9);
+    --c-fondo-suave: var(--fondo-suave, #F4F7FA);
+    --c-tx2: var(--tx2, #5c6a79);
+    --f-texto: var(--fuente-texto, 'Source Sans 3', sans-serif);
+    --f-titulo: var(--fuente-titulo, 'Merriweather', Georgia, serif);
+
+    display: block;
+    font-family: var(--f-texto);
+    color: #1b1b1b;
+}
+
+.resumen-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+
+/* ---------- Encabezado ---------- */
+
+.welcome {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.welcome h1 {
+    margin: 0;
+    font-size: 30px;
+    color: var(--c-navy);
+}
+
+.welcome__acciones {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.texto-suave {
+    margin: 6px 0 0;
+    color: var(--c-tx2);
+}
+
+.actualizado {
+    font-size: 14px;
+    color: var(--c-tx2);
+}
+
+.titulo-seccion {
+    display: inline-block;
+    margin: 0 0 18px;
+    padding-bottom: 6px;
+    font-family: var(--f-titulo);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--c-rojo);
+    border-bottom: 5px solid var(--c-rojo);
+}
+
+
+/* ---------- Indicadores ---------- */
+
+.indicadores-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 26px;
+}
+
+
+/* ---------- Secciones ---------- */
+
+.secciones-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 26px;
+}
+
+.section {
+    background: #fff;
+    border: 1px solid var(--c-borde);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(17, 47, 78, 0.08);
+    padding: 24px 26px;
+    margin-bottom: 26px;
+    scroll-margin-top: 20px;
+}
+
+.section:focus { outline: none; }
+.section:focus-visible { outline: 4px solid var(--c-cian); outline-offset: 2px; }
+
+.section--ancha { grid-column: 1 / -1; }
+
+.section-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px 16px;
+}
+
+.enlaces { display: flex; gap: 16px; }
+
+.enlace-seccion {
+    font-weight: 700;
+    color: var(--navy-hover, #1A4480);
+}
+
+
+/* ---------- Datos clave (dl) ---------- */
+
+.datos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+}
+
+.datos > div {
+    padding: 12px 14px;
+    background: var(--c-fondo-suave);
+    border-radius: 8px;
+}
+
+.datos dt {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--c-tx2);
+}
+
+.datos dd {
+    margin: 2px 0 0;
+    font-family: var(--f-titulo);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--c-navy);
+}
+
+.datos dd.dato--aviso   { color: var(--estado-pendiente-texto, #765620); }
+.datos dd.dato--peligro { color: var(--c-peligro); }
+
+
+/* ---------- Barras de ocupación ---------- */
+
+.barra-etiqueta {
+    margin: 0 0 8px;
+    font-size: 15px;
+}
+
+.barra {
+    height: 12px;
+    background: var(--celeste, #D2EBF1);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.barra span {
+    display: block;
+    height: 100%;
+    background: var(--c-navy);
+    border-radius: inherit;
+    transition: width .4s ease;
+}
+
+.barra--chica { height: 8px; }
+.barra--llena span { background: var(--c-peligro); }
+
+
+/* ---------- Alertas ---------- */
+
+.alerta {
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border-left: 5px solid;
+}
+
+.alerta p { margin: 6px 0 12px; }
+.alerta:focus { outline: none; }
+
+.alerta--ok {
+    background: var(--estado-exito-fondo, #e7f4e4);
+    border-color: var(--c-exito);
+    color: #1f5a2d;
+    margin-bottom: 0;
+}
+
+.alerta--error {
+    background: #fbe1e0;
+    border-color: var(--c-peligro);
+    color: var(--c-peligro);
+}
+
+.lista-alertas {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.alerta-operativa {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 16px;
+    padding: 12px 16px;
+    border-left: 5px solid var(--c-navy);
+    border-radius: 6px;
+    background: var(--celeste-claro, #E7F6F8);
+}
+
+.alerta-operativa a {
+    font-weight: 700;
+    color: var(--c-navy);
+    white-space: nowrap;
+}
+
+.alerta-operativa--aviso {
+    border-color: #c79b2c;
+    background: var(--estado-pendiente-fondo, #fdf3d9);
+    color: var(--estado-pendiente-texto, #765620);
+}
+
+.alerta-operativa--peligro {
+    border-color: var(--c-peligro);
+    background: #fbe1e0;
+    color: var(--c-peligro);
+}
+
+.alerta-operativa--peligro a { color: var(--c-peligro); }
+
+
+/* ---------- Tabla de movimientos ---------- */
+
+.table-wrap { overflow-x: auto; }
+
+.tabla-municipal {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-municipal th,
+.tabla-municipal td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--c-borde);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.titulo-recurso { font-weight: 600; }
+
+.pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pill--reserva    { background: var(--estado-pendiente-fondo, #fdf3d9); color: var(--estado-pendiente-texto, #765620); }
+.pill--prestamo   { background: var(--celeste, #D2EBF1); color: var(--c-navy); }
+.pill--devolucion { background: var(--estado-exito-fondo, #e7f4e4); color: var(--c-exito); }
+
+
+/* ---------- Listas de actividades y salas ---------- */
+
+.lista-actividades,
+.lista-salas,
+.chips {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lista-actividades li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--c-borde);
+}
+
+.lista-actividades li:last-child,
+.lista-salas li:last-child { border-bottom: none; }
+
+.actividad-cabecera {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+}
+
+.actividad-cabecera .texto-suave,
+.lista-salas .texto-suave {
+    margin: 0;
+    font-size: 14px;
+}
+
+.cupos {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--c-tx2);
+    white-space: nowrap;
+}
+
+.lista-salas li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--c-borde);
+}
+
+.lista-salas li > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.horario {
+    font-weight: 700;
+    color: var(--c-navy);
+    white-space: nowrap;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.chip--aviso {
+    background: var(--estado-pendiente-fondo, #fdf3d9);
+    color: var(--estado-pendiente-texto, #765620);
+}
+
+
+/* ---------- Estado vacío ---------- */
+
+.empty-state {
+    margin-top: 8px;
+    padding: 26px 20px;
+    text-align: center;
+    background: var(--c-fondo-suave);
+    border: 1px dashed var(--c-borde);
+    border-radius: 8px;
+}
+
+.empty-state h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--c-navy);
+}
+
+.empty-state p {
+    margin: 6px 0 0;
+    color: var(--c-tx2);
+}
+
+
+/* ---------- Cargando ---------- */
+
+.girador {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(17, 47, 78, .3);
+    border-top-color: var(--c-navy);
+    border-radius: 50%;
+    animation: girar .7s linear infinite;
+}
+
+@keyframes girar {
+    to { transform: rotate(360deg); }
+}
+
+.esqueleto {
+    border-radius: 10px;
+    background: linear-gradient(90deg, #eef2f6 25%, #f7f9fb 50%, #eef2f6 75%);
+    background-size: 200% 100%;
+    animation: brillo 1.2s ease-in-out infinite;
+}
+
+.esqueleto--tarjeta { height: 132px; }
+.esqueleto--bloque  { height: 220px; }
+
+@keyframes brillo {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .esqueleto, .girador { animation: none; }
+}
+
+
+/* ---------- Pantallas pequeñas ---------- */
+
+@media (max-width: 960px) {
+    .secciones-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 860px) {
+    .resumen-container { padding: 18px; }
+}

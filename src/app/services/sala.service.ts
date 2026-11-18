@@ -119,6 +119,26 @@ export class SalaService {
         return horas;
     }
 
+    // HU-A12: todas las salas, incluidas las que están en mantención (solo administrador)
+    public getTodasLasSalas(): Observable<ISala[]> {
+        if (!this.loginService.isAdmin()) {
+            return of([]);
+        }
+        return of(this.salas.map(s => ({ ...s, equipamiento: [...s.equipamiento] })));
+    }
+
+    // HU-A12: todas las reservas de sala, ordenadas por fecha y hora (solo administrador)
+    public getTodasLasReservasSala(): Observable<IReservaSala[]> {
+        if (!this.loginService.isAdmin()) {
+            return of([]);
+        }
+        return of(
+            [...this.reservas]
+                .sort((a, b) => a.fecha.localeCompare(b.fecha) || a.horaInicio.localeCompare(b.horaInicio))
+                .map(r => ({ ...r }))
+        );
+    }
+
     // Próximas reservas de sala del ciudadano en sesión
     public getMisReservasSala(): Observable<IReservaSala[]> {
         const usuario = this.loginService.getUsuarioActual();

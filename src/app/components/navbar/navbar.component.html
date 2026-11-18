@@ -15,7 +15,7 @@
          [attr.aria-current]="bibliotecaActiva ? 'location' : null">Biblioteca y cultura</a>
 
       @if (esAdmin) {
-        <a routerLink="/admin-panel" [class.activo]="administracionActiva"
+        <a routerLink="/admin-resumen" [class.activo]="administracionActiva"
            [attr.aria-current]="administracionActiva ? 'location' : null">Administración</a>
       }
     </nav>

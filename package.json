@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:cart": "ng test --ts-config tsconfig.cart.spec.json --include src/app/services/reserva-cart.service.spec.ts --include src/app/components/cart/cart-flow.spec.ts --include src/app/components/reservas/reservas.component.spec.ts",
+    "test:panel": "ng test --ts-config tsconfig.panel.spec.json --include src/app/services/panel-admin.service.spec.ts --include src/app/components/navbar/navbar.component.spec.ts",
     "serve:ssr:mi-proyecto": "node dist/mi-proyecto/server/server.mjs"
   },
   "private": true,

@@ -32,6 +32,14 @@ export const routes: Routes = [
         component: HomeComponent
       },
       {
+        path: 'admin-resumen',
+        data: { seccion: 'administracion' },
+        loadComponent: () =>
+          import('./components/admin-resumen/admin-resumen.component')
+            .then(module => module.AdminResumenComponent),
+        canActivate: [AdminGuard]
+      },
+      {
         path: 'admin-panel',
         data: { seccion: 'administracion' },
         component: AdminPanelComponent,

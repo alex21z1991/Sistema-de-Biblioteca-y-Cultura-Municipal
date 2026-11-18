@@ -241,6 +241,19 @@ export class ReservaService {
         return of(propias);
     }
 
+    // HU-A12: todas las reservas (solo administrador), las más recientes primero.
+    public getTodasLasReservas(): Observable<IReserva[]> {
+        if (!this.loginService.isAdmin()) {
+            return of([]);
+        }
+
+        return of(
+            [...this.reservas]
+                .sort((a, b) => b.fechaSolicitud.localeCompare(a.fechaSolicitud) || b.id - a.id)
+                .map(r => ({ ...r }))
+        );
+    }
+
     // Solo se cancela lo que todavía no se retira
     public puedeCancelar(reserva: IReserva): boolean {
         return reserva.estado === EstadoReserva.PendienteRetiro;

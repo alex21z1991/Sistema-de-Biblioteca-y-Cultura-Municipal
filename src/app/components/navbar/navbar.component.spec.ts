@@ -38,7 +38,7 @@ describe('NavbarComponent', () => {
     fixture.detectChanges();
 
     const navbar: HTMLElement = fixture.nativeElement;
-    const adminLink = navbar.querySelector('nav a[href="/admin-panel"]');
+    const adminLink = navbar.querySelector('nav a[href="/admin-resumen"]');
     expect(adminLink?.textContent?.trim()).toBe('Administración');
   });
 });
