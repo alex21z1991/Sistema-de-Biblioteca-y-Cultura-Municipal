@@ -193,7 +193,7 @@ h1, h2, h3 {
 
 /* Resultado correcto: verde */
 .alerta--ok {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     border-color: var(--c-exito);
     color: #1f5a2d;
 }
@@ -217,7 +217,7 @@ h1, h2, h3 {
 }
 
 
-/* ---------- Botones (normal, hover, foco, deshabilitado, cargando) ---------- */
+/* ---------- Acciones y carga ---------- */
 
 .acciones {
     display: flex;
@@ -225,64 +225,8 @@ h1, h2, h3 {
     flex-wrap: wrap;
 }
 
-.boton {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: 2px solid var(--c-navy);
-    border-radius: 6px;
-    background: var(--c-navy);
-    color: #fff;
-    font-family: var(--f-texto);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color .15s, border-color .15s;
-}
-
-.boton:hover:not(:disabled) {
-    background: #1A4480;
-    border-color: #1A4480;
-}
-
-.boton:focus-visible {
-    outline: 4px solid var(--c-cian);
-    outline-offset: 2px;
-}
-
-.boton:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-
 /* Contorno: acciones secundarias */
-.boton--contorno {
-    background: #fff;
-    color: var(--c-navy);
-}
-
-.boton--contorno:hover:not(:disabled) {
-    background: var(--c-celeste-claro);
-    border-color: var(--c-navy);
-}
-
 /* Peligro: acciones destructivas */
-.boton--peligro {
-    background: var(--c-peligro);
-    border-color: var(--c-peligro);
-}
-
-.boton--peligro:hover:not(:disabled) {
-    background: #8f0707;
-    border-color: #8f0707;
-}
-
-.boton--chico {
-    padding: 6px 12px;
-    font-size: 14px;
-}
-
 /* Cargando */
 .girador {
     width: 14px;
@@ -315,13 +259,6 @@ h1, h2, h3 {
     padding: 14px;
     border-bottom: 1px solid var(--c-borde);
     vertical-align: top;
-}
-
-.tabla-actividades th {
-    color: var(--c-navy);
-    font-size: 14px;
-    font-weight: 700;
-    background: var(--c-fondo-suave);
 }
 
 .tabla-actividades tbody tr:hover {
@@ -382,4 +319,32 @@ h1, h2, h3 {
     .home-container { padding: 18px; }
     .summary-grid,
     .movement-list { grid-template-columns: 1fr; }
+}
+
+.accesos {
+    margin-bottom: 28px;
+    padding: 20px;
+}
+
+.accesos ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 10px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.accesos a {
+    display: block;
+    padding: 10px 12px;
+    border-left: 3px solid var(--cian);
+    background: var(--fondo-suave);
+    color: var(--navy);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.accesos a:hover {
+    background: var(--celeste-claro);
 }

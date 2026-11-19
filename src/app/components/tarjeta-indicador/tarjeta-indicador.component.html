@@ -1,0 +1,15 @@
+<button
+  type="button"
+  class="tarjeta-indicador tarjeta-municipal"
+  [class.tarjeta-indicador--exito]="tono === Tono.Exito"
+  [class.tarjeta-indicador--aviso]="tono === Tono.Aviso"
+  [class.tarjeta-indicador--peligro]="tono === Tono.Peligro"
+  [disabled]="!seccion"
+  [attr.aria-label]="etiqueta + ': ' + valor + (detalle ? '. ' + detalle : '') + (seccion ? '. Ver detalle' : '')"
+  (click)="pulsar()"
+>
+  <span class="tarjeta-indicador__etiqueta" aria-hidden="true">{{ etiqueta }}</span>
+  <span class="tarjeta-indicador__valor" aria-hidden="true">{{ valor }}</span>
+  <span *ngIf="detalle" class="tarjeta-indicador__detalle" aria-hidden="true">{{ detalle }}</span>
+  <span *ngIf="seccion" class="tarjeta-indicador__enlace" aria-hidden="true">Ver detalle ↓</span>
+</button>

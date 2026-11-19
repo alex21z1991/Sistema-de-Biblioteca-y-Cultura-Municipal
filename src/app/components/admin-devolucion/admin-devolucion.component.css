@@ -76,7 +76,7 @@ h1, h2, h3 {
 }
 
 .alerta--ok {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     border-color: var(--c-exito);
     color: #1f5a2d;
 }
@@ -152,13 +152,6 @@ th, td {
     vertical-align: middle;
 }
 
-th {
-    background: var(--c-fondo-suave);
-    color: var(--c-navy);
-    font-size: 14px;
-    font-weight: 700;
-}
-
 tbody tr:hover { background: var(--c-fondo-suave); }
 
 .titulo-recurso {
@@ -180,39 +173,30 @@ tbody tr:hover { background: var(--c-fondo-suave); }
 }
 
 .pill--prestado { background: var(--c-celeste); color: var(--c-navy); }
-.pill--devuelto { background: #e7f4e4; color: var(--c-exito); }
+.chip {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--c-celeste);
+    color: var(--c-navy);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Origen "Directo": misma cápsula, en tono neutro */
+.chip--directo {
+    background: var(--c-fondo-suave);
+    color: var(--c-tx2);
+    box-shadow: inset 0 0 0 1px var(--c-borde);
+}
+
+.pill--devuelto { background: var(--estado-exito-fondo); color: var(--c-exito); }
 
 
 /* ---------- Botón (normal, hover, foco, deshabilitado) ---------- */
-
-.boton {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: 2px solid var(--c-navy);
-    border-radius: 6px;
-    background: var(--c-navy);
-    color: #fff;
-    font-family: var(--f-texto);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color .15s, border-color .15s;
-}
-
-.boton:hover:not(:disabled) {
-    background: #1A4480;
-    border-color: #1A4480;
-}
-
-.boton:focus-visible { outline: 4px solid var(--c-cian); outline-offset: 2px; }
-.boton:disabled { opacity: .6; cursor: not-allowed; }
-
-.boton--chico {
-    padding: 6px 12px;
-    font-size: 14px;
-}
 
 
 /* ---------- Estado vacío ---------- */

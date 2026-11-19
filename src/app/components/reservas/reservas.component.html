@@ -39,7 +39,7 @@
   <!-- Catálogo de recursos -->
   <section class="seccion-catalogo">
 
-    <h2>Catálogo disponible</h2>
+    <h2 class="section-title">Catálogo disponible</h2>
 
     <p class="contador">
       {{ recursosFiltrados.length }} recurso(s) encontrado(s)
@@ -83,7 +83,7 @@
     class="seccion-mis-reservas"
     *ngIf="!esAdmin">
 
-    <h2>Mis reservas</h2>
+    <h2 class="section-title">Mis reservas</h2>
 
     <app-mis-reservas (reservaCancelada)="alCancelarReserva()"></app-mis-reservas>
 

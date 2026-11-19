@@ -11,6 +11,7 @@ import { ExploreComponent } from './components/explore/explore.component';
 import { ReservasComponent } from './components/reservas/reservas.component';
 import { AdminPrestamosComponent } from './components/admin-prestamos/admin-prestamos.component';
 import { ConfirmarReservaComponent } from './components/confirmar-reserva/confirmar-reserva.component';
+import { PerfilComponent } from './components/perfil/perfil.component';
 
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
@@ -31,42 +32,94 @@ export const routes: Routes = [
         component: HomeComponent
       },
       {
+        path: 'admin-resumen',
+        data: { seccion: 'administracion' },
+        loadComponent: () =>
+          import('./components/admin-resumen/admin-resumen.component')
+            .then(module => module.AdminResumenComponent),
+        canActivate: [AdminGuard]
+      },
+      {
         path: 'admin-panel',
+        data: { seccion: 'administracion' },
         component: AdminPanelComponent,
         canActivate: [AdminGuard]
       },
       {
         path: 'explorar',
+        data: { seccion: 'biblioteca' },
         component: ExploreComponent
       },
       {
+        path: 'perfil',
+        component: PerfilComponent
+      },
+      {
         path: 'reservas',
+        data: { seccion: 'biblioteca' },
         component: ReservasComponent,
         canActivate: [CiudadanoGuard]
       },
       {
+        path: 'historial',
+        data: { seccion: 'biblioteca' },
+        loadComponent: () =>
+          import('./components/historial/historial.component')
+            .then(module => module.HistorialComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'carrito',
-        loadComponent: () => import('./components/cart/cart.component').then(module => module.CartComponent),
+        data: { seccion: 'biblioteca' },
+        loadComponent: () =>
+          import('./components/cart/cart.component')
+            .then(module => module.CartComponent),
         canActivate: [CiudadanoGuard]
       },
       {
         path: 'reservas/confirmar',
+        data: { seccion: 'biblioteca' },
         component: ConfirmarReservaComponent,
         canActivate: [CiudadanoGuard]
       },
       {
+        path: 'salas',
+        data: { seccion: 'biblioteca' },
+        loadComponent: () =>
+          import('./components/reservar-sala/reservar-sala.component')
+            .then(module => module.ReservarSalaComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'admin-devoluciones',
+        data: { seccion: 'administracion' },
         component: AdminDevolucionComponent,
         canActivate: [AdminGuard]
       },
       {
+        path: 'multas',
+        data: { seccion: 'biblioteca' },
+        loadComponent: () => import('./components/multas/multas.component').then(module => module.MultasComponent),
+        canActivate: [CiudadanoGuard]
+      },
+      {
         path: 'admin-catalogo',
+        data: { seccion: 'administracion' },
         component: AdminCatalogoComponent,
         canActivate: [AdminGuard]
       },
       {
-        // HU-A03: registrar préstamo directo
+        // HU-A06: gestionar multas y sanciones
+        path: 'admin-multas',
+        data: { seccion: 'administracion' },
+        loadComponent: () =>
+          import('./components/admin-multas/admin-multas.component')
+            .then(module => module.AdminMultasComponent),
+        canActivate: [AdminGuard]
+      },
+      {
         path: 'admin-prestamos',
+        data: { seccion: 'administracion' },
         component: AdminPrestamosComponent,
         canActivate: [AdminGuard]
       },

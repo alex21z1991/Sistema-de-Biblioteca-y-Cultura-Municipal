@@ -1,12 +1,16 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .layout {
-    display: flex;
-    flex-direction: column; /* Apila verticalmente en lugar de lado a lado */
-    min-height: calc(100vh - 60px);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 .content {
-    flex: 1;
-    width: 100%;
-    padding: 0; 
-    background-color: transparent;
+  flex: 1;
+  min-width: 0;
 }

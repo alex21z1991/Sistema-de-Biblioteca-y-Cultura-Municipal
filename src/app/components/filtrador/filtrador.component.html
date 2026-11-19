@@ -1,21 +1,21 @@
-<section class="filtros-recursos">
+<section class="filtros-recursos tarjeta-municipal">
 
-  <div class="campo">
+  <div class="campo-grupo">
     <label for="buscar">Buscar recurso</label>
 
     <input
-      id="buscar"
+      id="buscar" class="campo"
       type="search"
       [(ngModel)]="filtros.texto"
       (ngModelChange)="emitirFiltros()"
       placeholder="Título, autor o categoría">
   </div>
 
-  <div class="campo">
+  <div class="campo-grupo">
     <label for="categoria">Categoría</label>
 
     <select
-      id="categoria"
+      id="categoria" class="campo"
       [(ngModel)]="filtros.categoria"
       (ngModelChange)="emitirFiltros()">
 
@@ -29,11 +29,11 @@
     </select>
   </div>
 
-  <div class="campo">
+  <div class="campo-grupo">
     <label for="disponibilidad">Disponibilidad</label>
 
     <select
-      id="disponibilidad"
+      id="disponibilidad" class="campo"
       [(ngModel)]="filtros.disponibilidad"
       (ngModelChange)="emitirFiltros()">
 
@@ -43,7 +43,7 @@
     </select>
   </div>
 
-  <button type="button" (click)="limpiar()">
+  <button class="boton boton--contorno" type="button" (click)="limpiar()">
     Limpiar filtros
   </button>
 

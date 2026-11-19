@@ -62,7 +62,7 @@ h2 {
 }
 
 .alerta--ok {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     border-color: var(--c-exito);
     color: #1f5a2d;
 }
@@ -236,8 +236,6 @@ label {
 
 .tabla-comprobante th {
     text-align: left;
-    background: var(--c-navy);
-    color: #fff;
     padding: 10px 12px;
     font-weight: 600;
 }
@@ -250,8 +248,8 @@ label {
 .etiqueta-estado {
     padding: 3px 10px;
     border-radius: 20px;
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--estado-pendiente-fondo);
+    color: var(--estado-pendiente-texto);
     font-size: 12px;
     font-weight: 700;
 }
@@ -260,61 +258,6 @@ label {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-}
-
-/* ---------- Botones (mismos del panel admin) ---------- */
-
-.boton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: 2px solid var(--c-navy);
-    border-radius: 6px;
-    background: var(--c-navy);
-    color: #fff;
-    font-family: var(--f-texto);
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.boton:hover:not(:disabled) {
-    background: #1A4480;
-    border-color: #1A4480;
-}
-
-.boton:focus-visible {
-    outline: 4px solid var(--c-cian);
-    outline-offset: 2px;
-}
-
-.boton:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.boton--contorno {
-    background: #fff;
-    color: var(--c-navy);
-}
-
-.boton--contorno:hover:not(:disabled) {
-    background: var(--c-celeste-claro);
-    border-color: var(--c-navy);
-}
-
-.boton--exito {
-    background: var(--c-exito);
-    border-color: var(--c-exito);
-}
-
-.boton--exito:hover:not(:disabled) {
-    background: #246b33;
-    border-color: #246b33;
 }
 
 .boton--ancho {

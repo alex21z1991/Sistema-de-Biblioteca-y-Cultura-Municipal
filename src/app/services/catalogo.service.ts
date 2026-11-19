@@ -8,7 +8,8 @@ import { LoginService } from './login.service';
 export class CatalogoService {
   private recursos: IRecurso[] = [
     { id: 1, titulo: 'Cien años de soledad', autor: 'Gabriel García Márquez', categoria: 'Literatura', tipo: 'Libro', ejemplares: 5, ejemplaresComprometidos: 2, activo: true },
-    { id: 2, titulo: 'Libro1', autor: 'Autor1', categoria: 'Historia', tipo: 'Libro', ejemplares: 3, ejemplaresComprometidos: 0, activo: true },
+    // 1 ejemplar comprometido: préstamo de prueba de "alex" que nació de la reserva RES-0001
+    { id: 2, titulo: 'Libro1', autor: 'Autor1', categoria: 'Historia', tipo: 'Libro', ejemplares: 3, ejemplaresComprometidos: 1, activo: true },
     { id: 3, titulo: 'Libro2', autor: 'Autor2', categoria: 'Ciencia', tipo: 'Revista', ejemplares: 2, ejemplaresComprometidos: 0, activo: false },
     // Datos de prueba para la HU-C05 (confirmar reservas)
     { id: 4, titulo: 'Subterra', autor: 'Baldomero Lillo', categoria: 'Cuentos y relatos', tipo: 'Libro', ejemplares: 4, ejemplaresComprometidos: 1, activo: true },

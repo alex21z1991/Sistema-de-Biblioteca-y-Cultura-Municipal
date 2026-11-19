@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { LoginService } from '../../services/login.service';
 import { Router } from '@angular/router';
 import { IUserFormLogin } from '../../interfaces/iuserformlogin';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FooterComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -35,7 +36,7 @@ export class LoginComponent {
         this.isLoading = false;
         if (isValid){
           if (this.loginService.isAdmin()){
-            this.router.navigate(['/admin-panel']);
+            this.router.navigate(['/admin-resumen']);
           } else {
             this.router.navigate(['/home']);
           }

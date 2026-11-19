@@ -1,143 +1,87 @@
-.login-wrapper {
+:host {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   min-height: 100vh;
-  background-color: var(--fondo-suave); /* Fondo gris suave oficial */
-  font-family: var(--fuente-texto);
+}
+
+.login-brand {
+  background: var(--navy);
+  color: var(--blanco);
+  padding-block: 16px;
+  font: 700 1rem var(--fuente-titulo);
+}
+
+.login-wrapper {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  padding: 32px 16px;
+  background: var(--celeste-claro);
+}
+
+.login-panel {
+  width: min(100%, 420px);
 }
 
 .login-card {
-  background: var(--blanco);
-  padding: 40px 36px;
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(17, 47, 78, 0.08); /* Sombra difuminada estilo portal */
-  width: 100%;
-  max-width: 420px;
-  box-sizing: border-box;
+  padding: clamp(20px, 6vw, 32px);
 }
 
-/* Cabecera y logo */
-.brand-header {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.logo-box {
-  background-color: var(--navy);
+.login-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  border-radius: 8px;
+  background: var(--navy);
   color: var(--blanco);
-  font-size: 18px;
-  font-weight: bold;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px; /* Cuadrado con bordes redondeados como en la foto */
-  margin: 0 auto 16px auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.brand-header h2 {
-  font-family: var(--fuente-titulo);
-  font-size: 26px;
-  color: var(--navy);
-  margin: 0 0 8px 0;
+.brand-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.brand-header h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
   font-weight: 700;
 }
 
 .subtitle {
-  font-size: 14.5px;
-  color: var(--tx2);
   margin: 0;
+  color: var(--tx2);
 }
 
-/* Formularios según la guía oficial */
 .campo-grupo {
+  display: grid;
+  gap: 6px;
   margin-bottom: 18px;
-  display: flex;
-  flex-direction: column;
 }
 
 .etiqueta {
-  font-size: 13.5px;
-  font-weight: 700;
   color: var(--navy);
-  margin-bottom: 6px;
+  font-weight: 700;
 }
 
-.campo {
-  padding: 10px 12px;
-  border: 1px solid var(--borde);
-  border-radius: 6px;
-  font-size: 15px;
-  font-family: inherit;
-  color: #1b1b1b;
-  transition: all 0.2s;
-}
-
-.campo:focus-visible {
-  outline: 4px solid var(--cian);
-  border-color: var(--navy);
-}
-
-.input-error {
-  border-color: var(--rojo-oscuro) !important;
+.campo.input-error {
+  border-color: var(--rojo-oscuro);
 }
 
 .field-error {
   color: var(--rojo-oscuro);
-  font-size: 12.5px;
-  font-weight: 600;
-  margin-top: 6px;
+  font-size: .875rem;
 }
 
-/* Alerta oficial del manual */
 .alerta--error {
-  background-color: #fbe1e0;
-  color: var(--rojo-oscuro);
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  font-size: 14px;
-  text-align: center;
-  border: 1px solid #f0b6b3;
-  font-weight: 600;
-}
-
-/* Enlaces y Footer */
-.recuperar-link {
   margin-bottom: 18px;
-}
-
-.recuperar-link a {
-  font-size: 13px;
-  color: var(--navy);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.recuperar-link a:hover {
-  text-decoration: underline;
+  padding: 12px;
+  border-left: 4px solid var(--rojo-oscuro);
+  background: #fbe1e0;
+  color: var(--rojo-oscuro);
 }
 
 .btn-submit {
   width: 100%;
-  padding: 12px;
-}
-
-.card-footer {
-  text-align: center;
-  margin-top: 24px;
-  font-size: 14px;
-  color: var(--tx2);
-}
-
-.card-footer a {
-  color: var(--navy);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.card-footer a:hover {
-  text-decoration: underline;
 }

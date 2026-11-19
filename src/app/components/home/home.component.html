@@ -37,6 +37,22 @@
         </div>
     </div>
 
+    <nav class="accesos tarjeta-municipal" aria-labelledby="titulo-accesos">
+        <h2 id="titulo-accesos" class="section-title">¿Cómo hago para…?</h2>
+        <ul>
+            <li><a routerLink="/explorar">Ver actividades culturales</a></li>
+            @if (!esAdmin) {
+                <li><a routerLink="/reservas">Buscar libros y recursos</a></li>
+                <li><a routerLink="/reservas" fragment="mis-reservas">Consultar mis reservas</a></li>
+                <li *ngIf="esCiudadano"><a routerLink="/multas">Consultar mis multas</a></li>
+            } @else {
+                <li><a routerLink="/admin-resumen">Ver el panel administrativo</a></li>
+                <li><a routerLink="/admin-panel">Gestionar la cartelera</a></li>
+                <li><a routerLink="/admin-catalogo">Gestionar el catálogo</a></li>
+            }
+        </ul>
+    </nav>
+
     <!-- Indicadores -->
     <div class="summary-grid">
 
@@ -85,14 +101,14 @@
 
             <div class="card-content">
 
-                <h3>Multas pendientes</h3>
+                <h3>Multas</h3>
 
                 <span class="number" [class.number--alerta]="multas > 0">
                     {{ multas }}
                 </span>
 
                 <p>
-                    Multas pendientes
+                    Pendientes
                 </p>
 
             </div>
@@ -177,7 +193,7 @@
                 <!-- Listado -->
                 <div *ngIf="actividades.length > 0" class="table-wrapper">
 
-                    <table class="tabla-actividades">
+                    <table class="tabla-actividades tabla-municipal">
 
                         <thead>
                             <tr>

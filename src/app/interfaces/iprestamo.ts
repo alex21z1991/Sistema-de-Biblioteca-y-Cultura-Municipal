@@ -1,4 +1,5 @@
 // HU-A03: préstamo directo (sin reserva previa)
+// Retiro de reserva: el préstamo nace de una reserva pendiente del ciudadano
 
 export enum EstadoPrestamo {
     Prestado = 'Prestado',
@@ -16,7 +17,10 @@ export interface IPrestamo {
     recursoTitulo: string;
     fechaPrestamo: string;
     fechaDevolucion: string;
+    fechaDevolucionReal?: string;
     estado: EstadoPrestamo;
+    reservaId?: number;         // solo si el préstamo viene de una reserva
+    reservaCodigo?: string;     // comprobante de la reserva, ej. 'RES-0003'
 }
 
 export interface IPrestamoForm {

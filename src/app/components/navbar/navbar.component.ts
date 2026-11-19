@@ -1,34 +1,65 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-
+import { Component } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [
-    CommonModule
-  ],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent {
+  readonly departamentosPendientes = [
+    'Espacios públicos',
+    'Permisos y patentes',
+    'Pagos municipales',
+    'Reclamos'
+  ];
 
-  etiquetaUsuario: string = 'Ciudadano';
+  constructor(private loginService: LoginService, private router: Router) {}
 
-  constructor(
-    private loginService: LoginService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  get esAdmin(): boolean {
+    return this.loginService.isAdmin();
+  }
 
-  ngOnInit(): void {
+  get nombreUsuario(): string {
+    return this.loginService.getUsuarioActual()?.username ?? 'Usuario';
+  }
 
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
+  get iniciales(): string {
+    const partes = this.nombreUsuario.trim().split(/\s+/);
+    const letras = partes.length > 1
+      ? partes.slice(0, 2).map(parte => parte.charAt(0)).join('')
+      : partes[0].slice(0, 2);
+    return letras.toUpperCase();
+  }
+
+  get bibliotecaActiva(): boolean {
+    return ['/explorar', '/reservas', '/carrito'].some(ruta => this.router.isActive(ruta, false));
+  }
+
+  get administracionActiva(): boolean {
+    return ['/admin-resumen', '/admin-panel', '/admin-catalogo', '/admin-prestamos', '/admin-devoluciones']
+      .some(ruta => this.router.isActive(ruta, false));
+  }
+
+  cerrarMenuFuera(evento: Event, menu: HTMLDetailsElement): void {
+    if (menu.open && evento.target instanceof Node && !menu.contains(evento.target)) {
+      menu.open = false;
     }
+  }
 
-    this.etiquetaUsuario = this.loginService.isAdmin()
-      ? 'Administrador'
-      : 'Ciudadano';
+  cerrarMenuConEscape(menu: HTMLDetailsElement, control: HTMLElement): void {
+    if (menu.open) {
+      menu.open = false;
+      control.focus();
+    }
+  }
+
+  cerrarSesion(): void {
+    this.loginService.logout().subscribe({
+      next: () => this.router.navigate(['/login'])
+    });
   }
 }

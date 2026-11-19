@@ -1,17 +1,21 @@
 .footer {
-    height: 60px;
+  background: var(--navy);
+  color: var(--blanco);
+}
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 25px;
-
-    background-color: #11304f;
-    border-top: 1px solid #11304f;
+.footer__interior {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 20px;
+  padding-block: 16px;
 }
 
 .footer p {
-    margin: 0;
-    color: white;
+  margin: 0;
+}
+
+.footer__marca {
+  font: 700 .95rem var(--fuente-titulo);
 }

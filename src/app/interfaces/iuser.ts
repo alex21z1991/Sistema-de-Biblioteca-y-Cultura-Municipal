@@ -1,3 +1,5 @@
+import { IMultaSancion } from './imulta-sancion';
+
 export interface IUser {
     id: number;
     username: string;
@@ -6,6 +8,6 @@ export interface IUser {
     librosPedidos: number[];
     salasPedidas: number[];
     actividadesAgendadas: number[];
-    multas: any[];
+    multas: IMultaSancion[];
     habilitado?: boolean;   // false = cuenta inhabilitada (no puede recibir préstamos)
 }

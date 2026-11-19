@@ -1,5 +1,5 @@
 
-<div class="activity-card">
+<div class="activity-card tarjeta-municipal">
 
   <!-- ========================= -->
   <!-- TARJETA DE ACTIVIDAD -->
@@ -57,7 +57,7 @@
     <div class="card-footer">
       <button
         type="button"
-        class="boton boton--primario btn-primary"
+        class="boton accion-tarjeta"
         [disabled]="cuposDisponibles === 0 || yaInscrito"
         (click)="onInscribir()">
 
@@ -126,7 +126,7 @@
 
       <button
         type="button"
-        class="boton boton--primario btn-primary"
+        class="boton accion-tarjeta"
         [disabled]="
           esAdmin ||
           !recurso.activo ||

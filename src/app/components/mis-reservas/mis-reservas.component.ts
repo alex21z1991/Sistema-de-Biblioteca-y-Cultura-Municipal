@@ -1,8 +1,28 @@
 import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, PLATFORM_ID, ViewChild } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { combineLatest } from 'rxjs';
 
-import { EstadoReserva, EstadoVistaReserva, FiltroReserva, IReserva } from '../../interfaces/ireserva';
+import { EstadoReserva, EstadoVistaReserva, IReserva } from '../../interfaces/ireserva';
+import { IPrestamo } from '../../interfaces/iprestamo';
 import { MAX_RESERVAS_ACTIVAS, ReservaService } from '../../services/reserva.service';
+import { PrestamoService } from '../../services/prestamo.service';
+
+// Lo que el ciudadano tiene activo: reservas por retirar y material
+// retirado que aún no devuelve (venga de una reserva o de un préstamo directo).
+// Lo cancelado o devuelto no se muestra aquí (queda en el Historial).
+type EstadoActivo = EstadoReserva.PendienteRetiro | EstadoReserva.Retirada;
+type FiltroActivo = 'Todas' | EstadoActivo;
+
+interface IFilaActiva {
+  clave: string;
+  codigo: string | null;        // comprobante de la reserva (null en préstamo directo)
+  tituloRecurso: string;
+  fechaSolicitud: string;
+  fechaRetiro: string;          // prevista (pendiente) o real (retirada)
+  fechaDevolucion?: string;     // solo si ya se retiró
+  estado: EstadoActivo;
+  reserva?: IReserva;           // solo si está pendiente (se puede cancelar)
+}
 
 // HU-C06: Consultar o cancelar una reserva [Ciudadano]
 // Se muestra como la sección "Mis reservas" de la página de Reservas.
@@ -22,15 +42,14 @@ export class MisReservasComponent implements OnInit {
   estado: EstadoVistaReserva = EstadoVistaReserva.Cargando;
   readonly maxReservas = MAX_RESERVAS_ACTIVAS;
 
-  reservas: IReserva[] = [];
-  filtro: FiltroReserva = 'Todas';
+  filas: IFilaActiva[] = [];
+  filtro: FiltroActivo = 'Todas';
 
   // Orden de los filtros
-  readonly filtros: FiltroReserva[] = [
+  readonly filtros: FiltroActivo[] = [
     'Todas',
     EstadoReserva.PendienteRetiro,
-    EstadoReserva.Retirada,
-    EstadoReserva.Cancelada
+    EstadoReserva.Retirada
   ];
 
   reservaPorCancelar: IReserva | null = null;
@@ -52,6 +71,7 @@ export class MisReservasComponent implements OnInit {
 
   constructor(
     private reservaService: ReservaService,
+    private prestamoService: PrestamoService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -71,10 +91,13 @@ export class MisReservasComponent implements OnInit {
   cargarReservas(): void {
     this.estado = EstadoVistaReserva.Cargando;
 
-    this.reservaService.getMisReservas().subscribe({
-      next: (lista) => {
-        this.reservas = lista;
-        this.estado = lista.length > 0 ? EstadoVistaReserva.Listo : EstadoVistaReserva.Vacio;
+    combineLatest([
+      this.reservaService.getMisReservas(),
+      this.prestamoService.getMisPrestamosActivos()
+    ]).subscribe({
+      next: ([reservas, prestamos]) => {
+        this.filas = this.armarFilas(reservas, prestamos);
+        this.estado = this.filas.length > 0 ? EstadoVistaReserva.Listo : EstadoVistaReserva.Vacio;
       },
       error: () => {
         this.estado = EstadoVistaReserva.Error;
@@ -83,35 +106,69 @@ export class MisReservasComponent implements OnInit {
   }
 
 
+  // Pendientes primero (por fecha de retiro), luego lo retirado (por devolución)
+  private armarFilas(reservas: IReserva[], prestamos: IPrestamo[]): IFilaActiva[] {
+
+    const pendientes: IFilaActiva[] = reservas
+      .filter(r => r.estado === EstadoReserva.PendienteRetiro)
+      .sort((a, b) => a.fechaRetiro.localeCompare(b.fechaRetiro))
+      .map((r): IFilaActiva => ({
+        clave: 'R' + r.id,
+        codigo: r.codigo,
+        tituloRecurso: r.tituloRecurso,
+        fechaSolicitud: r.fechaSolicitud,
+        fechaRetiro: r.fechaRetiro,
+        estado: EstadoReserva.PendienteRetiro,
+        reserva: r
+      }));
+
+    const retiradas: IFilaActiva[] = prestamos
+      .sort((a, b) => a.fechaDevolucion.localeCompare(b.fechaDevolucion))
+      .map((p): IFilaActiva => {
+        const reserva = reservas.find(r => r.id === p.reservaId);
+        return {
+          clave: 'P' + p.id,
+          codigo: p.reservaCodigo ?? null,
+          tituloRecurso: p.recursoTitulo,
+          fechaSolicitud: reserva?.fechaSolicitud ?? p.fechaPrestamo,
+          fechaRetiro: p.fechaPrestamo,
+          fechaDevolucion: p.fechaDevolucion,
+          estado: EstadoReserva.Retirada
+        };
+      });
+
+    return [...pendientes, ...retiradas];
+  }
+
+
   // ------------------------------------------------------------------
   // Filtros
   // ------------------------------------------------------------------
 
-  get reservasFiltradas(): IReserva[] {
+  get filasFiltradas(): IFilaActiva[] {
     if (this.filtro === 'Todas') {
-      return this.reservas;
+      return this.filas;
     }
-    return this.reservas.filter(r => r.estado === this.filtro);
+    return this.filas.filter(f => f.estado === this.filtro);
   }
 
-  contar(filtro: FiltroReserva): number {
+  contar(filtro: FiltroActivo): number {
     return filtro === 'Todas'
-      ? this.reservas.length
-      : this.reservas.filter(r => r.estado === filtro).length;
+      ? this.filas.length
+      : this.filas.filter(f => f.estado === filtro).length;
   }
 
-  // Reservas que todavía ocupan un cupo (pendientes de retiro)
-  get activas(): number {
-    return this.reservas.filter(r => this.puedeCancelar(r)).length;
-  }
-
-  etiquetaFiltro(filtro: FiltroReserva): string {
+  etiquetaFiltro(filtro: FiltroActivo): string {
     switch (filtro) {
       case 'Todas': return 'Todas';
-      case EstadoReserva.PendienteRetiro: return 'Pendientes de retiro';
+      case EstadoReserva.PendienteRetiro: return 'Por retirar';
       case EstadoReserva.Retirada: return 'Retiradas';
-      case EstadoReserva.Cancelada: return 'Canceladas';
     }
+  }
+
+  // Ya pasó la fecha de devolución
+  devolucionAtrasada(fila: IFilaActiva): boolean {
+    return !!fila.fechaDevolucion && fila.fechaDevolucion < this.prestamoService.hoy();
   }
 
 
@@ -177,12 +234,8 @@ export class MisReservasComponent implements OnInit {
   // ------------------------------------------------------------------
 
   // Clase de la pastilla de estado
-  claseEstado(estado: EstadoReserva): string {
-    switch (estado) {
-      case EstadoReserva.PendienteRetiro: return 'pill--pendiente';
-      case EstadoReserva.Retirada: return 'pill--retirada';
-      case EstadoReserva.Cancelada: return 'pill--cancelada';
-    }
+  claseEstado(estado: EstadoActivo): string {
+    return estado === EstadoReserva.PendienteRetiro ? 'pill--pendiente' : 'pill--retirada';
   }
 
   // 'YYYY-MM-DD' -> Date en hora local 

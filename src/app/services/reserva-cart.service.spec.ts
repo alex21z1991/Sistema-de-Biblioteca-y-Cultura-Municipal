@@ -154,7 +154,7 @@ describe('Carrito de recursos', () => {
 
     signIn('usuario');
     reservations.agregarASeleccion(5);
-    expect(reservations.getCartWarnings()).toEqual([jasmine.stringContaining('1 multa(s) pendiente(s)')]);
+    expect(reservations.getCartWarnings()).toEqual([jasmine.stringContaining('1 multa o sanción pendiente')]);
 
     signIn('admin');
     expect(reservations.getCartWarnings()).toEqual([]);

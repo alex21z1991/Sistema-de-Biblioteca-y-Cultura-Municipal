@@ -1,0 +1,39 @@
+.multas {
+  max-width: 56rem;
+  padding: 1.75rem 1rem;
+}
+
+h1, h2 {
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 1.875rem;
+}
+
+a {
+  color: var(--navy);
+}
+
+.registro {
+  padding: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.detalle {
+  color: var(--tx2);
+}
+
+.estado {
+  padding: 0.2rem 0.65rem;
+  border-radius: 1rem;
+  background: var(--estado-exito-fondo);
+  color: #246b33;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.estado--pendiente {
+  background: var(--estado-pendiente-fondo);
+  color: var(--estado-pendiente-texto);
+}

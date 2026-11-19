@@ -1,0 +1,325 @@
+<div class="resumen-container">
+
+  <header class="welcome">
+    <div>
+      <h1>Panel administrativo</h1>
+      <p class="texto-suave">
+        Resumen de recursos, movimientos, multas, actividades y salas para tomar decisiones operativas.
+      </p>
+    </div>
+
+    <div class="welcome__acciones">
+      <span *ngIf="resumen && estado === Estado.Listo" class="actualizado">
+        Actualizado a las {{ resumen.generadoEn | date: 'HH:mm' }}
+      </span>
+      <button
+        type="button"
+        class="boton boton--contorno boton--chico"
+        [disabled]="estado === Estado.Cargando"
+        (click)="cargar()"
+      >
+        <span *ngIf="estado === Estado.Cargando" class="girador" aria-hidden="true"></span>
+        {{ estado === Estado.Cargando ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </header>
+
+
+  <!-- ================= CARGANDO ================= -->
+  <div *ngIf="estado === Estado.Cargando" class="cargando" role="status" aria-live="polite">
+    <span class="visually-hidden">Cargando el resumen del panel...</span>
+    <div class="indicadores-grid" aria-hidden="true">
+      <div *ngFor="let i of [1, 2, 3, 4, 5, 6]" class="esqueleto esqueleto--tarjeta"></div>
+    </div>
+    <div class="esqueleto esqueleto--bloque" aria-hidden="true"></div>
+  </div>
+
+
+  <!-- ================= ERROR ================= -->
+  <div *ngIf="estado === Estado.Error" #alertaError tabindex="-1" class="alerta alerta--error" role="alert">
+    <strong>No se pudo cargar el panel.</strong>
+    <p>{{ mensajeError }}</p>
+    <button type="button" class="boton boton--chico" (click)="cargar()">Reintentar</button>
+  </div>
+
+
+  <!-- ================= LISTO ================= -->
+  <ng-container *ngIf="estado === Estado.Listo && resumen as r">
+
+    <!-- Indicadores principales -->
+    <section aria-labelledby="titulo-indicadores">
+      <h2 id="titulo-indicadores" class="visually-hidden">Indicadores principales</h2>
+
+      <div class="indicadores-grid">
+        <app-tarjeta-indicador
+          etiqueta="Ejemplares disponibles"
+          [valor]="r.recursos.ejemplaresDisponibles"
+          [detalle]="'de ' + r.recursos.ejemplares + ' en ' + plural(r.recursos.activos, 'recurso activo', 'recursos activos')"
+          seccion="recursos"
+          (verDetalle)="irASeccion($event)"
+        ></app-tarjeta-indicador>
+
+        <app-tarjeta-indicador
+          etiqueta="Préstamos activos"
+          [valor]="r.movimientos.prestamosActivos"
+          [detalle]="plural(r.movimientos.reservasPorRetirar, 'reserva por retirar', 'reservas por retirar')"
+          seccion="movimientos"
+          (verDetalle)="irASeccion($event)"
+        ></app-tarjeta-indicador>
+
+        <app-tarjeta-indicador
+          etiqueta="Préstamos vencidos"
+          [valor]="r.movimientos.prestamosVencidos"
+          [detalle]="r.movimientos.prestamosVencidos > 0 ? 'Requieren seguimiento' : 'Todo al día'"
+          [tono]="tonoVencidos"
+          seccion="movimientos"
+          (verDetalle)="irASeccion($event)"
+        ></app-tarjeta-indicador>
+
+        <app-tarjeta-indicador
+          etiqueta="Multas pendientes"
+          [valor]="r.multas.pendientes"
+          [detalle]="plural(r.multas.ciudadanosConPendientes.length, 'ciudadano afectado', 'ciudadanos afectados')"
+          [tono]="tonoMultas"
+          seccion="multas"
+          (verDetalle)="irASeccion($event)"
+        ></app-tarjeta-indicador>
+
+        <app-tarjeta-indicador
+          etiqueta="Actividades próximas"
+          [valor]="r.actividades.proximas"
+          [detalle]="r.actividades.ocupacion + '% de ocupación'"
+          seccion="actividades"
+          (verDetalle)="irASeccion($event)"
+        ></app-tarjeta-indicador>
+
+        <app-tarjeta-indicador
+          etiqueta="Reservas de sala hoy"
+          [valor]="r.salas.reservasHoy"
+          [detalle]="plural(r.salas.activas, 'sala habilitada', 'salas habilitadas')"
+          seccion="salas"
+          (verDetalle)="irASeccion($event)"
+        ></app-tarjeta-indicador>
+      </div>
+    </section>
+
+
+    <!-- Alertas operativas -->
+    <section class="section" aria-labelledby="titulo-alertas">
+      <h2 id="titulo-alertas" class="titulo-seccion">Requiere atención</h2>
+
+      <ul *ngIf="r.alertas.length > 0; else sinAlertas" class="lista-alertas">
+        <li
+          *ngFor="let alerta of r.alertas"
+          class="alerta-operativa"
+          [class.alerta-operativa--peligro]="alerta.tono === Tono.Peligro"
+          [class.alerta-operativa--aviso]="alerta.tono === Tono.Aviso"
+        >
+          <span>{{ alerta.mensaje }}</span>
+          <a [routerLink]="alerta.enlace" [fragment]="alerta.fragmento">{{ alerta.textoEnlace }}</a>
+        </li>
+      </ul>
+
+      <ng-template #sinAlertas>
+        <div class="alerta alerta--ok" role="status">
+          No hay pendientes: préstamos, multas, actividades y salas están al día.
+        </div>
+      </ng-template>
+    </section>
+
+
+    <div class="secciones-grid">
+
+      <!-- ================= RECURSOS ================= -->
+      <section id="recursos" tabindex="-1" class="section" aria-labelledby="titulo-recursos">
+        <div class="section-header">
+          <h2 id="titulo-recursos" class="titulo-seccion">Recursos</h2>
+          <a routerLink="/admin-catalogo" class="enlace-seccion">Gestionar catálogo</a>
+        </div>
+
+        <div *ngIf="r.recursos.total === 0" class="empty-state">
+          <h3>Sin recursos en el catálogo</h3>
+          <p>Agrega libros y materiales desde el catálogo.</p>
+        </div>
+
+        <ng-container *ngIf="r.recursos.total > 0">
+          <dl class="datos">
+            <div><dt>Recursos registrados</dt><dd>{{ r.recursos.total }}</dd></div>
+            <div><dt>Activos</dt><dd>{{ r.recursos.activos }}</dd></div>
+            <div><dt>Dados de baja</dt><dd>{{ r.recursos.dadosDeBaja }}</dd></div>
+            <div><dt>Sin ejemplares libres</dt><dd>{{ r.recursos.sinStock }}</dd></div>
+          </dl>
+
+          <p class="barra-etiqueta">
+            Ejemplares en uso:
+            <strong>{{ r.recursos.ejemplares - r.recursos.ejemplaresDisponibles }} de {{ r.recursos.ejemplares }}</strong>
+          </p>
+          <div
+            class="barra"
+            role="meter"
+            aria-label="Ejemplares en uso"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-valuenow]="porcentaje(r.recursos.ejemplares - r.recursos.ejemplaresDisponibles, r.recursos.ejemplares)"
+          >
+            <span [style.width.%]="porcentaje(r.recursos.ejemplares - r.recursos.ejemplaresDisponibles, r.recursos.ejemplares)"></span>
+          </div>
+        </ng-container>
+      </section>
+
+
+      <!-- ================= MULTAS ================= -->
+      <section id="multas" tabindex="-1" class="section" aria-labelledby="titulo-multas">
+        <div class="section-header">
+          <h2 id="titulo-multas" class="titulo-seccion">Multas y sanciones</h2>
+        </div>
+
+        <dl class="datos">
+          <div><dt>Pendientes</dt><dd [class.dato--aviso]="r.multas.pendientes > 0">{{ r.multas.pendientes }}</dd></div>
+          <div><dt>Resueltas</dt><dd>{{ r.multas.resueltas }}</dd></div>
+          <div><dt>Cuentas inhabilitadas</dt><dd>{{ r.multas.cuentasInhabilitadas }}</dd></div>
+        </dl>
+
+        <div *ngIf="r.multas.ciudadanosConPendientes.length > 0; else sinMultas">
+          <p class="barra-etiqueta">Ciudadanos con pendientes (no pueden reservar ni pedir préstamos):</p>
+          <ul class="chips">
+            <li *ngFor="let nombre of r.multas.ciudadanosConPendientes" class="chip chip--aviso">{{ nombre }}</li>
+          </ul>
+        </div>
+        <ng-template #sinMultas>
+          <p class="texto-suave">Ningún ciudadano tiene multas o sanciones pendientes.</p>
+        </ng-template>
+      </section>
+
+
+      <!-- ================= MOVIMIENTOS ================= -->
+      <section id="movimientos" tabindex="-1" class="section section--ancha" aria-labelledby="titulo-movimientos">
+        <div class="section-header">
+          <h2 id="titulo-movimientos" class="titulo-seccion">Movimientos recientes</h2>
+          <div class="enlaces">
+            <a routerLink="/admin-prestamos" class="enlace-seccion">Préstamos</a>
+            <a routerLink="/admin-devoluciones" class="enlace-seccion">Devoluciones</a>
+          </div>
+        </div>
+
+        <dl class="datos datos--fila">
+          <div><dt>Préstamos activos</dt><dd>{{ r.movimientos.prestamosActivos }}</dd></div>
+          <div><dt>Vencidos</dt><dd [class.dato--peligro]="r.movimientos.prestamosVencidos > 0">{{ r.movimientos.prestamosVencidos }}</dd></div>
+          <div><dt>Devoluciones</dt><dd>{{ r.movimientos.devoluciones }}</dd></div>
+          <div><dt>Reservas por retirar</dt><dd>{{ r.movimientos.reservasPorRetirar }}</dd></div>
+          <div><dt>Retiros para hoy</dt><dd>{{ r.movimientos.retirosHoy }}</dd></div>
+        </dl>
+
+        <div *ngIf="r.movimientos.recientes.length === 0" class="empty-state">
+          <h3>Aún no hay movimientos</h3>
+          <p>Las reservas, préstamos y devoluciones aparecerán aquí.</p>
+        </div>
+
+        <div *ngIf="r.movimientos.recientes.length > 0" class="table-wrap">
+          <table class="tabla-municipal">
+            <caption class="visually-hidden">Últimos movimientos de la biblioteca</caption>
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Recurso</th>
+                <th scope="col">Ciudadano</th>
+                <th scope="col">Detalle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of r.movimientos.recientes">
+                <td>{{ m.fecha | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <span
+                    class="pill"
+                    [class.pill--reserva]="m.tipo === TipoMov.Reserva"
+                    [class.pill--prestamo]="m.tipo === TipoMov.Prestamo"
+                    [class.pill--devolucion]="m.tipo === TipoMov.Devolucion"
+                  >{{ m.tipo }}</span>
+                </td>
+                <td class="titulo-recurso">{{ m.recurso }}</td>
+                <td>{{ m.usuario }}</td>
+                <td>{{ m.detalle }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+
+      <!-- ================= ACTIVIDADES ================= -->
+      <section id="actividades" tabindex="-1" class="section" aria-labelledby="titulo-actividades">
+        <div class="section-header">
+          <h2 id="titulo-actividades" class="titulo-seccion">Actividades</h2>
+          <a routerLink="/admin-panel" class="enlace-seccion">Ir a la cartelera</a>
+        </div>
+
+        <dl class="datos">
+          <div><dt>Próximas</dt><dd>{{ r.actividades.proximas }}</dd></div>
+          <div><dt>Inscritos</dt><dd>{{ r.actividades.inscritos }}</dd></div>
+          <div><dt>Sin cupos</dt><dd>{{ r.actividades.llenas }}</dd></div>
+          <div><dt>Canceladas</dt><dd>{{ r.actividades.canceladas }}</dd></div>
+        </dl>
+
+        <div *ngIf="r.actividades.siguientes.length === 0" class="empty-state">
+          <h3>Sin actividades próximas</h3>
+          <p>Publica talleres o eventos desde la cartelera.</p>
+        </div>
+
+        <ul *ngIf="r.actividades.siguientes.length > 0" class="lista-actividades">
+          <li *ngFor="let a of r.actividades.siguientes">
+            <div class="actividad-cabecera">
+              <strong>{{ a.titulo }}</strong>
+              <span class="texto-suave">{{ a.fecha | date: 'dd/MM/yyyy HH:mm' }} · {{ a.lugar }}</span>
+            </div>
+            <div
+              class="barra barra--chica"
+              [class.barra--llena]="a.inscritos >= a.capacidad"
+              role="meter"
+              [attr.aria-label]="'Ocupación de ' + a.titulo"
+              aria-valuemin="0"
+              [attr.aria-valuemax]="a.capacidad"
+              [attr.aria-valuenow]="a.inscritos"
+            >
+              <span [style.width.%]="porcentaje(a.inscritos, a.capacidad)"></span>
+            </div>
+            <span class="cupos">{{ a.inscritos }}/{{ a.capacidad }} inscritos</span>
+          </li>
+        </ul>
+      </section>
+
+
+      <!-- ================= SALAS ================= -->
+      <section id="salas" tabindex="-1" class="section" aria-labelledby="titulo-salas">
+        <div class="section-header">
+          <h2 id="titulo-salas" class="titulo-seccion">Salas de estudio</h2>
+        </div>
+
+        <dl class="datos">
+          <div><dt>Habilitadas</dt><dd>{{ r.salas.activas }}</dd></div>
+          <div><dt>En mantención</dt><dd>{{ r.salas.enMantencion }}</dd></div>
+          <div><dt>Reservas hoy</dt><dd>{{ r.salas.reservasHoy }}</dd></div>
+          <div><dt>Reservas vigentes</dt><dd>{{ r.salas.reservasProximas }}</dd></div>
+        </dl>
+
+        <div *ngIf="r.salas.proximas.length === 0" class="empty-state">
+          <h3>Sin reservas de sala</h3>
+          <p>No hay reservas confirmadas desde hoy en adelante.</p>
+        </div>
+
+        <ul *ngIf="r.salas.proximas.length > 0" class="lista-salas">
+          <li *ngFor="let s of r.salas.proximas">
+            <div>
+              <strong>{{ s.sala }}</strong>
+              <span class="texto-suave">{{ s.codigo }} · {{ s.usuario }} · {{ plural(s.personas, 'persona', 'personas') }}</span>
+            </div>
+            <span class="horario">{{ s.fecha | date: 'dd/MM' }} · {{ s.horario }}</span>
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </ng-container>
+
+</div>

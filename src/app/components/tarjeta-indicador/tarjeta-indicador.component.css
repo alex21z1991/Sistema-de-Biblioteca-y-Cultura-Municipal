@@ -1,0 +1,63 @@
+:host {
+    display: block;
+}
+
+.tarjeta-indicador {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    padding: 18px 20px;
+    border-left: 6px solid var(--navy, #112F4E);
+    font: inherit;
+    text-align: left;
+    color: #1b1b1b;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.tarjeta-indicador:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgb(17 47 78 / 14%);
+}
+
+.tarjeta-indicador:disabled {
+    cursor: default;
+}
+
+.tarjeta-indicador--exito   { border-left-color: var(--verde-exito, #2e8540); }
+.tarjeta-indicador--aviso   { border-left-color: #c79b2c; }
+.tarjeta-indicador--peligro { border-left-color: var(--rojo-oscuro, #B50909); }
+
+.tarjeta-indicador__etiqueta {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--tx2, #5c6a79);
+}
+
+.tarjeta-indicador__valor {
+    font-family: var(--fuente-titulo, 'Merriweather', Georgia, serif);
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--navy, #112F4E);
+}
+
+.tarjeta-indicador--peligro .tarjeta-indicador__valor { color: var(--rojo-oscuro, #B50909); }
+
+.tarjeta-indicador__detalle {
+    font-size: 14px;
+    color: var(--tx2, #5c6a79);
+}
+
+.tarjeta-indicador__enlace {
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--navy-hover, #1A4480);
+}

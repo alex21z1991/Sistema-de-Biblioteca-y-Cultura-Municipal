@@ -1,5 +1,5 @@
 .explore-container {
-  padding: 32px 0; /* El padding lateral lo maneja la clase global .contenedor */
+  padding-block: 32px;
   background-color: var(--fondo-suave);
   min-height: 100vh;
   box-sizing: border-box;

@@ -1,0 +1,148 @@
+
+.historial-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  box-sizing: border-box;
+}
+
+.historial-header {
+  margin-bottom: 25px;
+}
+
+.historial-header h1 {
+  color: #112f4e;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.historial-header p {
+  color: #666;
+  margin: 0;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.filtros button {
+  border: 1px solid #d5dce3;
+  background: white;
+  color: #112f4e;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.filtros button:hover {
+  background: #eaf3f9;
+}
+
+.filtros button.activo {
+  background: #112f4e;
+  color: white;
+  border-color: #112f4e;
+}
+
+.contador {
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.historial-lista {
+  display: grid;
+  gap: 15px;
+}
+
+.historial-card {
+  background: white;
+  border: 1px solid #e0e5eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.historial-info h3 {
+  color: #112f4e;
+  margin: 0 0 15px;
+  font-size: 19px;
+}
+
+.historial-info p {
+  color: #555;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.estado-reservado,
+.estado-prestado,
+.estado-devuelto,
+.estado-cancelado {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.estado-reservado {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.estado-prestado {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.estado-devuelto {
+  background: #d4edda;
+  color: #155724;
+}
+
+.estado-cancelado {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.mensaje {
+  padding: 30px 20px;
+  text-align: center;
+  background: #f5f7fa;
+  border-radius: 12px;
+  color: #555;
+}
+
+.mensaje h3 {
+  color: #112f4e;
+}
+
+.mensaje.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+@media (max-width: 600px) {
+  .historial-container {
+    padding: 20px 12px;
+  }
+
+  .historial-header h1 {
+    font-size: 23px;
+  }
+
+  .filtros button {
+    flex: 1 1 40%;
+  }
+
+  .historial-card {
+    padding: 15px;
+  }
+}

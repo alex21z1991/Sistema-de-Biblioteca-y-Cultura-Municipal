@@ -85,7 +85,7 @@ h1, h2, h3 {
 .alerta ul { margin: 8px 0 0; padding-left: 20px; }
 
 .alerta--ok {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     border-color: var(--c-exito);
     color: #1f5a2d;
 }
@@ -493,6 +493,13 @@ h1, h2, h3 {
     white-space: nowrap;
 }
 
+/* Origen "Directo": misma cápsula, en tono neutro */
+.chip--directo {
+    background: var(--c-fondo-suave);
+    color: var(--c-tx2);
+    box-shadow: inset 0 0 0 1px var(--c-borde);
+}
+
 
 /* ---------- Resumen y botón ---------- */
 
@@ -535,31 +542,6 @@ h1, h2, h3 {
 
 /* ---------- Botón (normal, hover, foco, deshabilitado) ---------- */
 
-.boton {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
-    padding: 10px 22px;
-    border: 2px solid var(--c-navy);
-    border-radius: 6px;
-    background: var(--c-navy);
-    color: #fff;
-    font-family: var(--f-texto);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color .15s, border-color .15s;
-}
-
-.boton:hover:not(:disabled) {
-    background: #1A4480;
-    border-color: #1A4480;
-}
-
-.boton:focus-visible { outline: 4px solid var(--c-cian); outline-offset: 2px; }
-.boton:disabled { opacity: .6; cursor: not-allowed; }
-
 
 /* ---------- Pills de estado ---------- */
 
@@ -571,7 +553,7 @@ h1, h2, h3 {
     font-weight: 700;
 }
 
-.pill--ok { background: #e7f4e4; color: var(--c-exito); }
+.pill--ok { background: var(--estado-exito-fondo); color: var(--c-exito); }
 .pill--prestado { background: var(--c-celeste); color: var(--c-navy); }
 
 
@@ -589,13 +571,6 @@ th, td {
     text-align: left;
     border-bottom: 1px solid var(--c-borde);
     vertical-align: middle;
-}
-
-th {
-    background: var(--c-fondo-suave);
-    color: var(--c-navy);
-    font-size: 14px;
-    font-weight: 700;
 }
 
 tbody tr:hover { background: var(--c-fondo-suave); }
@@ -625,6 +600,55 @@ tbody tr:hover { background: var(--c-fondo-suave); }
 }
 
 .empty-state p { margin: 0; color: var(--c-tx2); }
+
+
+/* ---------- Tipo de préstamo (retiro de reserva / directo) ---------- */
+
+.modos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.modos__contador {
+    display: inline-block;
+    min-width: 22px;
+    margin-left: 6px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: var(--c-rojo);
+    color: #fff;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: center;
+}
+
+.modos__ayuda { margin: 8px 0 20px; }
+
+
+/* ---------- Avisos de reserva y ciudadano ---------- */
+
+.recurso__estado--aviso { color: #8a5a00; }
+
+.ficha--bloqueo { border-left-color: var(--c-peligro); }
+
+.pill--bloqueo { background: #fbe4e4; color: var(--c-peligro); }
+
+/* Botón con aspecto de enlace (acción secundaria dentro de la ficha) */
+.enlace {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--c-navy);
+    font-family: var(--f-texto);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.enlace:hover { color: var(--c-rojo); }
+.enlace:focus-visible { outline: 4px solid var(--c-cian); outline-offset: 2px; }
 
 
 /* ---------- Pantallas pequeñas ---------- */

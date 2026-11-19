@@ -1,61 +1,123 @@
-<aside class="sidebar">
 
-    <h3>Menú</h3>
+<nav class="subnavegacion"
+     [attr.aria-label]="seccion === 'administracion'
+       ? 'Administración de Biblioteca'
+       : 'Biblioteca y Cultura'">
 
-    <nav>
+  <div class="contenedor subnavegacion__interior">
 
-        <a routerLink="/admin-panel">
-            {{ esAdmin ? 'Cartelera' : 'Inicio' }}
+    @if (seccion === 'administracion') {
+
+      <a routerLink="/admin-resumen"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Resumen
+      </a>
+
+      <a routerLink="/admin-panel"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Cartelera
+      </a>
+
+      <a routerLink="/admin-catalogo"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Catálogo
+      </a>
+
+      <a routerLink="/admin-prestamos"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Préstamos
+      </a>
+
+      <a routerLink="/admin-devoluciones"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Devoluciones
+      </a>
+
+      <a routerLink="/admin-multas"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Multas
+      </a>
+
+    } @else {
+
+      <a routerLink="/explorar"
+         routerLinkActive="activo"
+         ariaCurrentWhenActive="page">
+        Explorar
+      </a>
+
+      @if (isCitizen) {
+
+        <a routerLink="/reservas"
+           fragment="mis-reservas"
+           routerLinkActive="activo"
+           ariaCurrentWhenActive="location">
+          Mis reservas
         </a>
 
-        @if (!esAdmin) {
-            <a routerLink="/explorar">
-                Explorar
-            </a>
+        <a routerLink="/salas"
+           routerLinkActive="activo"
+           ariaCurrentWhenActive="page">
+          Salas de estudio
+        </a>
 
-            <a
-                routerLink="/reservas"
-                routerLinkActive="activo">
-                Reservas
-            </a>
-        }
+        <a routerLink="/historial"
+           routerLinkActive="activo"
+           ariaCurrentWhenActive="page">
+          Historial
+        </a>
 
-        @if (esAdmin) {
-            <a routerLink="/admin-catalogo">
-                Catálogo
-            </a>
+        <div class="sidebar-actions">
 
-            <a routerLink="/admin-prestamos" routerLinkActive="activo">
-                Préstamos
-            </a>
-            <a routerLink="/admin-devoluciones" routerLinkActive="activo">Devoluciones</a>
-        }
+          <a *ngIf="cartIds$ | async as cartIds"
+             class="cart-button"
+             routerLink="/carrito"
+             routerLinkActive="cart-button--active"
+             ariaCurrentWhenActive="page"
+             title="Mi carrito"
+             [attr.aria-label]="'Carrito, ' + cartIds.length +
+               (cartIds.length === 1
+                 ? ' recurso seleccionado'
+                 : ' recursos seleccionados')">
 
-    </nav>
+            <span>Carrito</span>
 
-    <div class="sidebar-actions">
-        <ng-container *ngIf="isCitizen">
-            <a *ngIf="cartIds$ | async as cartIds"
-               class="cart-button"
-               routerLink="/carrito"
-               routerLinkActive="cart-button--active"
-               ariaCurrentWhenActive="page"
-               title="Mi carrito"
-               [attr.aria-label]="'Carrito, ' + cartIds.length + (cartIds.length === 1 ? ' recurso seleccionado' : ' recursos seleccionados')">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                     stroke-linejoin="round" aria-hidden="true" focusable="false">
-                    <path d="M3 3h2l3 13h11l2-9H6" />
-                    <circle cx="9" cy="21" r="1" />
-                    <circle cx="18" cy="21" r="1" />
-                </svg>
-                <span *ngIf="cartIds.length > 0" class="cart-count" aria-hidden="true">{{ cartIds.length }}</span>
-            </a>
-        </ng-container>
+            <svg width="22"
+                 height="22"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 aria-hidden="true"
+                 focusable="false">
 
-        <button type="button" (click)="cerrarSesion()">
-            Cerrar sesión
-        </button>
-    </div>
+              <path d="M3 3h2l3 13h11l2-9H6" />
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="18" cy="21" r="1" />
 
-</aside>
+            </svg>
+
+            <span *ngIf="cartIds.length > 0"
+                  class="cart-count"
+                  aria-hidden="true">
+              {{ cartIds.length }}
+            </span>
+
+          </a>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+</nav>

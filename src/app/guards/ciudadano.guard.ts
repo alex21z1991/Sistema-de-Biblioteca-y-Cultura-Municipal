@@ -26,7 +26,7 @@ export class CiudadanoGuard implements CanActivate {
       return true;
     }
 
-    this.router.navigate([this.loginService.isAdmin() ? '/admin-panel' : '/login']);
+    this.router.navigate([this.loginService.isAdmin() ? '/admin-resumen' : '/login']);
     return false;
   }
 }

@@ -1,0 +1,109 @@
+
+<div class="historial-container">
+
+  <div class="historial-header">
+    <h1>Mi historial</h1>
+    <p>Consulta tus reservas y préstamos realizados.</p>
+  </div>
+
+  <div class="filtros">
+    @for (estado of filtros; track estado) {
+      <button
+        type="button"
+        [class.activo]="filtro === estado"
+        (click)="seleccionarFiltro(estado)">
+
+        {{ estado === 'Todos' ? 'Todos' : estado }}
+
+        <span class="contador">
+          {{ contar(estado) }}
+        </span>
+
+      </button>
+    }
+  </div>
+
+  @if (cargando) {
+
+    <div class="mensaje">
+      <p>Cargando historial...</p>
+    </div>
+
+  } @else if (error) {
+
+    <div class="mensaje error">
+      <p>{{ error }}</p>
+    </div>
+
+  } @else if (historialFiltrado.length === 0) {
+
+    <div class="mensaje">
+      <h3>No hay movimientos disponibles</h3>
+      <p>No se encontraron registros para este filtro.</p>
+    </div>
+
+  } @else {
+
+    <div class="historial-lista">
+
+      @for (movimiento of historialFiltrado; track movimiento.id) {
+
+        <div class="historial-card">
+
+          <div class="historial-info">
+
+            <h3>{{ movimiento.tituloRecurso }}</h3>
+
+            <p>
+              <strong>Tipo:</strong>
+              {{ movimiento.tipo }}
+            </p>
+
+            <p>
+              <strong>Fecha del movimiento:</strong>
+              {{ formatearFecha(movimiento.fechaMovimiento) }}
+            </p>
+
+            @if (movimiento.fechaReserva) {
+              <p>
+                <strong>Fecha de reserva:</strong>
+                {{ formatearFecha(movimiento.fechaReserva) }}
+              </p>
+            }
+
+            @if (movimiento.fechaPrestamo) {
+              <p>
+                <strong>Fecha de préstamo:</strong>
+                {{ formatearFecha(movimiento.fechaPrestamo) }}
+              </p>
+            }
+
+            @if (movimiento.fechaDevolucion) {
+              <p>
+                <strong>Fecha prevista de devolución:</strong>
+                {{ formatearFecha(movimiento.fechaDevolucion) }}
+              </p>
+            }
+
+            @if (movimiento.fechaDevolucionReal) {
+              <p>
+                <strong>Fecha real de devolución:</strong>
+                {{ formatearFecha(movimiento.fechaDevolucionReal) }}
+              </p>
+            }
+
+            <span [ngClass]="claseEstado(movimiento.estado)">
+              {{ movimiento.estado }}
+            </span>
+
+          </div>
+
+        </div>
+
+      }
+
+    </div>
+
+  }
+
+</div>

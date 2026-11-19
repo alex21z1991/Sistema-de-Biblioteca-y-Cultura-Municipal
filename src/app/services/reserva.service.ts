@@ -13,6 +13,7 @@ import {
 
 import { CatalogoService } from './catalogo.service';
 import { LoginService } from './login.service';
+import { MultasService } from './multas.service';
 
 // Reglas de negocio de la HU-C05
 export const MAX_RESERVAS_ACTIVAS = 5;   // recursos reservados a la vez por ciudadano
@@ -37,7 +38,8 @@ export class ReservaService {
 
     constructor(
         private catalogoService: CatalogoService,
-        private loginService: LoginService
+        private loginService: LoginService,
+        private multasService: MultasService
     ) {
         this.cargarDatosDePrueba();
     }
@@ -48,7 +50,7 @@ export class ReservaService {
         const dia = (dias: number) => this.fechaLocal(this.sumarDias(hoy, dias));
 
         const reservas: Omit<IReserva, 'id' | 'codigo'>[] = [
-            { usuarioId: 3, recursoId: 2, tituloRecurso: 'Libro1', fechaSolicitud: dia(-10), fechaRetiro: dia(-8), estado: EstadoReserva.Retirada },
+            { usuarioId: 3, recursoId: 2, tituloRecurso: 'Libro1', fechaSolicitud: dia(-10), fechaRetiro: dia(-8), estado: EstadoReserva.Retirada, fechaRetiroReal: dia(-8) },
             { usuarioId: 3, recursoId: 7, tituloRecurso: 'Atlas de Chile', fechaSolicitud: dia(-6), fechaRetiro: dia(-4), estado: EstadoReserva.Cancelada, fechaCancelacion: dia(-5) },
             { usuarioId: 3, recursoId: 4, tituloRecurso: 'Subterra', fechaSolicitud: dia(-2), fechaRetiro: dia(1), estado: EstadoReserva.PendienteRetiro },
             { usuarioId: 3, recursoId: 1, tituloRecurso: 'Cien años de soledad', fechaSolicitud: dia(-1), fechaRetiro: dia(3), estado: EstadoReserva.PendienteRetiro }
@@ -133,9 +135,10 @@ export class ReservaService {
         }
 
         const warnings: string[] = [];
-        if (user.multas.length > 0) {
+        const multasPendientes = this.multasService.contarPendientes(user);
+        if (multasPendientes > 0) {
             warnings.push(
-                'Tienes ' + user.multas.length + ' multa(s) pendiente(s). ' +
+                'Tienes ' + this.multasService.textoPendientes(multasPendientes) + '. ' +
                 'Regulariza tu situación antes de confirmar la reserva.'
             );
         }
@@ -238,6 +241,19 @@ export class ReservaService {
         return of(propias);
     }
 
+    // HU-A12: todas las reservas (solo administrador), las más recientes primero.
+    public getTodasLasReservas(): Observable<IReserva[]> {
+        if (!this.loginService.isAdmin()) {
+            return of([]);
+        }
+
+        return of(
+            [...this.reservas]
+                .sort((a, b) => b.fechaSolicitud.localeCompare(a.fechaSolicitud) || b.id - a.id)
+                .map(r => ({ ...r }))
+        );
+    }
+
     // Solo se cancela lo que todavía no se retira
     public puedeCancelar(reserva: IReserva): boolean {
         return reserva.estado === EstadoReserva.PendienteRetiro;
@@ -284,6 +300,63 @@ export class ReservaService {
 
 
     // ------------------------------------------------------------------
+    // Retiro en biblioteca [Administrador]
+    // El préstamo se registra en PrestamoService; aquí solo se consulta
+    // y se marca la reserva como retirada.
+    // ------------------------------------------------------------------
+
+    // Reservas pendientes de retiro (todas o las de un ciudadano),
+    // ordenadas por la fecha en que se deben retirar.
+    public getReservasPorRetirar(usuarioId?: number | null): IReserva[] {
+        if (!this.loginService.isAdmin()) {
+            return [];
+        }
+
+        return this.reservas
+            .filter(r =>
+                r.estado === EstadoReserva.PendienteRetiro &&
+                (usuarioId === null || usuarioId === undefined || r.usuarioId === usuarioId)
+            )
+            .sort((a, b) => a.fechaRetiro.localeCompare(b.fechaRetiro) || a.id - b.id)
+            .map(r => ({ ...r }));
+    }
+
+    // Copia de una reserva por id (sin importar de quién sea)
+    public getReserva(reservaId: number): IReserva | undefined {
+        const reserva = this.reservas.find(r => r.id === reservaId);
+        return reserva ? { ...reserva } : undefined;
+    }
+
+    // Reserva pendiente de un ciudadano para un recurso, si existe
+    public getReservaPendienteDe(usuarioId: number, recursoId: number): IReserva | undefined {
+        const reserva = this.reservas.find(r =>
+            r.usuarioId === usuarioId &&
+            r.recursoId === recursoId &&
+            r.estado === EstadoReserva.PendienteRetiro
+        );
+        return reserva ? { ...reserva } : undefined;
+    }
+
+    // El ciudadano retiró el material. El ejemplar sigue comprometido
+    // (ahora por el préstamo) y el recurso sigue en sus librosPedidos.
+    public marcarRetirada(reservaId: number): boolean {
+        if (!this.loginService.isAdmin()) {
+            return false;
+        }
+
+        const reserva = this.reservas.find(r => r.id === reservaId);
+
+        if (!reserva || reserva.estado !== EstadoReserva.PendienteRetiro) {
+            return false;
+        }
+
+        reserva.estado = EstadoReserva.Retirada;
+        reserva.fechaRetiroReal = this.fechaLocal(new Date());
+        return true;
+    }
+
+
+    // ------------------------------------------------------------------
     // Validaciones
     // ------------------------------------------------------------------
     public validar(dto: IConfirmarReservaDto): string[] {
@@ -296,10 +369,11 @@ export class ReservaService {
             return ['Inicia sesión como ciudadano para confirmar reservas.'];
         }
 
-        // ----- Sanciones pendientes -----
-        if (usuario.multas.length > 0) {
+        // ----- Multas y sanciones pendientes -----
+        const multasPendientes = this.multasService.contarPendientes(usuario);
+        if (multasPendientes > 0) {
             errores.push(
-                'Tienes ' + usuario.multas.length + ' multa(s) pendiente(s). ' +
+                'Tienes ' + this.multasService.textoPendientes(multasPendientes) + '. ' +
                 'Regulariza tu situación antes de reservar nuevos recursos.'
             );
         }

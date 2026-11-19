@@ -55,7 +55,7 @@ h2 {
 .alerta ul { margin: 0; padding-left: 18px; }
 
 .alerta--ok {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     border-color: var(--c-exito);
     color: #1f5a2d;
 }
@@ -212,8 +212,6 @@ h2 {
 
 .tabla-reservas th {
     text-align: left;
-    background: var(--c-navy);
-    color: #fff;
     padding: 10px 12px;
     font-weight: 600;
     white-space: nowrap;
@@ -240,9 +238,9 @@ h2 {
     color: var(--c-navy);
 }
 
-.fila--cancelada .titulo-recurso,
-.fila--cancelada code {
+.sin-codigo {
     color: var(--c-tx2);
+    font-size: 14px;
 }
 
 .celda-accion {
@@ -255,6 +253,11 @@ h2 {
     margin-top: 6px;
     color: var(--c-tx2);
     font-size: 13px;
+}
+
+.detalle-estado--atraso {
+    color: var(--c-peligro, #B50909);
+    font-weight: 700;
 }
 
 
@@ -270,8 +273,8 @@ h2 {
 }
 
 .pill--pendiente {
-    background: #fef3c7;
-    color: #b45309;
+    background: var(--estado-pendiente-fondo);
+    color: var(--estado-pendiente-texto);
 }
 
 .pill--retirada {
@@ -280,76 +283,17 @@ h2 {
 }
 
 .pill--cancelada {
-    background: #eceef1;
+    background: var(--estado-cancelada-fondo);
     color: var(--c-tx2);
 }
 
 
-/* ---------- Botones ---------- */
+/* ---------- Acciones ---------- */
 
 .acciones {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-}
-
-.boton {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: 2px solid var(--c-navy);
-    border-radius: 6px;
-    background: var(--c-navy);
-    color: #fff;
-    font-family: var(--f-texto);
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background-color .15s, border-color .15s;
-}
-
-.boton:hover:not(:disabled) {
-    background: #1A4480;
-    border-color: #1A4480;
-}
-
-.boton:focus-visible {
-    outline: 4px solid var(--c-cian);
-    outline-offset: 2px;
-}
-
-.boton:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-
-.boton--contorno {
-    background: #fff;
-    color: var(--c-navy);
-}
-
-.boton--contorno:hover:not(:disabled) {
-    background: var(--c-celeste-claro);
-    border-color: var(--c-navy);
-}
-
-.boton--peligro {
-    background: var(--c-peligro);
-    border-color: var(--c-peligro);
-}
-
-.boton--peligro:hover:not(:disabled) {
-    background: #8f0707;
-    border-color: #8f0707;
-}
-
-.boton--chico {
-    padding: 6px 12px;
-    font-size: 14px;
 }
 
 

@@ -118,77 +118,9 @@ h1, h2 {
 }
 
 
-/* ---------- Botones (normal, hover, foco, deshabilitado) ---------- */
-
-.boton {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border: 2px solid var(--c-navy);
-    border-radius: 6px;
-    background: var(--c-navy);
-    color: #fff;
-    font-family: var(--f-texto);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color .15s, border-color .15s;
-}
-
-.boton:hover:not(:disabled) {
-    background: #1A4480;
-    border-color: #1A4480;
-}
-
-.boton:focus-visible {
-    outline: 4px solid var(--c-cian);
-    outline-offset: 2px;
-}
-
-.boton:disabled {
-    opacity: .6;
-    cursor: not-allowed;
-}
-
 /* Contorno: acciones secundarias (Editar, Cancelar) */
-.boton--contorno {
-    background: #fff;
-    color: var(--c-navy);
-}
-
-.boton--contorno:hover:not(:disabled) {
-    background: var(--c-celeste-claro);
-    border-color: var(--c-navy);
-}
-
 /* Peligro: Dar de baja y su confirmación */
-.boton--peligro {
-    background: var(--c-peligro);
-    border-color: var(--c-peligro);
-}
-
-.boton--peligro:hover:not(:disabled) {
-    background: #8f0707;
-    border-color: #8f0707;
-}
-
 /* Éxito: Reactivar */
-.boton--exito {
-    background: var(--c-exito);
-    border-color: var(--c-exito);
-}
-
-.boton--exito:hover:not(:disabled) {
-    background: #246b33;
-    border-color: #246b33;
-}
-
-.boton--chico {
-    padding: 6px 12px;
-    font-size: 14px;
-}
-
 
 /* ---------- Alertas ---------- */
 
@@ -202,7 +134,7 @@ h1, h2 {
 .alerta ul { margin: 0; padding-left: 18px; }
 
 .alerta--ok {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     border-color: var(--c-exito);
     color: #1f5a2d;
 }
@@ -393,13 +325,6 @@ th, td {
     vertical-align: middle;
 }
 
-th {
-    background: var(--c-fondo-suave);
-    color: var(--c-navy);
-    font-size: 14px;
-    font-weight: 700;
-}
-
 tbody tr:hover {
     background: var(--c-fondo-suave);
 }
@@ -454,7 +379,7 @@ tbody tr:hover {
 }
 
 .pill--activo {
-    background: #e7f4e4;
+    background: var(--estado-exito-fondo);
     color: var(--c-exito);
 }
 

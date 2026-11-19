@@ -5,9 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { CatalogoService } from '../../services/catalogo.service';
 import { LoginService } from '../../services/login.service';
 import { PrestamoService } from '../../services/prestamo.service';
+import { ReservaService } from '../../services/reserva.service';
 
 import { IEstadoPrestamo, IPrestamo, DIAS_PRESTAMO_MAXIMO, DIAS_PRESTAMO_POR_DEFECTO } from '../../interfaces/iprestamo';
 import { IRecurso } from '../../interfaces/irecurso';
+import { IReserva } from '../../interfaces/ireserva';
 import { IUser } from '../../interfaces/iuser';
 import { ISelectorOpcion, SelectorListaComponent } from '../selector-lista/selector-lista.component';
 
@@ -19,7 +21,11 @@ interface DiaCalendario {
   esHoy: boolean;
 }
 
-// HU-A03: el administrador registra un préstamo directo (sin reserva previa)
+type ModoPrestamo = 'reserva' | 'directo';
+
+// El administrador registra préstamos de dos formas:
+//  - Retiro de reserva: el ciudadano viene a buscar lo que reservó.
+//  - HU-A03, préstamo directo: sin reserva previa.
 @Component({
   selector: 'app-admin-prestamos',
   standalone: true,
@@ -36,10 +42,13 @@ export class AdminPrestamosComponent implements OnInit {
   opcionesCiudadano: ISelectorOpcion[] = [];
   recursos: IRecurso[] = [];
   prestamos: IPrestamo[] = [];
+  reservasPendientes: IReserva[] = [];
 
   // Datos del formulario
+  modo: ModoPrestamo = 'reserva';
   usuarioId: number | null = null;
   recursoId: number | null = null;
+  reservaId: number | null = null;
   fechaDevolucion: string = '';
   busqueda: string = '';
 
@@ -61,6 +70,7 @@ export class AdminPrestamosComponent implements OnInit {
   constructor(
     private prestamoService: PrestamoService,
     private catalogoService: CatalogoService,
+    private reservaService: ReservaService,
     private loginService: LoginService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -105,6 +115,21 @@ export class AdminPrestamosComponent implements OnInit {
     });
     this.catalogoService.getRecursos().subscribe(lista => this.recursos = lista);
     this.prestamoService.getPrestamos().subscribe(lista => this.prestamos = lista);
+    this.reservasPendientes = this.reservaService.getReservasPorRetirar();
+  }
+
+
+  // ------------------------------------------------------------------
+  // Tipo de préstamo
+  // ------------------------------------------------------------------
+
+  cambiarModo(modo: ModoPrestamo): void {
+    if (this.modo === modo) return;
+    this.modo = modo;
+    this.recursoId = null;
+    this.reservaId = null;
+    this.busqueda = '';
+    this.limpiarAvisos();
   }
 
 
@@ -124,9 +149,63 @@ export class AdminPrestamosComponent implements OnInit {
     return this.prestamoService.prestamosActivosDe(ciudadano.id).length;
   }
 
+  reservasPorRetirarDe(ciudadano: IUser): number {
+    return this.reservasPendientes.filter(r => r.usuarioId === ciudadano.id).length;
+  }
+
+  // Al cambiar de ciudadano se descarta una reserva que era de otra persona
+  alCambiarCiudadano(): void {
+    if (this.reservaElegida && this.reservaElegida.usuarioId !== this.usuarioId) {
+      this.reservaId = null;
+    }
+    this.limpiarAvisos();
+  }
+
+  nombreCiudadano(usuarioId: number): string {
+    return this.ciudadanos.find(c => c.id === usuarioId)?.username ?? 'Ciudadano #' + usuarioId;
+  }
+
 
   // ------------------------------------------------------------------
-  // Paso 2: recurso
+  // Paso 2 (retiro): reserva
+  // ------------------------------------------------------------------
+
+  get reservaElegida(): IReserva | undefined {
+    return this.reservasPendientes.find(r => r.id === this.reservaId);
+  }
+
+  // Reservas del ciudadano elegido (o todas), filtradas por código, título o ciudadano
+  get reservasFiltradas(): IReserva[] {
+    const palabras = this.normalizar(this.busqueda).split(/\s+/).filter(Boolean);
+
+    return this.reservasPendientes.filter(r => {
+      if (this.usuarioId !== null && r.usuarioId !== this.usuarioId) return false;
+      const texto = this.normalizar(`${r.codigo} ${r.tituloRecurso} ${this.nombreCiudadano(r.usuarioId)}`);
+      return palabras.every(p => texto.includes(p));
+    });
+  }
+
+  estadoReserva(reserva: IReserva): IEstadoPrestamo {
+    return this.prestamoService.estadoReserva(reserva);
+  }
+
+  // La fecha que el ciudadano eligió para retirar ya pasó
+  retiroAtrasado(reserva: IReserva): boolean {
+    return reserva.fechaRetiro < this.prestamoService.hoy();
+  }
+
+  elegirReserva(reserva: IReserva): void {
+    if (!this.estadoReserva(reserva).ok) {
+      return;
+    }
+    this.reservaId = reserva.id;
+    this.usuarioId = reserva.usuarioId;
+    this.limpiarAvisos();
+  }
+
+
+  // ------------------------------------------------------------------
+  // Paso 2 (directo): recurso
   // ------------------------------------------------------------------
 
   get recursoElegido(): IRecurso | undefined {
@@ -272,7 +351,10 @@ export class AdminPrestamosComponent implements OnInit {
   // ------------------------------------------------------------------
 
   get puedeRegistrar(): boolean {
-    return this.usuarioId !== null && this.recursoId !== null && !!this.fechaDevolucion;
+    if (!this.fechaDevolucion) return false;
+    return this.modo === 'reserva'
+      ? this.reservaId !== null
+      : this.usuarioId !== null && this.recursoId !== null;
   }
 
   registrar(): void {
@@ -280,11 +362,15 @@ export class AdminPrestamosComponent implements OnInit {
     this.errores = [];
     this.mensajeExito = '';
 
-    this.prestamoService.registrarPrestamo({
-      usuarioId: this.usuarioId,
-      recursoId: this.recursoId,
-      fechaDevolucion: this.fechaDevolucion
-    }).subscribe({
+    const solicitud = this.modo === 'reserva'
+      ? this.prestamoService.registrarPrestamoDesdeReserva(this.reservaId, this.fechaDevolucion)
+      : this.prestamoService.registrarPrestamo({
+          usuarioId: this.usuarioId,
+          recursoId: this.recursoId,
+          fechaDevolucion: this.fechaDevolucion
+        });
+
+    solicitud.subscribe({
       next: (resultado) => {
 
         if (!resultado.ok) {
@@ -297,10 +383,12 @@ export class AdminPrestamosComponent implements OnInit {
         // Listo para el siguiente préstamo (la fecha vuelve al plazo habitual)
         this.usuarioId = null;
         this.recursoId = null;
+        this.reservaId = null;
         this.busqueda = '';
         this.elegirDias(DIAS_PRESTAMO_POR_DEFECTO);
 
         this.mensajeExito =
+          (prestamo.reservaCodigo ? 'Reserva ' + prestamo.reservaCodigo + ' entregada. ' : '') +
           'Préstamo registrado: "' + prestamo.recursoTitulo + '" para ' + prestamo.usuarioNombre +
           '. Devolución el ' + prestamo.fechaDevolucion.split('-').reverse().join('/') + '.';
 

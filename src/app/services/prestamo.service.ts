@@ -11,11 +11,14 @@ import {
     IResultadoPrestamo
 } from '../interfaces/iprestamo';
 
+import { EstadoReserva, IReserva } from '../interfaces/ireserva';
 import { IRecurso } from '../interfaces/irecurso';
 import { IUser } from '../interfaces/iuser';
 
 import { CatalogoService } from './catalogo.service';
 import { LoginService } from './login.service';
+import { MultasService } from './multas.service';
+import { ReservaService } from './reserva.service';
 
 @Injectable({ providedIn: 'root' })
 export class PrestamoService {
@@ -26,9 +29,35 @@ export class PrestamoService {
 
     constructor(
         private loginService: LoginService,
-        private catalogoService: CatalogoService
-    ) {}
+        private catalogoService: CatalogoService,
+        private multasService: MultasService,
+        private reservaService: ReservaService
+    ) {
+        this.cargarDatosDePrueba();
+    }
 
+    private cargarDatosDePrueba(): void {
+        const reserva = this.reservaService.getReserva(1);
+
+        if (!reserva || reserva.estado !== EstadoReserva.Retirada) {
+            return;
+        }
+
+        const fechaPrestamo = reserva.fechaRetiroReal ?? reserva.fechaRetiro;
+
+        this.prestamos.push({
+            id: ++this.ultimoId,
+            usuarioId: reserva.usuarioId,
+            usuarioNombre: 'alex',
+            recursoId: reserva.recursoId,
+            recursoTitulo: reserva.tituloRecurso,
+            fechaPrestamo,
+            fechaDevolucion: this.sumarDias(fechaPrestamo, 14),
+            estado: EstadoPrestamo.Prestado,
+            reservaId: reserva.id,
+            reservaCodigo: reserva.codigo
+        });
+    }
 
     // --------------------------------------------------
     // CONSULTAS
@@ -45,10 +74,35 @@ export class PrestamoService {
     public prestamosActivosDe(usuarioId: number): IPrestamo[] {
         return this.prestamos.filter(
             p => p.usuarioId === usuarioId &&
-                 p.estado === EstadoPrestamo.Prestado
+                p.estado === EstadoPrestamo.Prestado
         );
     }
 
+    // Préstamos aún no devueltos del ciudadano en sesión
+    public getMisPrestamosActivos(): Observable<IPrestamo[]> {
+        const usuario = this.loginService.getUsuarioActual();
+
+        if (!usuario || usuario.role !== 'usuario') {
+            return of([]);
+        }
+
+        return of(
+            this.prestamosActivosDe(usuario.id)
+                .sort((a, b) => b.id - a.id)
+                .map(p => ({ ...p }))
+        );
+    }
+
+    private tienePrestamoActivo(
+        usuarioId: number,
+        recursoId: number
+    ): boolean {
+        return this.prestamos.some(p =>
+            p.usuarioId === usuarioId &&
+            p.recursoId === recursoId &&
+            p.estado === EstadoPrestamo.Prestado
+        );
+    }
 
     // --------------------------------------------------
     // HU-A05: REGISTRAR DEVOLUCIÓN
@@ -56,19 +110,16 @@ export class PrestamoService {
 
     public registrarDevolucion(id: number): string {
 
-        // Verificar que el usuario sea administrador
         if (!this.loginService.isAdmin()) {
             return 'Solo el administrador puede registrar devoluciones.';
         }
 
-        // Buscar el préstamo
         const prestamo = this.prestamos.find(p => p.id === id);
 
         if (!prestamo) {
             return 'El préstamo no existe.';
         }
 
-        // Verificar que todavía no esté devuelto
         if (prestamo.estado === EstadoPrestamo.Devuelto) {
             return 'Este libro ya fue devuelto.';
         }
@@ -78,45 +129,29 @@ export class PrestamoService {
             return 'No se pudo liberar el ejemplar.';
         }
 
-        // Cambiar el estado del préstamo
         prestamo.estado = EstadoPrestamo.Devuelto;
+        prestamo.fechaDevolucionReal = this.hoy();
 
         // Actualizar el resumen del ciudadano
         const usuario = this.loginService.getCiudadanos()
             .find(u => u.id === prestamo.usuarioId);
 
-        if (usuario) {
-
-            // Comprobar si mantiene otro préstamo activo
-            // del mismo recurso
-            const siguePrestado = this.prestamos.some(p =>
-                p.usuarioId === usuario.id &&
-                p.recursoId === prestamo.recursoId &&
-                p.estado === EstadoPrestamo.Prestado
-            );
-
-            // Si no tiene otro préstamo activo,
-            // quitar el recurso de sus libros pedidos
-            if (!siguePrestado) {
-                usuario.librosPedidos = usuario.librosPedidos
-                    .filter(id => id !== prestamo.recursoId);
-            }
+        if (usuario && !this.tienePrestamoActivo(usuario.id, prestamo.recursoId)) {
+            usuario.librosPedidos = usuario.librosPedidos
+                .filter(id => id !== prestamo.recursoId);
         }
 
         return 'Devolución registrada correctamente.';
     }
 
-
     // --------------------------------------------------
     // FECHAS
     // --------------------------------------------------
 
-    // Obtener la fecha actual en formato YYYY-MM-DD
     public hoy(): string {
         return this.aTexto(new Date());
     }
 
-    // Sumar días a una fecha
     public sumarDias(fecha: string, dias: number): string {
         const [anio, mes, dia] = fecha.split('-').map(Number);
 
@@ -125,14 +160,12 @@ export class PrestamoService {
         );
     }
 
-    // Convertir una fecha a texto
     private aTexto(fecha: Date): string {
         const mm = String(fecha.getMonth() + 1).padStart(2, '0');
         const dd = String(fecha.getDate()).padStart(2, '0');
 
         return `${fecha.getFullYear()}-${mm}-${dd}`;
     }
-
 
     // --------------------------------------------------
     // PRECONDICIONES
@@ -148,14 +181,12 @@ export class PrestamoService {
             };
         }
 
-        const multas = usuario.multas.length;
+        const multas = this.multasService.contarPendientes(usuario);
 
         if (multas > 0) {
             return {
                 ok: false,
-                motivo: multas === 1
-                    ? 'Tiene 1 multa pendiente'
-                    : 'Tiene ' + multas + ' multas pendientes'
+                motivo: 'Tiene ' + this.multasService.textoPendientes(multas)
             };
         }
 
@@ -188,11 +219,32 @@ export class PrestamoService {
         };
     }
 
+    // Verificar que una reserva se pueda entregar
+    public estadoReserva(reserva: IReserva): IEstadoPrestamo {
+
+        if (reserva.estado === EstadoReserva.Retirada) {
+            return { ok: false, motivo: 'Ya fue retirada' };
+        }
+
+        if (reserva.estado === EstadoReserva.Cancelada) {
+            return { ok: false, motivo: 'Fue cancelada' };
+        }
+
+        const usuario = this.loginService.getCiudadanos()
+            .find(u => u.id === reserva.usuarioId);
+
+        if (!usuario) {
+            return { ok: false, motivo: 'El ciudadano no existe' };
+        }
+
+        return this.estadoCiudadano(usuario);
+    }
 
     // --------------------------------------------------
     // VALIDACIÓN
     // --------------------------------------------------
 
+    // Validar préstamo directo
     public validar(datos: IPrestamoForm): string[] {
 
         const errores: string[] = [];
@@ -240,27 +292,42 @@ export class PrestamoService {
 
             } else {
 
-                const estado = this.estadoRecurso(recurso);
+                // Comprobar si existe una reserva pendiente
+                const reserva =
+                    datos.usuarioId !== null && datos.usuarioId !== undefined
+                        ? this.reservaService.getReservaPendienteDe(
+                            datos.usuarioId,
+                            recurso.id
+                        )
+                        : undefined;
 
-                if (!estado.ok) {
+                if (reserva) {
                     errores.push(
-                        'No se puede prestar "' +
-                        recurso.titulo + '": ' +
-                        estado.motivo.toLowerCase() + '.'
+                        'El ciudadano tiene la reserva ' +
+                        reserva.codigo +
+                        ' de "' +
+                        recurso.titulo +
+                        '". Regístralo desde "Retiro de reserva".'
                     );
+
+                } else {
+
+                    const estado = this.estadoRecurso(recurso);
+
+                    if (!estado.ok) {
+                        errores.push(
+                            'No se puede prestar "' +
+                            recurso.titulo + '": ' +
+                            estado.motivo.toLowerCase() + '.'
+                        );
+                    }
                 }
 
-                // Evitar dos préstamos activos del mismo recurso
-                // para un mismo ciudadano
-                const repetido = datos.usuarioId !== null &&
-                    this.prestamos.some(
-                        p =>
-                            p.usuarioId === datos.usuarioId &&
-                            p.recursoId === datos.recursoId &&
-                            p.estado === EstadoPrestamo.Prestado
-                    );
-
-                if (repetido) {
+                // Evitar préstamos duplicados
+                if (
+                    datos.usuarioId !== null &&
+                    this.tienePrestamoActivo(datos.usuarioId, recurso.id)
+                ) {
                     errores.push(
                         'El ciudadano ya tiene este recurso en préstamo.'
                     );
@@ -271,6 +338,62 @@ export class PrestamoService {
         // Validar fecha de devolución
         return errores.concat(
             this.validarFecha(datos.fechaDevolucion)
+        );
+    }
+
+    // Validar préstamo a partir de una reserva
+    public validarRetiro(
+        reservaId: number | null,
+        fechaDevolucion: string
+    ): string[] {
+
+        const errores: string[] = [];
+
+        if (reservaId === null || reservaId === undefined) {
+
+            errores.push('Selecciona la reserva que se va a entregar.');
+
+        } else {
+
+            const reserva = this.reservaService.getReserva(reservaId);
+
+            if (!reserva) {
+
+                errores.push('La reserva no existe.');
+
+            } else {
+
+                const estado = this.estadoReserva(reserva);
+
+                if (!estado.ok) {
+                    errores.push(
+                        'No se puede entregar la reserva ' +
+                        reserva.codigo + ': ' +
+                        estado.motivo.toLowerCase() + '.'
+                    );
+                }
+
+                if (!this.catalogoService.getRecurso(reserva.recursoId)) {
+                    errores.push(
+                        'El recurso de la reserva ya no existe en el catálogo.'
+                    );
+                }
+
+                if (
+                    this.tienePrestamoActivo(
+                        reserva.usuarioId,
+                        reserva.recursoId
+                    )
+                ) {
+                    errores.push(
+                        'El ciudadano ya tiene este recurso en préstamo.'
+                    );
+                }
+            }
+        }
+
+        return errores.concat(
+            this.validarFecha(fechaDevolucion)
         );
     }
 
@@ -313,7 +436,6 @@ export class PrestamoService {
         return [];
     }
 
-
     // --------------------------------------------------
     // HU-A03: REGISTRAR PRÉSTAMO DIRECTO
     // --------------------------------------------------
@@ -322,7 +444,6 @@ export class PrestamoService {
         datos: IPrestamoForm
     ): Observable<IResultadoPrestamo> {
 
-        // Verificar que el usuario sea administrador
         if (!this.loginService.isAdmin()) {
             return of({
                 ok: false,
@@ -332,7 +453,6 @@ export class PrestamoService {
             });
         }
 
-        // Validar los datos del préstamo
         const errores = this.validar(datos);
 
         if (errores.length > 0) {
@@ -359,7 +479,91 @@ export class PrestamoService {
             });
         }
 
-        // Crear el préstamo
+        return of({
+            ok: true,
+            errores: [],
+            prestamo: this.crearPrestamo(
+                usuario,
+                recurso,
+                datos.fechaDevolucion
+            )
+        });
+    }
+
+    // --------------------------------------------------
+    // HU11: RETIRO DE RESERVA
+    // --------------------------------------------------
+
+    public registrarPrestamoDesdeReserva(
+        reservaId: number | null,
+        fechaDevolucion: string
+    ): Observable<IResultadoPrestamo> {
+
+        if (!this.loginService.isAdmin()) {
+            return of({
+                ok: false,
+                errores: [
+                    'Inicia sesión como administrador para registrar préstamos.'
+                ]
+            });
+        }
+
+        const errores = this.validarRetiro(
+            reservaId,
+            fechaDevolucion
+        );
+
+        if (errores.length > 0) {
+            return of({
+                ok: false,
+                errores: errores
+            });
+        }
+
+        const reserva = this.reservaService.getReserva(reservaId!)!;
+
+        const usuario = this.loginService.getCiudadanos()
+            .find(u => u.id === reserva.usuarioId)!;
+
+        const recurso = this.catalogoService
+            .getRecurso(reserva.recursoId)!;
+
+        // El ejemplar ya está comprometido por la reserva.
+        // No se debe descontar otro ejemplar.
+        if (!this.reservaService.marcarRetirada(reserva.id)) {
+            return of({
+                ok: false,
+                errores: [
+                    'No se pudo marcar la reserva ' +
+                    reserva.codigo +
+                    ' como retirada.'
+                ]
+            });
+        }
+
+        return of({
+            ok: true,
+            errores: [],
+            prestamo: this.crearPrestamo(
+                usuario,
+                recurso,
+                fechaDevolucion,
+                reserva
+            )
+        });
+    }
+
+    // --------------------------------------------------
+    // CREACIÓN COMÚN DE PRÉSTAMOS
+    // --------------------------------------------------
+
+    private crearPrestamo(
+        usuario: IUser,
+        recurso: IRecurso,
+        fechaDevolucion: string,
+        reserva?: IReserva
+    ): IPrestamo {
+
         const prestamo: IPrestamo = {
             id: ++this.ultimoId,
             usuarioId: usuario.id,
@@ -367,11 +571,12 @@ export class PrestamoService {
             recursoId: recurso.id,
             recursoTitulo: recurso.titulo,
             fechaPrestamo: this.hoy(),
-            fechaDevolucion: datos.fechaDevolucion,
-            estado: EstadoPrestamo.Prestado
+            fechaDevolucion: fechaDevolucion,
+            estado: EstadoPrestamo.Prestado,
+            reservaId: reserva?.id,
+            reservaCodigo: reserva?.codigo
         };
 
-        // Guardar el préstamo
         this.prestamos.push(prestamo);
 
         // Actualizar el resumen del ciudadano
@@ -379,10 +584,6 @@ export class PrestamoService {
             usuario.librosPedidos.push(recurso.id);
         }
 
-        return of({
-            ok: true,
-            errores: [],
-            prestamo: prestamo
-        });
+        return prestamo;
     }
 }
