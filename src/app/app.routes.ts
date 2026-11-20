@@ -1,5 +1,6 @@
 
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
 
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
@@ -26,7 +27,14 @@ export const routes: Routes = [
     path: '',
     component: LayoutComponent,
     canActivate: [AuthGuard],
+    canActivateChild: [() => inject(AuthGuard).canActivate()],
     children: [
+      {
+        path: 'admin-cuentas',
+        data: { seccion: 'administracion' },
+        loadComponent: () => import('./components/admin-cuentas/admin-cuentas.component').then(m => m.AdminCuentasComponent),
+        canActivate: [AdminGuard]
+      },
       {
         path: 'home',
         component: HomeComponent

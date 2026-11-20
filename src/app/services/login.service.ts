@@ -62,11 +62,12 @@ export class LoginService {
     //Inicio de sesion
     public login(userLogin: IUserFormLogin): Observable<boolean>{
 
+        this.cargarCuentas();
         const foundUser = this.validUsers.find(
             u => u.username === userLogin.username && u.password === userLogin.password
         );
 
-        if(foundUser){
+        if(foundUser && foundUser.habilitado !== false){
             const token = btoa(foundUser.username + foundUser.password || '');
             sessionStorage.setItem('token', token);
             sessionStorage.setItem('role', foundUser.role || 'user');
@@ -90,11 +91,11 @@ export class LoginService {
     //Metodos de consulta
 
     public isAuth(): Observable<boolean>{
-        return of(isPlatformBrowser(this.platformId) && !!sessionStorage.getItem('token'));
+        return of(!!this.getUsuarioActual());
     }
 
     public getRole(): string | null {
-        return isPlatformBrowser(this.platformId) ? sessionStorage.getItem('role') : null;
+        return this.getUsuarioActual()?.role ?? null;
     }
 
     public isAdmin(): boolean {
@@ -115,8 +116,9 @@ export class LoginService {
             return undefined;
         }
 
+        this.cargarCuentas();
         const userId = Number(sessionStorage.getItem('userId'));
-        return this.validUsers.find(usuario => usuario.id === userId);
+        return this.validUsers.find(usuario => usuario.id === userId && usuario.habilitado !== false);
     }
 
     public getUsers(): IUser[] {
@@ -125,6 +127,42 @@ export class LoginService {
 
     // Ciudadanos (usuarios que no son administradores)
     public getCiudadanos(): IUser[] {
+        this.cargarCuentas();
         return this.validUsers.filter(usuario => usuario.role === 'usuario');
+    }
+
+    private cargarCuentas(): void {
+        if (!isPlatformBrowser(this.platformId)) return;
+        try {
+            const datos: unknown = JSON.parse(localStorage.getItem('biblioteca.cuentas.v1') || '[]');
+            if (!Array.isArray(datos)) return;
+            for (const dato of datos) {
+                const usuario = this.validUsers.find(u => u.id === dato?.id && u.role === 'usuario');
+                if (usuario && typeof dato.username === 'string' && typeof dato.habilitado === 'boolean') {
+                    usuario.username = dato.username;
+                    usuario.habilitado = dato.habilitado;
+                }
+            }
+        } catch { /* Mantener las cuentas iniciales si el almacenamiento no está disponible. */ }
+    }
+
+    public actualizarCuenta(id: number, cambios: { username?: string; habilitado?: boolean }): void {
+        if (!this.isAdmin()) throw new Error('Solo el administrador puede gestionar cuentas.');
+        const usuario = this.validUsers.find(u => u.id === id && u.role === 'usuario');
+        if (!usuario) throw new Error('Usuario no encontrado.');
+        const nombre = (cambios.username ?? usuario.username).trim();
+        if (!nombre || nombre.length > 50) throw new Error('El nombre debe tener entre 1 y 50 caracteres.');
+        if (this.validUsers.some(u => u.id !== id && u.username.toLowerCase() === nombre.toLowerCase())) {
+            throw new Error('Ese nombre de usuario ya existe.');
+        }
+        const habilitado = cambios.habilitado ?? usuario.habilitado !== false;
+        const cuentas = this.validUsers.filter(u => u.role === 'usuario').map(u => ({
+            id: u.id, username: u.id === id ? nombre : u.username,
+            habilitado: u.id === id ? habilitado : u.habilitado !== false
+        }));
+        try { localStorage.setItem('biblioteca.cuentas.v1', JSON.stringify(cuentas)); }
+        catch { throw new Error('No se pudo guardar. Revisa el almacenamiento del navegador.'); }
+        usuario.username = nombre;
+        usuario.habilitado = habilitado;
     }
 }
