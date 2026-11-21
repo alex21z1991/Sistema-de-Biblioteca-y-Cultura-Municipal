@@ -1,0 +1,68 @@
+<section class="admin-salas">
+  <header class="page-header">
+    <h1>Control de salas de estudio</h1>
+    <p>Consulta las reservas y administra la disponibilidad de los espacios de la biblioteca.</p>
+  </header>
+
+  <div *ngIf="mensaje" role="status" class="aviso" [class.aviso--error]="error" [class.aviso--ok]="!error">{{ mensaje }}</div>
+
+  <section aria-labelledby="titulo-salas" class="seccion">
+    <div class="seccion-encabezado">
+      <h2 id="titulo-salas" class="section-title">Salas disponibles</h2>
+      <span class="contador">{{ salas.length }} salas registradas</span>
+    </div>
+    <div class="salas-grid">
+      <article class="sala" *ngFor="let sala of salas">
+        <div class="sala-top">
+          <span class="etiqueta">SALA DE ESTUDIO</span>
+          <span class="estado" [class.estado--cerrada]="!sala.activa">{{ sala.activa ? 'Habilitada' : 'Cerrada' }}</span>
+        </div>
+        <h3>{{ sala.nombre }}</h3>
+        <p class="ubicacion">{{ sala.ubicacion }}</p>
+        <div class="detalles">
+          <div><span>Capacidad</span><strong>{{ sala.capacidad }} {{ sala.capacidad === 1 ? 'persona' : 'personas' }}</strong></div>
+          <div><span>Reservas vigentes</span><strong>{{ cantidadVigentes(sala.id) }}</strong></div>
+        </div>
+        <p class="nota" *ngIf="sala.activa && cantidadVigentes(sala.id) > 0">No se puede cerrar mientras existan reservas vigentes.</p>
+        <div class="acciones">
+          <button type="button" class="boton boton--contorno" (click)="salaSeleccionada = sala.id">Ver reservas</button>
+          <button type="button" class="boton" [class.boton--peligro]="sala.activa" (click)="cambiarEstado(sala)" [disabled]="sala.activa && cantidadVigentes(sala.id) > 0">{{ sala.activa ? 'Cerrar sala' : 'Habilitar sala' }}</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="titulo-reservas" class="seccion reservas-seccion">
+    <div class="seccion-encabezado">
+      <h2 id="titulo-reservas" class="section-title">Reservas de salas</h2>
+      <span class="contador">{{ reservasFiltradas.length }} reservas</span>
+    </div>
+    <div class="panel-reservas">
+      <div class="filtros">
+        <label for="filtro-sala">Filtrar por sala</label>
+        <select id="filtro-sala" [(ngModel)]="salaSeleccionada">
+          <option [ngValue]="null">Todas las salas</option>
+          <option *ngFor="let sala of salas" [ngValue]="sala.id">{{ sala.nombre }}</option>
+        </select>
+        <button *ngIf="salaSeleccionada !== null" type="button" class="limpiar" (click)="salaSeleccionada = null">Limpiar filtro</button>
+      </div>
+      <div class="tabla-scroll">
+        <table>
+          <thead><tr><th>Código</th><th>Sala</th><th>Ciudadano (ID)</th><th>Fecha</th><th>Horario</th><th>Personas</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let reserva of reservasFiltradas">
+              <td><strong>{{ reserva.codigo }}</strong></td>
+              <td>{{ reserva.nombreSala }}</td>
+              <td>{{ reserva.usuarioId }}</td>
+              <td>{{ reserva.fecha }}</td>
+              <td>{{ reserva.horaInicio }}–{{ reserva.horaFin }}</td>
+              <td>{{ reserva.personas }}</td>
+              <td><span class="estado-reserva" [class.estado-reserva--cancelada]="reserva.estado === EstadoReservaSala.Cancelada" [class.estado-reserva--finalizada]="!estaVigente(reserva) && reserva.estado !== EstadoReservaSala.Cancelada">{{ estaVigente(reserva) ? 'Vigente' : reserva.estado === EstadoReservaSala.Cancelada ? 'Cancelada' : 'Finalizada' }}</span></td>
+            </tr>
+            <tr *ngIf="reservasFiltradas.length === 0"><td colspan="7" class="sin-resultados">No hay reservas para mostrar en esta sala.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</section>
