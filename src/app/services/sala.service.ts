@@ -139,6 +139,26 @@ export class SalaService {
         );
     }
 
+    // HU-A10: cambiar estado de una sala, exclusivamente como administrador.
+    public cambiarEstadoSala(salaId: number, habilitar: boolean): { ok: boolean; mensaje: string } {
+        if (!this.loginService.isAdmin()) {
+            return { ok: false, mensaje: 'No tienes permisos administrativos.' };
+        }
+        const sala = this.salas.find(s => s.id === salaId);
+        if (!sala) return { ok: false, mensaje: 'La sala no existe.' };
+        if (sala.activa === habilitar) {
+            return { ok: false, mensaje: 'La sala ya tiene ese estado.' };
+        }
+        if (!habilitar && this.reservas.some(r =>
+            r.salaId === salaId && r.estado === EstadoReservaSala.Confirmada &&
+            !this.yaPaso(r.fecha, r.horaFin)
+        )) {
+            return { ok: false, mensaje: 'No se puede cerrar: existen reservas vigentes.' };
+        }
+        sala.activa = habilitar;
+        return { ok: true, mensaje: habilitar ? 'Sala habilitada correctamente.' : 'Sala cerrada correctamente.' };
+    }
+
     // Próximas reservas de sala del ciudadano en sesión
     public getMisReservasSala(): Observable<IReservaSala[]> {
         const usuario = this.loginService.getUsuarioActual();
