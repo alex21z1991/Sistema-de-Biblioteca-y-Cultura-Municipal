@@ -91,6 +91,12 @@ export const routes: Routes = [
         canActivate: [CiudadanoGuard]
       },
       {
+        path: 'admin-salas',
+        data: { seccion: 'administracion' },
+        loadComponent: () => import('./components/admin-salas/admin-salas.component').then(m => m.AdminSalasComponent),
+        canActivate: [AdminGuard]
+      },
+      {
         path: 'admin-devoluciones',
         data: { seccion: 'administracion' },
         component: AdminDevolucionComponent,
